@@ -14,7 +14,7 @@ struct ContentView: View {
     var body: some View {
         Text("test test")
         
-        // 初push?
+        // 初push??
     }
 
 }
