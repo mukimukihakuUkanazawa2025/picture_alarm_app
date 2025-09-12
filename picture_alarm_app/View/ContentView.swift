@@ -23,7 +23,7 @@ struct ContentView: View {
                     Image(systemName: "deskclock")
                     Text("アラーム")
                 }
-            Profile()
+            ProfileView()
                 .tabItem {
                     Image(systemName: "person.crop.circle.fill")
                     Text("プロフィール")
