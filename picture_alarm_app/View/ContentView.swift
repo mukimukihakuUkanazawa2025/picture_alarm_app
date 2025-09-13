@@ -17,7 +17,7 @@ struct ContentView: View {
             TLView()
                 .tabItem {
                         Image(systemName: "house")
-                        Text("タイムライン")
+                        Text("タイムライン a")
                 }
             AlermView()
                 .tabItem {
