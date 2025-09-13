@@ -12,6 +12,7 @@ struct ContentView: View {
    
 
     var body: some View {
+
         TabView {
             TLView()
                 .tabItem {
@@ -29,6 +30,7 @@ struct ContentView: View {
                     Text("プロフィール")
                 }
         }
+
     }
 
 }
