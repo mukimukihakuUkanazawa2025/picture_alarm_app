@@ -13,6 +13,7 @@ struct ContentView: View {
 
     var body: some View {
         Text("test test")
+        Text("github test")
     }
 
 }
