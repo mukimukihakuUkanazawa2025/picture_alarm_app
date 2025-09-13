@@ -46,9 +46,30 @@
 		23EC16702E733F62000AEBCD /* picture_alarm_appUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = picture_alarm_appUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		6FBD84C62E75CC9A00B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"GoogleService-Info.plist",
+			);
+			target = 23EC16652E733F62000AEBCD /* picture_alarm_appTests */;
+		};
+		6FBD84C72E75CC9A00B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"GoogleService-Info.plist",
+			);
+			target = 23EC166F2E733F62000AEBCD /* picture_alarm_appUITests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		23EC16592E733F60000AEBCD /* picture_alarm_app */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				6FBD84C62E75CC9A00B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appTests" target */,
+				6FBD84C72E75CC9A00B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appUITests" target */,
+			);
 			path = picture_alarm_app;
 			sourceTree = "<group>";
 		};
@@ -445,7 +466,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D9VDQ6Y49A;
+				DEVELOPMENT_TEAM = 6HY8YSMK7C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -458,7 +479,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "app.hakuu.mukimuki.picture-alarm-app";
+				PRODUCT_BUNDLE_IDENTIFIER = "app.hakuu.mukimuki.picture-alarm-app.hirakei";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -473,7 +494,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D9VDQ6Y49A;
+				DEVELOPMENT_TEAM = 6HY8YSMK7C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -486,7 +507,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "app.hakuu.mukimuki.picture-alarm-app";
+				PRODUCT_BUNDLE_IDENTIFIER = "app.hakuu.mukimuki.picture-alarm-app.hirakei";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
