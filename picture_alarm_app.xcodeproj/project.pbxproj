@@ -21,6 +21,7 @@
 		23EC169B2E734BC1000AEBCD /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 23EC169A2E734BC1000AEBCD /* FirebaseRemoteConfig */; };
 		23EC169D2E734BC1000AEBCD /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 23EC169C2E734BC1000AEBCD /* FirebaseStorage */; };
 		23EC169F2E734BC1000AEBCD /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 23EC169E2E734BC1000AEBCD /* FirebaseStorageCombine-Community */; };
+		6908D9362E764B32006C360E /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 6908D9352E764B32006C360E /* FirebaseCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +71,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				23EC16992E734BC1000AEBCD /* FirebaseInstallations in Frameworks */,
+				6908D9362E764B32006C360E /* FirebaseCore in Frameworks */,
 				23EC168B2E734BC1000AEBCD /* FirebaseAnalyticsIdentitySupport in Frameworks */,
 				23EC168F2E734BC1000AEBCD /* FirebaseAuthCombine-Community in Frameworks */,
 				23EC169B2E734BC1000AEBCD /* FirebaseRemoteConfig in Frameworks */,
@@ -157,6 +159,7 @@
 				23EC169A2E734BC1000AEBCD /* FirebaseRemoteConfig */,
 				23EC169C2E734BC1000AEBCD /* FirebaseStorage */,
 				23EC169E2E734BC1000AEBCD /* FirebaseStorageCombine-Community */,
+				6908D9352E764B32006C360E /* FirebaseCore */,
 			);
 			productName = picture_alarm_app;
 			productReference = 23EC16572E733F60000AEBCD /* picture_alarm_app.app */;
@@ -688,6 +691,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 23EC16832E734BC1000AEBCD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = "FirebaseStorageCombine-Community";
+		};
+		6908D9352E764B32006C360E /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 23EC16832E734BC1000AEBCD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
