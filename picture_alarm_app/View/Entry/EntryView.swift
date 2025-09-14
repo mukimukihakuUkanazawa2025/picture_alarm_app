@@ -8,77 +8,63 @@
 import SwiftUI
 
 struct EntryView: View {
-    @State private var showLoginView: Bool = false
-    @State private var showSignUpView: Bool = false
-    @State private var isSignedUp = false
+    @State private var navigateToLogin = false
+    @State private var navigateToSignUp = false
+    @State private var navigateToContent = false
     
     var body: some View {
-        NavigationStack{
-            ZStack{
-                VStack(spacing: 40) {
-                    Spacer()
-                    Text("寝顔人質カメラ")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                    
-                    VStack(spacing: 20) {
-                        Button {
-                            showLoginView = true
-                        } label: {
-                            Text("ログイン")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.orange)
-                                .cornerRadius(12)
-                            
-                        }
-                        .fullScreenCover(isPresented: $showLoginView) {
-                            LoginView()
-                        }
-                        
-                        Button {
-                            showSignUpView = true
-                        } label: {
-                            Text("アカウント作成")
-                                .font(.headline)
-                                .foregroundColor(.black)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.white)
-                                .cornerRadius(12)
-                            //                            .overlay(
-                            //                                RoundedRectangle(cornerRadius: 12)
-                            //                                    .stroke(Color.blue, lineWidth: 2)
-                            //                            )
-                        }
-                        .fullScreenCover(isPresented: $showSignUpView) {
-                            SignUpView(
-                                onSuccess: {
-                                    self.isSignedUp = true
-                                    self.showSignUpView = false
-                                }
-                            )
-                        }
+        NavigationStack {
+            VStack(spacing: 40) {
+                Spacer()
+                
+                Text("寝顔人質カメラ")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                
+                VStack(spacing: 20) {
+                    // ログイン
+                    NavigationLink(destination: LoginView(onSuccess: {
+                        self.navigateToContent = true
+                    }), isActive: $navigateToLogin) {
+                        Text("ログイン")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.orange)
+                            .cornerRadius(12)
                     }
-                    .padding(.horizontal, 32)
                     
-                    Spacer()
+                    // サインアップ
+                    NavigationLink(destination: SignUpView(onSuccess: {
+                        self.navigateToContent = true
+                    }), isActive: $navigateToSignUp) {
+                        Text("アカウント作成")
+                            .font(.headline)
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(12)
+                    }
                 }
-                .background(.black)
-                .ignoresSafeArea()
+                .padding(.horizontal, 32)
+                
+                Spacer()
+                
+                // 成功したら ContentView へ
+                NavigationLink(destination: ContentView(),
+                               isActive: $navigateToContent,
+                               label: { EmptyView() })
             }
-            
-            .navigationDestination(isPresented:$isSignedUp){
-                ContentView()
-            }
-            
+            .background(.black)
+            .ignoresSafeArea()
         }
     }
 }
+
 #Preview {
     EntryView()
 }
