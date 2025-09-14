@@ -15,23 +15,25 @@ struct ProfileView: View {
     @State var showSettingView: Bool = false
     
     var body: some View {
-        Button {
-            showAddFriendView.toggle()
-        } label: {
-            Text("フレンド追加画面へ")
-        }
-        .fullScreenCover(isPresented: $showAddFriendView) {
-            AddFriendView()
-        }
-        
-        
-        Button {
-            showSettingView.toggle()
-        } label: {
-            Text("設定画面へ")
-        }
-        .fullScreenCover(isPresented: $showSettingView) {
-            SettingView()
+        VStack {
+            Button {
+                showAddFriendView.toggle()
+            } label: {
+                Text("フレンド追加画面へ")
+            }
+            .fullScreenCover(isPresented: $showAddFriendView) {
+                AddFriendView()
+            }
+            
+            
+            Button {
+                showSettingView.toggle()
+            } label: {
+                Text("設定画面へ")
+            }
+            .fullScreenCover(isPresented: $showSettingView) {
+                SettingView()
+            }
         }
     }
 }
