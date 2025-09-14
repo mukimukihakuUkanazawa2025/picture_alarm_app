@@ -39,7 +39,40 @@
 		23EC16702E733F62000AEBCD /* picture_alarm_appUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = picture_alarm_appUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		6FBD850B2E75DE4700B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"GoogleService-Info.plist",
+				View/Entry/EntryView.swift,
+				View/Entry/LoginView.swift,
+				View/Entry/SignUpView.swift,
+			);
+			target = 23EC16652E733F62000AEBCD /* picture_alarm_appTests */;
+		};
+		6FBD850C2E75DE4700B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"GoogleService-Info.plist",
+				View/Entry/EntryView.swift,
+				View/Entry/LoginView.swift,
+				View/Entry/SignUpView.swift,
+			);
+			target = 23EC166F2E733F62000AEBCD /* picture_alarm_appUITests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		23EC16592E733F60000AEBCD /* picture_alarm_app */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				6FBD850B2E75DE4700B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appTests" target */,
+				6FBD850C2E75DE4700B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appUITests" target */,
+			);
+			path = picture_alarm_app;
+			sourceTree = "<group>";
+		};
+
 		23EC16692E733F62000AEBCD /* picture_alarm_appTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = picture_alarm_appTests;
