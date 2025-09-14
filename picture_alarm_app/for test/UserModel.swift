@@ -8,7 +8,6 @@
 import Foundation
 import FirebaseCore
 import FirebaseFirestore
-import FirebaseAuth
 
 struct User: Identifiable {
     var id: String
