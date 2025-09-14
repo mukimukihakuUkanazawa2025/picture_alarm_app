@@ -43,20 +43,26 @@
 		6FBD87442E76DBA300B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				View/Entry/AuthService.swift,
+				Model/FriendRequest.swift,
+				Service/AuthService.swift,
+				Service/UserService.swift,
 				View/Entry/LoginViewModel.swift,
 				View/Entry/SignUpViewModel.swift,
-				View/Entry/UserService.swift,
+				View/Entry/UserProfileViewModel.swift,
+				View/Profile/UserProfileView.swift,
 			);
 			target = 23EC16652E733F62000AEBCD /* picture_alarm_appTests */;
 		};
 		6FBD87452E76DBA300B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appUITests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				View/Entry/AuthService.swift,
+				Model/FriendRequest.swift,
+				Service/AuthService.swift,
+				Service/UserService.swift,
 				View/Entry/LoginViewModel.swift,
 				View/Entry/SignUpViewModel.swift,
-				View/Entry/UserService.swift,
+				View/Entry/UserProfileViewModel.swift,
+				View/Profile/UserProfileView.swift,
 			);
 			target = 23EC166F2E733F62000AEBCD /* picture_alarm_appUITests */;
 		};
