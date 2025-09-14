@@ -3,7 +3,7 @@
 //  picture_alarm_app
 //
 //  Created by Keiju Hiramoto on 2025/09/14.
-//
+// バグメモ→Authだけ保存してFireStoreに保存されないことがある。2025/09/14/16:32
 
 import SwiftUI
 import FirebaseAuth
