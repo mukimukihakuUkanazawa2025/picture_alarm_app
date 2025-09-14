@@ -6,7 +6,6 @@
 //
 
 import Testing
-import FirebaseCore
 @testable import picture_alarm_app
 
 struct picture_alarm_appTests {
