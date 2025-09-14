@@ -26,7 +26,9 @@ struct AddFriendView: View {
                                 switch status {
                                 case .canRequest:
                                     Button("追加") {
-                                        viewModel.sendFriendRequest(to: user)
+                                        Task{
+                                            await viewModel.sendFriendRequest(to: user)
+                                        }
                                     }
                                     .buttonStyle(.borderedProminent)
                                 case .requestSent:

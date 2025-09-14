@@ -1,138 +1,167 @@
-//
-//  UserService.swift
-//  picture_alarm_app
-//
-//  Created by Keiju Hiramoto on 2025/09/14.
-//
-
-import SwiftUI
 import Foundation
 import FirebaseFirestore
 import FirebaseAuth
 
-// ユーザーのデータベース処理を専門に担当するクラス
 class UserService {
     static let shared = UserService()
-    private init() {}
-    
     private let db = Firestore.firestore()
-    
+    private init() {}
+
     /// Authで作成されたユーザー情報をFirestoreに保存する
-    func saveUser(authData: FirebaseAuth.User, name: String, completion: @escaping (Error?) -> Void) {
-        let user = User(id: authData.uid, name: name, createAt: Timestamp())
+    func saveUser(authData: FirebaseAuth.User, name: String) async throws {
+        let user = User(
+            id: authData.uid,
+            name: name,
+            createAt: Timestamp(),
+            name_lowercase: name.lowercased() // 検索用の小文字の名前も保持
+        )
         
+        // Firestoreに保存するための辞書データを作成
         let userData: [String: Any] = [
             "id": user.id,
             "name": user.name,
-            "createAt": user.createAt
+            "createAt": user.createAt,
+            "name_lowercase": user.name_lowercase ?? ""
         ]
         
         // ドキュメントIDをAuthのUIDと一致させて保存
-        db.collection("users").document(user.id).setData(userData, completion: completion)
+        try await db.collection("users").document(user.id).setData(userData)
     }
-    // --- ここから友達機能 ---
 
-        /// 友達申請を送る
-        /// - Parameters:
-        ///   - toUserId: 申請を送る相手のUID
-        ///   - fromUserId: 自分のUID
-        func sendFriendRequest(to toUserId: String, from fromUserId: String, completion: @escaping (Error?) -> Void) {
-            let requestData: [String: Any] = [
-                "fromId": fromUserId,
-                "toId": toUserId,
-                "status": "pending",
-                "createdAt": Timestamp(date: Date())
-            ]
-            
-            db.collection("friend_requests").addDocument(data: requestData, completion: completion)
+    /// 友達申請を送る
+    func sendFriendRequest(to toUserId: String, from fromUserId: String) async throws {
+        let requestData: [String: Any] = [
+            "fromId": fromUserId,
+            "toId": toUserId,
+            "status": "pending",
+            "createdAt": Timestamp(date: Date())
+        ]
+        
+        // addDocumentは完了ハンドラしか持たないため、`withCheckedThrowingContinuation`でラップする
+        try await db.collection("friend_requests").addDocument(data: requestData)
+    }
+
+    /// 友達申請を承認する
+    func acceptFriendRequest(_ request: FriendRequest) async throws {
+        let batch = db.batch()
+        
+        let requestRef = db.collection("friend_requests").document(request.id)
+        batch.deleteDocument(requestRef)
+        
+        let currentUserFriendRef = db.collection("users").document(request.toId).collection("friends").document(request.fromId)
+        batch.setData(["friendshipDate": Timestamp(date: Date())], forDocument: currentUserFriendRef)
+        
+        let senderUserFriendRef = db.collection("users").document(request.fromId).collection("friends").document(request.toId)
+        batch.setData(["friendshipDate": Timestamp(date: Date())], forDocument: senderUserFriendRef)
+        
+        try await batch.commit()
+    }
+
+    /// 友達申請を拒否またはキャンセルする
+    func declineFriendRequest(requestId: String) async throws {
+        try await db.collection("friend_requests").document(requestId).delete()
+    }
+
+    /// 自分に届いている友達申請リストを取得する
+    func fetchIncomingFriendRequests(for userId: String) async throws -> [FriendRequest] {
+        let snapshot = try await db.collection("friend_requests")
+                                   .whereField("toId", isEqualTo: userId)
+                                   .whereField("status", isEqualTo: "pending")
+                                   .getDocuments()
+        
+        let requests = snapshot.documents.compactMap { doc -> FriendRequest? in
+            let data = doc.data()
+            return FriendRequest(
+                id: doc.documentID,
+                fromId: data["fromId"] as? String ?? "",
+                toId: data["toId"] as? String ?? "",
+                status: data["status"] as? String ?? "",
+                createdAt: data["createdAt"] as? Timestamp ?? Timestamp()
+            )
+        }
+        return requests
+    }
+    
+    /// ユーザー名（完全一致・大文字小文字を区別しない）でユーザーを検索する
+    func searchUsers(byName nameQuery: String) async throws -> [User] {
+        if nameQuery.isEmpty {
+            return []
         }
         
-        /// 友達申請を承認する
-        /// - Parameter request: 承認するFriendRequestオブジェクト
-        func acceptFriendRequest(_ request: FriendRequest, completion: @escaping (Error?) -> Void) {
-            // バッチ書き込みを開始
-            let batch = db.batch()
+        let snapshot = try await db.collection("users")
+                                   .whereField("name_lowercase", isEqualTo: nameQuery.lowercased())
+                                   .getDocuments()
+        
+        let users = snapshot.documents.compactMap { doc -> User? in
+            let data = doc.data()
+            let id = data["id"] as? String ?? ""
             
-            // 1. 申請ドキュメントを削除
-            let requestRef = db.collection("friend_requests").document(request.id)
-            batch.deleteDocument(requestRef)
+            if id == Auth.auth().currentUser?.uid { return nil }
             
-            // 2. 自分のfriendsサブコレクションに相手を追加
-            let currentUserFriendRef = db.collection("users").document(request.toId).collection("friends").document(request.fromId)
-            batch.setData(["friendshipDate": Timestamp(date: Date())], forDocument: currentUserFriendRef)
-            
-            // 3. 相手のfriendsサブコレクションに自分を追加
-            let senderUserFriendRef = db.collection("users").document(request.fromId).collection("friends").document(request.toId)
-            batch.setData(["friendshipDate": Timestamp(date: Date())], forDocument: senderUserFriendRef)
-            
-            // 3つの処理をまとめて実行
-            batch.commit(completion: completion)
+            return User(
+                id: id,
+                name: data["name"] as? String ?? "",
+                createAt: data["createAt"] as? Timestamp ?? Timestamp(),
+                name_lowercase: data["name_lowercase"] as? String ?? ""
+            )
         }
-
-        /// 友達申請を拒否またはキャンセルする
-        /// - Parameter requestId: 拒否/キャンセルする申請ドキュメントのID
-        func declineFriendRequest(requestId: String, completion: @escaping (Error?) -> Void) {
-            db.collection("friend_requests").document(requestId).delete(completion: completion)
-        }
-
-        /// 自分に届いている友達申請リストを取得する
-        /// - Parameter userId: 自分のUID
-        func fetchIncomingFriendRequests(for userId: String, completion: @escaping ([FriendRequest]?, Error?) -> Void) {
-            db.collection("friend_requests")
-              .whereField("toId", isEqualTo: userId)
-              .whereField("status", isEqualTo: "pending")
-              .getDocuments { snapshot, error in
-                if let error = error {
-                    completion(nil, error)
-                    return
-                }
-                
-                let requests = snapshot?.documents.compactMap { doc -> FriendRequest? in
-                    let data = doc.data()
-                    return FriendRequest(
-                        id: doc.documentID,
-                        fromId: data["fromId"] as? String ?? "",
-                        toId: data["toId"] as? String ?? "",
-                        status: data["status"] as? String ?? "",
-                        createdAt: data["createdAt"] as? Timestamp ?? Timestamp()
-                    )
-                }
-                completion(requests, nil)
+        return users
+    }
+    
+    /// ユーザーIDを指定して、単一のユーザー情報を取得する
+    func fetchUser(withId uid: String) async throws -> User? {
+        let document = try await db.collection("users").document(uid).getDocument()
+        
+        guard let data = document.data() else { return nil }
+        
+        return User(
+            id: data["id"] as? String ?? "",
+            name: data["name"] as? String ?? "",
+            createAt: data["createAt"] as? Timestamp ?? Timestamp(),
+            name_lowercase: data["name_lowercase"] as? String ?? ""
+        )
+    }
+    /// 2人のユーザーが既に友達かどうかをチェックする
+        func checkIfFriends(userId1: String, userId2: String) async -> Bool {
+            let docRef = db.collection("users").document(userId1).collection("friends").document(userId2)
+            do {
+                return try await docRef.getDocument().exists
+            } catch {
+                return false
             }
         }
-    /// ユーザー名（完全一致）でユーザーを検索する
-       func searchUsers(byName nameQuery: String, completion: @escaping ([User]?, Error?) -> Void) {
-           if nameQuery.isEmpty {
-               completion([], nil)
-               return
-           }
-           
-           // ▼▼▼ このクエリ部分だけを変更します ▼▼▼
-           db.collection("users")
-             .whereField("name", isEqualTo: nameQuery) // "isEqualTo" で完全一致検索
-             .getDocuments { snapshot, error in
-           // ▲▲▲ このクエリ部分だけを変更します ▲▲▲
-               
-               if let error = error {
-                   completion(nil, error)
-                   return
-               }
-               
-               let users = snapshot?.documents.compactMap { doc -> User? in
-                   let data = doc.data()
-                   let id = data["id"] as? String ?? ""
-                   
-                   if id == Auth.auth().currentUser?.uid {
-                       return nil
-                   }
-                   
-                   return User(
-                       id: id,
-                       name: data["name"] as? String ?? "",
-                       createAt: data["createAt"] as? Timestamp ?? Timestamp()
-                   )
-               }
-               completion(users, nil)
-           }
-       }
+        
+        /// 2人のユーザー間の友達申請の状態をチェックする
+        func checkFriendRequestStatus(from userId1: String, to userId2: String) async throws -> FriendRequest? {
+            // A -> B のリクエスト
+            let query1 = db.collection("friend_requests")
+                .whereField("fromId", isEqualTo: userId1)
+                .whereField("toId", isEqualTo: userId2)
+            
+            // B -> A のリクエスト
+            let query2 = db.collection("friend_requests")
+                .whereField("fromId", isEqualTo: userId2)
+                .whereField("toId", isEqualTo: userId1)
+                
+            let snapshot1 = try await query1.getDocuments()
+            if let doc = snapshot1.documents.first { return createRequest(from: doc) }
+            
+            let snapshot2 = try await query2.getDocuments()
+            if let doc = snapshot2.documents.first { return createRequest(from: doc) }
+            
+            return nil
+        }
+
+        // `checkFriendRequestStatus`が使うヘルパー関数
+        private func createRequest(from doc: QueryDocumentSnapshot) -> FriendRequest {
+            let data = doc.data()
+            return FriendRequest(
+                id: doc.documentID,
+                fromId: data["fromId"] as? String ?? "",
+                toId: data["toId"] as? String ?? "",
+                status: data["status"] as? String ?? "",
+                createdAt: data["createdAt"] as? Timestamp ?? Timestamp()
+            )
+        }
     }
+

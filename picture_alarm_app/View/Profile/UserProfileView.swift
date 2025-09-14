@@ -37,7 +37,9 @@ struct UserProfileView: View {
                 switch viewModel.friendshipStatus {
                 case .none:
                     Button("🤝 友達になる") {
-                        viewModel.sendRequest()
+                        Task{
+                            await viewModel.sendRequest()
+                        }
                     }
                     .buttonStyle(.borderedProminent)
                     
@@ -50,7 +52,9 @@ struct UserProfileView: View {
                     
                 case .requestReceived:
                     Button("🎉 承認する") {
-                        viewModel.acceptRequest()
+                        Task{
+                            await viewModel.acceptRequest()
+                        }
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(.green)

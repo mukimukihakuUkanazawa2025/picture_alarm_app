@@ -1,10 +1,3 @@
-//
-//  AddFriendViewModel.swift
-//  picture_alarm_app
-//
-//  Created by Keiju Hiramoto on 2025/09/14.
-//
-import SwiftUI
 import Foundation
 import Combine
 import FirebaseAuth
@@ -29,37 +22,45 @@ class AddFriendViewModel: ObservableObject {
             .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
             .removeDuplicates()
             .sink { [weak self] query in
-                self?.performSearch(query: query)
+                // async関数を呼び出すためにTaskで囲む
+                Task {
+                    await self?.performSearch(query: query)
+                }
             }
             .store(in: &cancellables)
     }
     
-    func performSearch(query: String) {
+    /// 検索を実行する
+    func performSearch(query: String) async {
         isLoading = true
-        UserService.shared.searchUsers(byName: query) { [weak self] users, error in
-            self?.isLoading = false
-            if let users = users {
-                self?.searchResults = users
-                users.forEach { user in
-                    self?.requestStatus[user.id] = .canRequest
-                }
+        defer { isLoading = false } // 関数を抜けるときに必ず実行される
+        
+        do {
+            let users = try await UserService.shared.searchUsers(byName: query)
+            self.searchResults = users
+            // 新しい検索結果の申請状況を初期化
+            users.forEach { user in
+                self.requestStatus[user.id] = .canRequest
             }
+        } catch {
+            print("Error searching users: \(error.localizedDescription)")
+            self.searchResults = [] // エラー時は結果をクリア
         }
     }
     
-    func sendFriendRequest(to user: User) {
+    /// 友達申請を送る
+    func sendFriendRequest(to user: User) async {
         guard let currentUserId = self.currentUserId else { return }
         
+        // UIに即時反映
         requestStatus[user.id] = .requestSent
         
-        UserService.shared.sendFriendRequest(to: user.id, from: currentUserId) { error in
-            if let error = error {
-                print("Error sending friend request: \(error.localizedDescription)")
-                self.requestStatus[user.id] = .canRequest
-            }
+        do {
+            try await UserService.shared.sendFriendRequest(to: user.id, from: currentUserId)
+        } catch {
+            print("Error sending friend request: \(error.localizedDescription)")
+            // エラーが起きたらボタンを元に戻す
+            self.requestStatus[user.id] = .canRequest
         }
     }
 }
-//#Preview {
-//    AddFriendViewModel()
-//}
