@@ -50,6 +50,7 @@
 		6FBD850B2E75DE4700B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"GoogleService-Info.plist",
 				View/Entry/EntryView.swift,
 				View/Entry/LoginView.swift,
 				View/Entry/SignUpView.swift,
@@ -59,6 +60,7 @@
 		6FBD850C2E75DE4700B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appUITests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"GoogleService-Info.plist",
 				View/Entry/EntryView.swift,
 				View/Entry/LoginView.swift,
 				View/Entry/SignUpView.swift,

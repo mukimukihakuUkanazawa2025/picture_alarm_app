@@ -8,10 +8,33 @@
 import SwiftUI
 
 struct EntryView: View {
+    @State var showLoginView: Bool = false
+    @State var showSignUpView: Bool = false
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack{
+            Text("寝顔人質カメラ")
+            Button{
+                showLoginView = true
+            }label: {
+                Text("ログイン")
+            }
+            .fullScreenCover(isPresented: $showLoginView){
+                LoginView()
+            }
+            Button{
+                showSignUpView = true
+            }label: {
+                Text("アカウント作成")
+            }
+            .fullScreenCover(isPresented: $showSignUpView){
+                SignUpView()
+            }
+        }
+        }
+        
     }
-}
+
 
 #Preview {
     EntryView()
