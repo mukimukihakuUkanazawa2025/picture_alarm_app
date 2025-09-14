@@ -18,20 +18,7 @@ struct TLView: View {
     var body: some View {
         VStack {
             Text("タイムライン画面")
-            
-            TextField("Name", text: $name)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-            
-            Button("Save") {
-                viewModel.saveUser(name: name) { error in
-                    if let error = error {
-                        print("Error: \(error.localizedDescription)")
-                    } else {
-                        print("User saved successfully!")
-                    }
-                }
-            }
+    
         }
     }
 }

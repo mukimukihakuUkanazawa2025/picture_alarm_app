@@ -10,7 +10,7 @@ import FirebaseCore
 import FirebaseFirestore
 import FirebaseAuth
 
-struct User {
+struct User: Identifiable {
     var id: String
     var name: String
     var createAt: Timestamp

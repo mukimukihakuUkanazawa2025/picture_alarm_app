@@ -40,11 +40,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		23EC16592E733F60000AEBCD /* picture_alarm_app */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = picture_alarm_app;
-			sourceTree = "<group>";
-		};
 		23EC16692E733F62000AEBCD /* picture_alarm_appTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = picture_alarm_appTests;
@@ -53,6 +48,11 @@
 		23EC16732E733F62000AEBCD /* picture_alarm_appUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = picture_alarm_appUITests;
+			sourceTree = "<group>";
+		};
+		4248CC7E2E769454004F0075 /* picture_alarm_app */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = picture_alarm_app;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -92,11 +92,11 @@
 		23EC164E2E733F60000AEBCD = {
 			isa = PBXGroup;
 			children = (
-				23EC16592E733F60000AEBCD /* picture_alarm_app */,
 				23EC16692E733F62000AEBCD /* picture_alarm_appTests */,
 				23EC16732E733F62000AEBCD /* picture_alarm_appUITests */,
 				4248CBDA2E766B03004F0075 /* Frameworks */,
 				23EC16582E733F60000AEBCD /* Products */,
+				4248CC7E2E769454004F0075 /* picture_alarm_app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -133,7 +133,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				23EC16592E733F60000AEBCD /* picture_alarm_app */,
+				4248CC7E2E769454004F0075 /* picture_alarm_app */,
 			);
 			name = picture_alarm_app;
 			packageProductDependencies = (
