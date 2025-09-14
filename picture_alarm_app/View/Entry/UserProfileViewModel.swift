@@ -8,6 +8,8 @@
 import SwiftUI
 import Foundation
 import FirebaseAuth
+import FirebaseCore
+import FirebaseFirestore
 
 @MainActor
 class UserProfileViewModel: ObservableObject {

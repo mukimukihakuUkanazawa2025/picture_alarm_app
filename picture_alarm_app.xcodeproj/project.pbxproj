@@ -49,6 +49,7 @@
 				View/Entry/LoginViewModel.swift,
 				View/Entry/SignUpViewModel.swift,
 				View/Entry/UserProfileViewModel.swift,
+				View/Profile/AddFriendViewModel.swift,
 				View/Profile/UserProfileView.swift,
 			);
 			target = 23EC16652E733F62000AEBCD /* picture_alarm_appTests */;
@@ -62,6 +63,7 @@
 				View/Entry/LoginViewModel.swift,
 				View/Entry/SignUpViewModel.swift,
 				View/Entry/UserProfileViewModel.swift,
+				View/Profile/AddFriendViewModel.swift,
 				View/Profile/UserProfileView.swift,
 			);
 			target = 23EC166F2E733F62000AEBCD /* picture_alarm_appUITests */;

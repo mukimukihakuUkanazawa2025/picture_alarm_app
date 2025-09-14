@@ -100,4 +100,39 @@ class UserService {
                 completion(requests, nil)
             }
         }
+    /// ユーザー名（完全一致）でユーザーを検索する
+       func searchUsers(byName nameQuery: String, completion: @escaping ([User]?, Error?) -> Void) {
+           if nameQuery.isEmpty {
+               completion([], nil)
+               return
+           }
+           
+           // ▼▼▼ このクエリ部分だけを変更します ▼▼▼
+           db.collection("users")
+             .whereField("name", isEqualTo: nameQuery) // "isEqualTo" で完全一致検索
+             .getDocuments { snapshot, error in
+           // ▲▲▲ このクエリ部分だけを変更します ▲▲▲
+               
+               if let error = error {
+                   completion(nil, error)
+                   return
+               }
+               
+               let users = snapshot?.documents.compactMap { doc -> User? in
+                   let data = doc.data()
+                   let id = data["id"] as? String ?? ""
+                   
+                   if id == Auth.auth().currentUser?.uid {
+                       return nil
+                   }
+                   
+                   return User(
+                       id: id,
+                       name: data["name"] as? String ?? "",
+                       createAt: data["createAt"] as? Timestamp ?? Timestamp()
+                   )
+               }
+               completion(users, nil)
+           }
+       }
     }
