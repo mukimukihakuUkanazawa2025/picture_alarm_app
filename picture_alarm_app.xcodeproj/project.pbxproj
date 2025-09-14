@@ -6,6 +6,14 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4248CB8D2E7661D7004F0075 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 4248CB8C2E7661D7004F0075 /* FirebaseAI */; };
+		4248CB8F2E7661D7004F0075 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 4248CB8E2E7661D7004F0075 /* FirebaseAnalytics */; };
+		4248CB912E7661D7004F0075 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4248CB902E7661D7004F0075 /* FirebaseAnalyticsCore */; };
+		4248CB932E7661D7004F0075 /* FirebaseAnalyticsIdentitySupport in Frameworks */ = {isa = PBXBuildFile; productRef = 4248CB922E7661D7004F0075 /* FirebaseAnalyticsIdentitySupport */; };
+		4248CB952E7661D7004F0075 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 4248CB942E7661D7004F0075 /* FirebaseAppCheck */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		23EC16672E733F62000AEBCD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +60,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4248CB932E7661D7004F0075 /* FirebaseAnalyticsIdentitySupport in Frameworks */,
+				4248CB8F2E7661D7004F0075 /* FirebaseAnalytics in Frameworks */,
+				4248CB912E7661D7004F0075 /* FirebaseAnalyticsCore in Frameworks */,
+				4248CB952E7661D7004F0075 /* FirebaseAppCheck in Frameworks */,
+				4248CB8D2E7661D7004F0075 /* FirebaseAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +125,11 @@
 			);
 			name = picture_alarm_app;
 			packageProductDependencies = (
+				4248CB8C2E7661D7004F0075 /* FirebaseAI */,
+				4248CB8E2E7661D7004F0075 /* FirebaseAnalytics */,
+				4248CB902E7661D7004F0075 /* FirebaseAnalyticsCore */,
+				4248CB922E7661D7004F0075 /* FirebaseAnalyticsIdentitySupport */,
+				4248CB942E7661D7004F0075 /* FirebaseAppCheck */,
 			);
 			productName = picture_alarm_app;
 			productReference = 23EC16572E733F60000AEBCD /* picture_alarm_app.app */;
@@ -572,6 +590,34 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4248CB8C2E7661D7004F0075 /* FirebaseAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4248CB4B2E764A9A004F0075 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAI;
+		};
+		4248CB8E2E7661D7004F0075 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4248CB4B2E764A9A004F0075 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		4248CB902E7661D7004F0075 /* FirebaseAnalyticsCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4248CB4B2E764A9A004F0075 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsCore;
+		};
+		4248CB922E7661D7004F0075 /* FirebaseAnalyticsIdentitySupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4248CB4B2E764A9A004F0075 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsIdentitySupport;
+		};
+		4248CB942E7661D7004F0075 /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4248CB4B2E764A9A004F0075 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 23EC164F2E733F60000AEBCD /* Project object */;
 }
