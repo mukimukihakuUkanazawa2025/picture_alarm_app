@@ -8,10 +8,18 @@
 // 自分や他人の投稿を表示する画面
 
 import SwiftUI
+import FirebaseFirestore
 
 struct TLView: View {
+    
+    @State private var name: String = ""
+    @ObservedObject private var viewModel = UserViewModel()
+    
     var body: some View {
-        Text("タイムライン画面")
+        VStack {
+            Text("タイムライン画面")
+    
+        }
     }
 }
 
