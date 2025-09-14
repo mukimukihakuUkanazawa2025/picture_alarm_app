@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyCMnqnJ42_zl16J5qpVX6mvB68QALJgx_M</string>
+	<key>GCM_SENDER_ID</key>
+	<string>463699516334</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>app.haku.mukimuki.picture-alarm-app</string>
+	<key>PROJECT_ID</key>
+	<string>picture-alarm-app-chamik-34aac</string>
+	<key>STORAGE_BUCKET</key>
+	<string>picture-alarm-app-chamik-34aac.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:463699516334:ios:c8cb2dd16fbdceda23c63f</string>
+</dict>
+</plist>

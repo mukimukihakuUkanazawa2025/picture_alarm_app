@@ -24,7 +24,6 @@
 		6908D9362E764B32006C360E /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 6908D9352E764B32006C360E /* FirebaseCore */; };
 /* End PBXBuildFile section */
 
-
 /* Begin PBXContainerItemProxy section */
 		23EC16672E733F62000AEBCD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -71,7 +70,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-
 				23EC16992E734BC1000AEBCD /* FirebaseInstallations in Frameworks */,
 				6908D9362E764B32006C360E /* FirebaseCore in Frameworks */,
 				23EC168B2E734BC1000AEBCD /* FirebaseAnalyticsIdentitySupport in Frameworks */,
@@ -87,7 +85,6 @@
 				23EC16892E734BC1000AEBCD /* FirebaseAnalyticsCore in Frameworks */,
 				23EC16932E734BC1000AEBCD /* FirebaseDatabase in Frameworks */,
 				23EC16852E734BC1000AEBCD /* FirebaseAI in Frameworks */,
-
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -148,7 +145,6 @@
 			);
 			name = picture_alarm_app;
 			packageProductDependencies = (
-
 				23EC16842E734BC1000AEBCD /* FirebaseAI */,
 				23EC16862E734BC1000AEBCD /* FirebaseAnalytics */,
 				23EC16882E734BC1000AEBCD /* FirebaseAnalyticsCore */,
@@ -164,7 +160,6 @@
 				23EC169C2E734BC1000AEBCD /* FirebaseStorage */,
 				23EC169E2E734BC1000AEBCD /* FirebaseStorageCombine-Community */,
 				6908D9352E764B32006C360E /* FirebaseCore */,
-
 			);
 			productName = picture_alarm_app;
 			productReference = 23EC16572E733F60000AEBCD /* picture_alarm_app.app */;
@@ -248,6 +243,9 @@
 			);
 			mainGroup = 23EC164E2E733F60000AEBCD;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				6908D9672E765845006C360E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 23EC16582E733F60000AEBCD /* Products */;
 			projectDirPath = "";
@@ -621,6 +619,14 @@
 				minimumVersion = 12.2.0;
 			};
 		};
+		6908D9672E765845006C360E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.2.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -700,7 +706,6 @@
 			productName = FirebaseCore;
 		};
 /* End XCSwiftPackageProductDependency section */
-
 	};
 	rootObject = 23EC164F2E733F60000AEBCD /* Project object */;
 }
