@@ -40,9 +40,22 @@
 		23EC16702E733F62000AEBCD /* picture_alarm_appUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = picture_alarm_appUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		422910972E77C19600AB1777 /* Exceptions for "picture_alarm_app" folder in "picture_alarm_app" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"View/TL/post-infomation/ImagePicker.swift",
+			);
+			target = 23EC16562E733F60000AEBCD /* picture_alarm_app */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		23EC16592E733F60000AEBCD /* picture_alarm_app */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				422910972E77C19600AB1777 /* Exceptions for "picture_alarm_app" folder in "picture_alarm_app" target */,
+			);
 			path = picture_alarm_app;
 			sourceTree = "<group>";
 		};
