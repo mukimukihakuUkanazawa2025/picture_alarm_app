@@ -5,12 +5,12 @@
 //  Created by A S on 2025/09/14.
 //
 
-import Foundation
-import FirebaseCore
-import FirebaseFirestore
-
-struct User: Identifiable {
-    var id: String
-    var name: String
-    var createAt: Timestamp
-}
+//import Foundation
+//import FirebaseCore
+//import FirebaseFirestore
+//
+//struct User: Identifiable {
+//    var id: String
+//    var name: String
+//    var createAt: Timestamp
+//}
