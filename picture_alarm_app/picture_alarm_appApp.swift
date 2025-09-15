@@ -52,12 +52,20 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         }
 
 
-  var body: some Scene {
-    WindowGroup {
-      NavigationView {
-//        ContentView()
-          EntryView()
-      }
-    }
-  }
+//  var body: some Scene {
+//    WindowGroup {
+//      NavigationView {
+////        ContentView()
+//          EntryView()
+//      }
+//    }
+//  }
+        var body: some Scene {
+            WindowGroup {
+                NavigationStack {
+                    EntryView()
+                }
+                .tint(.white) // ← これが重要！NavigationStack 全体に白を適用
+            }
+        }
 }
