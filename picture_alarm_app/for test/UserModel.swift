@@ -14,4 +14,5 @@ struct User: Identifiable {
     var id: String
     var name: String
     var createAt: Timestamp
+    var name_lowercase: String?
 }

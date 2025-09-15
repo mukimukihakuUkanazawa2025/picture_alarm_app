@@ -34,7 +34,11 @@ struct SignUpView: View {
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .textInputAutocapitalization(.never)
             
-            Button(action: viewModel.register) {
+            Button(action: {
+                            Task {
+                                await viewModel.register()
+                            }
+                        }) {
                 if viewModel.isLoading {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))

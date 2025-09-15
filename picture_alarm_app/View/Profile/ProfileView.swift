@@ -13,6 +13,7 @@ struct ProfileView: View {
     
     @State var showAddFriendView: Bool = false
     @State var showSettingView: Bool = false
+    @State var showFriendRequestView: Bool = false
     
     var body: some View {
         VStack {
@@ -24,7 +25,14 @@ struct ProfileView: View {
             .fullScreenCover(isPresented: $showAddFriendView) {
                 AddFriendView()
             }
-            
+            Button {
+                showFriendRequestView.toggle()
+            } label: {
+                Text("フレンド申請確認画面へ")
+            }
+            .fullScreenCover(isPresented: $showFriendRequestView) {
+                FriendRequestsView()
+            }
             
             Button {
                 showSettingView.toggle()
