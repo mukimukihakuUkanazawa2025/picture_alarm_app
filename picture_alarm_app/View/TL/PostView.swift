@@ -15,7 +15,8 @@ struct PostView: View {
     @State var postTime: String
     @State var userComment: String
     @State var userImage: UIImage?
-    @State var postImage: UIImage?
+    @State var postImage: UIImage? = nil
+    var postImageUrl: URL? = nil
     
     var body: some View {
         HStack {
@@ -51,16 +52,43 @@ struct PostView: View {
                     Spacer()
                 }
             }
+            .padding(.trailing, 10)
             
             // 投稿写真
-            Image(uiImage: userImage ?? UIImage(systemName: "photo.artframe.circle.fill")!)
-                .resizable()
-                .foregroundStyle(.black)
-                .frame(width: 150, height: 150)
-                .clipShape(Circle())
+//            if let postImageUrl = postImageUrl {
+//                AsyncImage(url: postImageUrl) { phase in
+//                    switch phase {
+//                    case .empty:
+//                        ProgressView()
+//                            .frame(width: 150, height: 150)
+//                    case .success(let image):
+//                        image
+//                            .resizable()
+//                            .scaledToFill()
+//                            .frame(width: 150, height: 150)
+//                            .clipShape(Circle())
+//                    case .failure(_):
+//                        Image(systemName: "photo.artframe.circle.fill")
+//                            .resizable()
+//                            .foregroundStyle(.black)
+//                            .frame(width: 150, height: 150)
+//                            .clipShape(Circle())
+//                    @unknown default:
+//                        EmptyView()
+//                    }
+//                }
+//            } else {
+//                Image(systemName: "photo.artframe.circle.fill")
+//                    .resizable()
+//                    .foregroundStyle(.black)
+//                    .frame(width: 150, height: 150)
+//                    .clipShape(Circle())
+//            }
 
         }
-        .padding()
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
