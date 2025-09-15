@@ -80,7 +80,11 @@ struct SignUpView: View {
                 //                            .padding()
                 //                    }
                 //                }
-                Button(action: viewModel.register) {
+                Button(action: {
+                    Task {
+                        await viewModel.register()   // ← async 関数を Task 内で呼び出す
+                    }
+                }) {
                     if viewModel.isLoading {
                         // --- ローディング中 ---
                         HStack {
@@ -90,7 +94,6 @@ struct SignUpView: View {
                                 .foregroundColor(.white)
                                 .fontWeight(.semibold)
                         }
-
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.orange) // オレンジ背景
