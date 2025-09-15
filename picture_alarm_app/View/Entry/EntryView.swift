@@ -79,3 +79,4 @@ struct EntryView: View {
 #Preview {
     EntryView()
 }
+//developに統合するために無駄に書いたよ！
