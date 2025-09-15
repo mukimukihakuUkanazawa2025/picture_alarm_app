@@ -19,46 +19,131 @@ struct LoginView: View {
     var onSuccess: (() -> Void)? = nil
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                Text("ログイン")
-                    .font(.title)
-                
-                TextField("Email", text: $viewModel.email)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .autocapitalization(.none)
-                
-                SecureField("Password", text: $viewModel.password)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                
-                Button(action: viewModel.login) {
-                    if viewModel.isLoading {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+        ZStack{
+            Color.black
+                .ignoresSafeArea()
+            
+            NavigationStack {
+                VStack(spacing: 20) {
+                    //                    Text("ログイン")
+                    //                        .font(.title)
+                    //                        .foregroundStyle(.white)
+                    HStack{
+                        Text(" Email")
+                            .foregroundStyle(.white)
+                            .font(.system(size:24))
+                            .bold()
+                        Spacer()
+                    }
+                    TextField("", text: $viewModel.email)
+                        .padding(12)
+                        .background(Color(hex: "6A6A6A"))
+                        .cornerRadius(10)
+                        .foregroundColor(.white)
+//                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .autocapitalization(.none)
+                    HStack{
+                        Text(" パスワード")
+                            .foregroundStyle(.white)
+                            .font(.system(size:24))
+                            .bold()
+                        Spacer ()
+                    }
+                    SecureField("", text: $viewModel.password)
+                        .padding(12)
+                        .background(Color(hex: "6A6A6A"))
+                        .cornerRadius(10)
+                        .foregroundColor(.white)
+//                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding(.bottom, 80)
+                    
+                    Button(action: viewModel.login) {
+                        if viewModel.isLoading {
+                            // --- ローディング中 ---
+                            HStack {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                Text("ログイン中")
+                                    .foregroundColor(.white)
+                                    .fontWeight(.semibold)
+                            }
                             .frame(maxWidth: .infinity)
                             .padding()
-                    } else {
-                        Text("ログインする")
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
+                            .background(Color.orange) // オレンジ背景
+                            .cornerRadius(10)
+                        } else if viewModel.email.isEmpty || viewModel.password.isEmpty {
+                            // --- 未入力 ---
+                            Text("ログイン")
+                                .fontWeight(.semibold)
+                                .foregroundColor(.black) // 黒文字
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.white)
+                                .cornerRadius(10)
+                        } else {
+                            // --- 入力済み ---
+                            Text("ログイン")
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white) // 白文字
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.orange) // オレンジ背景
+                                .cornerRadius(10)
+                        }
+                    }
+                    .disabled(viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading)
+                    // --- エラーメッセージ ---
+                    if !viewModel.errorMessage.isEmpty {
+                        Text(viewModel.errorMessage)
+                            .foregroundColor(.red)
                     }
                 }
-                .background(viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading ? Color.gray : Color.blue)
-                .cornerRadius(8)
-                .disabled(viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading)
-                
-                if !viewModel.errorMessage.isEmpty {
-                    Text(viewModel.errorMessage)
-                        .foregroundColor(.red)
-                }
-            }
-            .padding()
-            
-            .onChange(of: viewModel.isLoginSuccessful){ success in
-                if success{
-                    onSuccess?()
+                    
+                    //                    Button(action: viewModel.login) {
+                    //                        if viewModel.isLoading {
+                    //                            ProgressView()
+                    //                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    //                                .frame(maxWidth: .infinity)
+                    //                                .padding()
+                    //                        } else {
+                    //                            Text("ログインする")
+                    //                                .fontWeight(.semibold)
+                    //                                .foregroundColor(.black)
+                    //                                .frame(maxWidth: .infinity)
+                    //                                .padding()
+                    //                                .background(Color.white)
+                    //                                .cornerRadius(8)
+                    //                        }
+                    //                    }
+                    //                    .background(Color.white)
+                    //                    .cornerRadius(8)
+                    //
+                    //                    .padding()
+                    //                    .background(viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading ? Color.gray : Color.blue)
+                    //                    .cornerRadius(8)
+                    //                    .disabled(viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading)
+                    //
+                    //                    if !viewModel.errorMessage.isEmpty {
+                    //                        Text(viewModel.errorMessage)
+                    //                            .foregroundColor(.red)
+                    //                    }
+                    //                }
+                    
+                        .padding()
+                        .navigationTitle("ログイン")
+                        .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            ToolbarItem(placement: .principal) {
+                                Text("ログイン")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .tint(.white)
+                        .onChange(of: viewModel.isLoginSuccessful){ success in
+                            if success{
+                                onSuccess?()
+                            }
                 }
             }
         }

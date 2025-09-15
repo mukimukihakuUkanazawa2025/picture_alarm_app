@@ -82,6 +82,11 @@
 			path = picture_alarm_app;
 			sourceTree = "<group>";
 		};
+		6908DB062E77C627006C360E /* Extention */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Extention;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,6 +124,7 @@
 		23EC164E2E733F60000AEBCD = {
 			isa = PBXGroup;
 			children = (
+				6908DB062E77C627006C360E /* Extention */,
 				23EC16692E733F62000AEBCD /* picture_alarm_appTests */,
 				23EC16732E733F62000AEBCD /* picture_alarm_appUITests */,
 				4248CBDA2E766B03004F0075 /* Frameworks */,
@@ -161,6 +167,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				4248CC7E2E769454004F0075 /* picture_alarm_app */,
+				6908DB062E77C627006C360E /* Extention */,
 			);
 			name = picture_alarm_app;
 			packageProductDependencies = (
