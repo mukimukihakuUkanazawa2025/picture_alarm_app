@@ -58,6 +58,11 @@
 			path = picture_alarm_appUITests;
 			sourceTree = "<group>";
 		};
+		6908DD2E2E785AAB006C360E /* Extentions */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Extentions;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +101,7 @@
 		23EC164E2E733F60000AEBCD = {
 			isa = PBXGroup;
 			children = (
+				6908DD2E2E785AAB006C360E /* Extentions */,
 				23EC16592E733F60000AEBCD /* picture_alarm_app */,
 				23EC16692E733F62000AEBCD /* picture_alarm_appTests */,
 				23EC16732E733F62000AEBCD /* picture_alarm_appUITests */,
@@ -147,6 +153,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				23EC16592E733F60000AEBCD /* picture_alarm_app */,
+				6908DD2E2E785AAB006C360E /* Extentions */,
 			);
 			name = picture_alarm_app;
 			packageProductDependencies = (
@@ -447,7 +454,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6HY8YSMK7C;
+				DEVELOPMENT_TEAM = 24NW965W29;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -475,7 +482,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6HY8YSMK7C;
+				DEVELOPMENT_TEAM = 24NW965W29;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
