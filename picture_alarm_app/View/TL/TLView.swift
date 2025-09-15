@@ -12,13 +12,40 @@ import FirebaseFirestore
 
 struct TLView: View {
     
-    @State private var name: String = ""
-    @ObservedObject private var viewModel = UserViewModel()
+    @StateObject private var viewModel = PostListViewModel()
     
+
     var body: some View {
-        VStack {
-            Text("タイムライン画面")
-    
+        NavigationView {
+            List(viewModel.posts) { post in
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(post.userName)
+                        .font(.headline)
+                    if let postTime = post.postTime {
+                        Text(postTime, style: .date)
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                    if let imageUrl = post.imageUrl, let url = URL(string: imageUrl) {
+                        AsyncImage(url: url) { image in
+                            image.resizable()
+                                .scaledToFit()
+                                .frame(height: 300)
+                        } placeholder: {
+                            ProgressView()
+                        }
+                    }
+                    HStack {
+                        Text("いいね: \(post.goodCount)")
+                        Spacer()
+                        Text("コメント: \(post.comments.count)")
+                    }
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                }
+                .padding(.vertical, 8)
+            }
+            .navigationTitle("投稿一覧")
         }
     }
 }

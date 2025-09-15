@@ -9,7 +9,7 @@ import Foundation
 import FirebaseCore
 import FirebaseFirestore
 
-struct PostInfo {
+struct PostInfo: Identifiable {
     var id: String // Firebaseでの識別用
     var userName: String // ユーザー名
     var postTime: Date? // 投稿時刻
