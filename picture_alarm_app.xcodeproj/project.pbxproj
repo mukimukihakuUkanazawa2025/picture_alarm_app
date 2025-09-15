@@ -12,8 +12,9 @@
 		4248CB912E7661D7004F0075 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4248CB902E7661D7004F0075 /* FirebaseAnalyticsCore */; };
 		4248CB932E7661D7004F0075 /* FirebaseAnalyticsIdentitySupport in Frameworks */ = {isa = PBXBuildFile; productRef = 4248CB922E7661D7004F0075 /* FirebaseAnalyticsIdentitySupport */; };
 		4248CB952E7661D7004F0075 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 4248CB942E7661D7004F0075 /* FirebaseAppCheck */; };
-		4248CBDC2E766B03004F0075 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 4248CBDB2E766B03004F0075 /* FirebaseFirestore */; };
-		4248CBDE2E766B35004F0075 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 4248CBDD2E766B35004F0075 /* FirebaseAuth */; };
+		4248CDE12E76A798004F0075 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 4248CDE02E76A798004F0075 /* FirebaseFirestore */; };
+		42E31C622E772684000459DE /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 42E31C612E772684000459DE /* FirebaseStorage */; };
+		42E31D8A2E77B61D000459DE /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 42E31D892E77B61D000459DE /* FirebaseAuth */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,30 +40,12 @@
 		23EC16702E733F62000AEBCD /* picture_alarm_appUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = picture_alarm_appUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		6FBD87442E76DBA300B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appTests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				View/Entry/AuthService.swift,
-				View/Entry/LoginViewModel.swift,
-				View/Entry/SignUpViewModel.swift,
-				View/Entry/UserService.swift,
-			);
-			target = 23EC16652E733F62000AEBCD /* picture_alarm_appTests */;
-		};
-		6FBD87452E76DBA300B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appUITests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				View/Entry/AuthService.swift,
-				View/Entry/LoginViewModel.swift,
-				View/Entry/SignUpViewModel.swift,
-				View/Entry/UserService.swift,
-			);
-			target = 23EC166F2E733F62000AEBCD /* picture_alarm_appUITests */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		23EC16592E733F60000AEBCD /* picture_alarm_app */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = picture_alarm_app;
+			sourceTree = "<group>";
+		};
 		23EC16692E733F62000AEBCD /* picture_alarm_appTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = picture_alarm_appTests;
@@ -71,15 +54,6 @@
 		23EC16732E733F62000AEBCD /* picture_alarm_appUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = picture_alarm_appUITests;
-			sourceTree = "<group>";
-		};
-		4248CC7E2E769454004F0075 /* picture_alarm_app */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				6FBD87442E76DBA300B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appTests" target */,
-				6FBD87452E76DBA300B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appUITests" target */,
-			);
-			path = picture_alarm_app;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -93,9 +67,10 @@
 				4248CB8F2E7661D7004F0075 /* FirebaseAnalytics in Frameworks */,
 				4248CB912E7661D7004F0075 /* FirebaseAnalyticsCore in Frameworks */,
 				4248CB952E7661D7004F0075 /* FirebaseAppCheck in Frameworks */,
+				42E31C622E772684000459DE /* FirebaseStorage in Frameworks */,
 				4248CB8D2E7661D7004F0075 /* FirebaseAI in Frameworks */,
-				4248CBDE2E766B35004F0075 /* FirebaseAuth in Frameworks */,
-				4248CBDC2E766B03004F0075 /* FirebaseFirestore in Frameworks */,
+				4248CDE12E76A798004F0075 /* FirebaseFirestore in Frameworks */,
+				42E31D8A2E77B61D000459DE /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,11 +94,11 @@
 		23EC164E2E733F60000AEBCD = {
 			isa = PBXGroup;
 			children = (
+				23EC16592E733F60000AEBCD /* picture_alarm_app */,
 				23EC16692E733F62000AEBCD /* picture_alarm_appTests */,
 				23EC16732E733F62000AEBCD /* picture_alarm_appUITests */,
-				4248CBDA2E766B03004F0075 /* Frameworks */,
+				4248CDDF2E76A798004F0075 /* Frameworks */,
 				23EC16582E733F60000AEBCD /* Products */,
-				4248CC7E2E769454004F0075 /* picture_alarm_app */,
 			);
 			sourceTree = "<group>";
 		};
@@ -137,7 +112,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4248CBDA2E766B03004F0075 /* Frameworks */ = {
+		4248CDDF2E76A798004F0075 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -160,7 +135,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				4248CC7E2E769454004F0075 /* picture_alarm_app */,
+				23EC16592E733F60000AEBCD /* picture_alarm_app */,
 			);
 			name = picture_alarm_app;
 			packageProductDependencies = (
@@ -169,8 +144,9 @@
 				4248CB902E7661D7004F0075 /* FirebaseAnalyticsCore */,
 				4248CB922E7661D7004F0075 /* FirebaseAnalyticsIdentitySupport */,
 				4248CB942E7661D7004F0075 /* FirebaseAppCheck */,
-				4248CBDB2E766B03004F0075 /* FirebaseFirestore */,
-				4248CBDD2E766B35004F0075 /* FirebaseAuth */,
+				4248CDE02E76A798004F0075 /* FirebaseFirestore */,
+				42E31C612E772684000459DE /* FirebaseStorage */,
+				42E31D892E77B61D000459DE /* FirebaseAuth */,
 			);
 			productName = picture_alarm_app;
 			productReference = 23EC16572E733F60000AEBCD /* picture_alarm_app.app */;
@@ -658,12 +634,17 @@
 			package = 4248CB4B2E764A9A004F0075 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAppCheck;
 		};
-		4248CBDB2E766B03004F0075 /* FirebaseFirestore */ = {
+		4248CDE02E76A798004F0075 /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4248CB4B2E764A9A004F0075 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
 		};
-		4248CBDD2E766B35004F0075 /* FirebaseAuth */ = {
+		42E31C612E772684000459DE /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4248CB4B2E764A9A004F0075 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		42E31D892E77B61D000459DE /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4248CB4B2E764A9A004F0075 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
