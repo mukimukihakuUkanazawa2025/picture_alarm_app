@@ -9,26 +9,30 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-   
 
     var body: some View {
-
-        TabView {
-            TLView()
-                .tabItem {
+        ZStack{
+            Color.black
+                .ignoresSafeArea()
+            
+            TabView {
+                TLView()
+                    .tabItem {
                         Image(systemName: "house")
                         Text("タイムライン")
-                }
-            AlermView()
-                .tabItem {
-                    Image(systemName: "deskclock")
-                    Text("アラーム")
-                }
-            ProfileView()
-                .tabItem {
-                    Image(systemName: "person.crop.circle.fill")
-                    Text("プロフィール")
-                }
+                    }
+                AlermView()
+                    .tabItem {
+                        Image(systemName: "deskclock")
+                        Text("アラーム")
+                    }
+                ProfileView()
+                    .tabItem {
+                        Image(systemName: "person.crop.circle.fill")
+                        Text("プロフィール")
+                    }
+            }
+            .background(Color.black)
         }
 
     }

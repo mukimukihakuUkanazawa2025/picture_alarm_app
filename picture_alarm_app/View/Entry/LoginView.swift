@@ -18,42 +18,50 @@ struct LoginView: View {
     var onSuccess: (() -> Void)? = nil
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                Text("ログイン")
-                    .font(.title)
+        ZStack{
+            Color.black
+                .ignoresSafeArea()
+            
+            NavigationStack {
+                VStack(spacing: 20) {
+                    Text("ログイン")
+                        .font(.title)
+                        .foregroundStyle(.white)
+                        .padding()
                     //.leading
-                TextField("Email", text: $email)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .autocapitalization(.none)
-
-                SecureField("Password", text: $password)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-
-                Button(action: login) {
-                    if isLoading {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                    } else {
-                        Text("ログインする")
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
+                    TextField("Email", text: $email)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .autocapitalization(.none)
+                        .padding()
+                    SecureField("Password", text: $password)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding()
+                    Button(action: login) {
+                        if isLoading {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                        } else {
+                            Text("ログインする")
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                        }
+                    }
+                    .background(email.isEmpty || password.isEmpty || isLoading ? Color.gray : Color.blue)
+                    .cornerRadius(8)
+                    .disabled(email.isEmpty || password.isEmpty || isLoading)
+                    
+                    if !errorMessage.isEmpty {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
                     }
                 }
-                .background(email.isEmpty || password.isEmpty || isLoading ? Color.gray : Color.blue)
-                .cornerRadius(8)
-                .disabled(email.isEmpty || password.isEmpty || isLoading)
+                .padding(.bott)
 
-                if !errorMessage.isEmpty {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                }
             }
-            .padding()
         }
     }
 
@@ -87,8 +95,10 @@ struct LoginView: View {
             default:
                 return "ログインに失敗しました: \(error.localizedDescription)"
             }
+            
         }
     }
+
 #Preview {
     LoginView()
 }
