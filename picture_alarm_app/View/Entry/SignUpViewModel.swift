@@ -5,11 +5,10 @@
 //  Created by Keiju Hiramoto on 2025/09/14.
 //
 
-import SwiftUI
 import Foundation
 import FirebaseAuth
 
-@MainActor // UI更新をメインスレッドで行う
+@MainActor
 class SignUpViewModel: ObservableObject {
     @Published var displayName = ""
     @Published var email = ""
@@ -18,35 +17,27 @@ class SignUpViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var isSignUpSuccessful = false
     
-    func register() {
+    // 👇 register関数をasyncに変更
+    func register() async {
         isLoading = true
         message = ""
+        // deferブロックは、この関数がどんな形で終了しても最後に必ず実行される
+        defer { isLoading = false }
         
-        // 1. AuthServiceにユーザー作成を依頼
-        AuthService.shared.createUser(withEmail: email, password: password) { [weak self] authUser, error in
-            guard let self = self else { return }
+        do {
+            // Step 1: AuthServiceのcreateUserを `try await` で呼び出す
+            let authUser = try await AuthService.shared.createUser(withEmail: email, password: password)
             
-            if let error = error {
-                self.message = "アカウント作成に失敗: \(error.localizedDescription)"
-                self.isLoading = false
-                return
-            }
+            // Step 2: UserServiceのsaveUserを `try await` で呼び出す
+            try await UserService.shared.saveUser(authData: authUser, name: self.displayName)
             
-            guard let authUser = authUser else {
-                self.message = "不明なエラーが発生しました"
-                self.isLoading = false
-                return
-            }
+            // すべて成功した場合
+            self.isSignUpSuccessful = true
             
-            // 2. UserServiceにDBへの保存を依頼
-            UserService.shared.saveUser(authData: authUser, name: self.displayName) { error in
-                self.isLoading = false
-                if let error = error {
-                    self.message = "データベースへの保存に失敗: \(error.localizedDescription)"
-                } else {
-                    self.isSignUpSuccessful = true
-                }
-            }
+        } catch {
+            // `createUser`または`saveUser`のどちらかでエラーが発生した場合、ここでキャッチする
+            self.message = "アカウント作成に失敗: \(error.localizedDescription)"
+            // ここでエラーの種類を判別して、より具体的なメッセージを出すことも可能
         }
     }
 }

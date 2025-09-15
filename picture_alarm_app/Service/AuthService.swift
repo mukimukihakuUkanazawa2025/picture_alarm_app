@@ -15,10 +15,9 @@ class AuthService {
     private init() {}
     
     /// メールアドレスとパスワードでユーザーを新規作成する
-    func createUser(withEmail email: String, password: String, completion: @escaping (FirebaseAuth.User?, Error?) -> Void) {
-        Auth.auth().createUser(withEmail: email, password: password) { result, error in
-            completion(result?.user, error)
-        }
+    func createUser(withEmail email: String, password: String) async throws -> FirebaseAuth.User {
+            let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
+            return authResult.user
     }
     
     /// メールアドレスとパスワードでサインインする
