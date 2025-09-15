@@ -9,15 +9,15 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-   
-
+    
+    
     var body: some View {
-
+        
         TabView {
             TLView()
                 .tabItem {
-                        Image(systemName: "house")
-                        Text("タイムライン")
+                    Image(systemName: "house")
+                    Text("タイムライン")
                 }
             AlermView()
                 .tabItem {
@@ -36,12 +36,12 @@ struct ContentView: View {
                     Text("プロフィール")
                 }
         }
-
+        .tint(Color(hex: "FF8300"))
     }
-
+    
 }
 
 #Preview {
     ContentView()
-
+    
 }
