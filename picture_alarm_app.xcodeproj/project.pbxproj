@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3C40BDF42E785C9A00952BB0 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C40BDF22E785C9A00952BB0 /* Color+Hex.swift */; };
 		4248CB8D2E7661D7004F0075 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 4248CB8C2E7661D7004F0075 /* FirebaseAI */; };
 		4248CB8F2E7661D7004F0075 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 4248CB8E2E7661D7004F0075 /* FirebaseAnalytics */; };
 		4248CB912E7661D7004F0075 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4248CB902E7661D7004F0075 /* FirebaseAnalyticsCore */; };
@@ -38,6 +39,7 @@
 		23EC16572E733F60000AEBCD /* picture_alarm_app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = picture_alarm_app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		23EC16662E733F62000AEBCD /* picture_alarm_appTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = picture_alarm_appTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		23EC16702E733F62000AEBCD /* picture_alarm_appUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = picture_alarm_appUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C40BDF22E785C9A00952BB0 /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -56,7 +58,6 @@
 			path = picture_alarm_appUITests;
 			sourceTree = "<group>";
 		};
-
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,13 +96,12 @@
 		23EC164E2E733F60000AEBCD = {
 			isa = PBXGroup;
 			children = (
-
 				23EC16592E733F60000AEBCD /* picture_alarm_app */,
-
 				23EC16692E733F62000AEBCD /* picture_alarm_appTests */,
 				23EC16732E733F62000AEBCD /* picture_alarm_appUITests */,
 				4248CDDF2E76A798004F0075 /* Frameworks */,
 				23EC16582E733F60000AEBCD /* Products */,
+				3C40BDF32E785C9A00952BB0 /* Extention */,
 			);
 			sourceTree = "<group>";
 		};
@@ -113,6 +113,14 @@
 				23EC16702E733F62000AEBCD /* picture_alarm_appUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		3C40BDF32E785C9A00952BB0 /* Extention */ = {
+			isa = PBXGroup;
+			children = (
+				3C40BDF22E785C9A00952BB0 /* Color+Hex.swift */,
+			);
+			path = Extention;
 			sourceTree = "<group>";
 		};
 		4248CDDF2E76A798004F0075 /* Frameworks */ = {
@@ -138,9 +146,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-
 				23EC16592E733F60000AEBCD /* picture_alarm_app */,
-
 			);
 			name = picture_alarm_app;
 			packageProductDependencies = (
@@ -279,6 +285,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C40BDF42E785C9A00952BB0 /* Color+Hex.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
