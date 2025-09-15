@@ -16,50 +16,61 @@ struct SignUpView: View {
     var onSuccess: (() -> Void)? = nil
     
     var body: some View {
-        VStack(spacing: 20) {
-            Text("アカウント作成")
-                .font(.title)
-                .fontWeight(.bold)
-            
-            TextField("表示名", text: $viewModel.displayName)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .textInputAutocapitalization(.never)
-            
-            TextField("メールアドレス", text: $viewModel.email)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .textInputAutocapitalization(.never)
-                .keyboardType(.emailAddress)
-            
-            SecureField("パスワード(6文字以上)", text: $viewModel.password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .textInputAutocapitalization(.never)
-            
-            Button(action: viewModel.register) {
-                if viewModel.isLoading {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                } else {
-                    Text("登録する")
                         .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
+        ZStack{
+            Color.black
+                .ignoresSafeArea()
+            VStack(spacing: 20) {
+                TextField("表示名", text: $viewModel.displayName)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .textInputAutocapitalization(.never)
+                
+                TextField("メールアドレス", text: $viewModel.email)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .textInputAutocapitalization(.never)
+                    .keyboardType(.emailAddress)
+                
+                SecureField("パスワード(6文字以上)", text: $viewModel.password)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .textInputAutocapitalization(.never)
+                
+                Button(action: viewModel.register) {
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    } else {
+                        Text("登録する")
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    }
+                }
+                .background(viewModel.displayName.isEmpty || viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading ? Color.gray : Color.blue)
+                .cornerRadius(8)
+                .disabled(viewModel.displayName.isEmpty || viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading)
+                if !viewModel.message.isEmpty{
+                    Text(viewModel.message)
+                        .foregroundColor(.red)
                 }
             }
-            .background(viewModel.displayName.isEmpty || viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading ? Color.gray : Color.blue)
-            .cornerRadius(8)
-            .disabled(viewModel.displayName.isEmpty || viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading)
-            if !viewModel.message.isEmpty{
-                Text(viewModel.message)
-                    .foregroundColor(.red)
+            .padding()
+            .navigationTitle("アカウント作成")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("アカウント作成")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                }
             }
-        }
-        .padding()
-        .onChange(of: viewModel.isSignUpSuccessful){ success in
-            if success {
-                onSuccess?()
+            .tint(.white)
+            .onChange(of: viewModel.isSignUpSuccessful){ success in
+                if success {
+                    onSuccess?()
+                }
             }
         }
     }
@@ -68,20 +79,20 @@ struct SignUpView: View {
 //    private func register() {
 //        isLoading = true
 //        message = ""
-//        
+//
 //        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
 //            if let error = error {
 //                self.message = localizedAuthError(error)
 //                self.isLoading = false
 //                return
 //            }
-//            
+//
 //            guard let user = authResult?.user else {
 //                self.message = "不明なエラーが発生しました"
 //                self.isLoading = false
 //                return
 //            }
-//            
+//
 //            // 表示名を更新
 //            let changeRequest = user.createProfileChangeRequest()
 //            changeRequest.displayName = self.displayName
@@ -89,7 +100,7 @@ struct SignUpView: View {
 //                if let commitError = commitError {
 //                    print("DisplayName更新失敗: \(commitError.localizedDescription)")
 //                }
-//                
+//
 //                // Firestoreに保存
 //                let db = Firestore.firestore()
 //                db.collection("users").document(user.uid).setData([
@@ -109,7 +120,7 @@ struct SignUpView: View {
 //            }
 //        }
 //    }
-//    
+//
 //    /// Firebaseエラーをユーザー向けの日本語メッセージに変換
 //    private func localizedAuthError(_ error: Error) -> String {
 //        let nsError = error as NSError
