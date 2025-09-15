@@ -52,6 +52,7 @@ class PostService {
                 ]
                 
                 try await postRef.setData(post)
+                
                 completion(nil)
             } catch {
                 print("Error uploading post: \(error.localizedDescription)")
