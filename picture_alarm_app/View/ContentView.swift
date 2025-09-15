@@ -29,6 +29,12 @@ struct ContentView: View {
                     Image(systemName: "person.crop.circle.fill")
                     Text("プロフィール")
                 }
+            
+            TestPostingView()
+                .tabItem {
+                    Image(systemName: "camera.circle.fill")
+                    Text("プロフィール")
+                }
         }
 
     }
