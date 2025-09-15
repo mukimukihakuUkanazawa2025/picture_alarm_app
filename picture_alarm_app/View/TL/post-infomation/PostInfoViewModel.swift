@@ -14,6 +14,16 @@ class PostService {
     private let storage = Storage.storage()
     
     func uploadPost(userName: String, imageData: Data, completion: @escaping (Error?) -> Void) {
+        
+        // サインイン状態確認
+        guard let currentUser = Auth.auth().currentUser else {
+            print("投稿失敗: ユーザー未サインイン")
+            completion(NSError(domain: "PostService", code: -1,
+                               userInfo: [NSLocalizedDescriptionKey: "ユーザー未サインイン"]))
+            return
+        }
+        print("サインイン済み UID: \(currentUser.uid)")
+        
         Task {
             do {
                 // Firestoreの参照
