@@ -14,7 +14,7 @@ struct EntryView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 40) {
+            VStack(spacing: 80) {
                 Spacer()
                 
                 Text("寝顔人質カメラ")
@@ -22,6 +22,9 @@ struct EntryView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
+                Text("ログインまたはアカウント作成")
+                    .foregroundStyle(.white)
+                    .font(.system(size: 18))
                 
                 VStack(spacing: 20) {
                     // ログイン
@@ -49,10 +52,18 @@ struct EntryView: View {
                             .background(Color.white)
                             .cornerRadius(12)
                     }
+                    .padding(.bottom, 20)
+                    Text("続行することで利用規約及びプライバシーポリシーに同意したとみなします")
+                        .foregroundStyle(.white)
+                        .font(.system(size: 15))
+                        .padding(.bottom, 20)
                 }
+                .foregroundStyle(.white)
+                .font(.system(size: 15))
+                .multilineTextAlignment(.center)
+                .lineLimit(nil)
                 .padding(.horizontal, 32)
-                
-                Spacer()
+                .padding(.bottom, 20)
                 
                 // 成功したら ContentView へ
                 NavigationLink(destination: ContentView(),
