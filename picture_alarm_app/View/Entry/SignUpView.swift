@@ -16,45 +16,118 @@ struct SignUpView: View {
     var onSuccess: (() -> Void)? = nil
     
     var body: some View {
-                        .fontWeight(.semibold)
+        //                        .fontWeight(.semibold)
         ZStack{
             Color.black
                 .ignoresSafeArea()
             VStack(spacing: 20) {
-                TextField("表示名", text: $viewModel.displayName)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                HStack{
+                    Text(" ユーザー名")
+                        .foregroundStyle(.white)
+                        .font(.system(size:24))
+                        .bold()
+                    Spacer ()
+                }
+                TextField("", text: $viewModel.displayName)
+                    .padding(12)
+                    .background(Color(hex: "6A6A6A"))
+                    .cornerRadius(10)
+                    .foregroundColor(.white)
                     .textInputAutocapitalization(.never)
                 
-                TextField("メールアドレス", text: $viewModel.email)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                HStack{
+                    Text(" Email")
+                        .foregroundStyle(.white)
+                        .font(.system(size:24))
+                        .bold()
+                    Spacer()
+                }
+                TextField("", text: $viewModel.email)
+                    .padding(12)
+                    .background(Color(hex: "6A6A6A"))
+                    .cornerRadius(10)
+                    .foregroundColor(.white)
                     .textInputAutocapitalization(.never)
                     .keyboardType(.emailAddress)
                 
-                SecureField("パスワード(6文字以上)", text: $viewModel.password)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                HStack{
+                    Text(" パスワード(6文字以上)")
+                        .foregroundStyle(.white)
+                        .font(.system(size:24))
+                        .bold()
+                    Spacer()
+                }
+                SecureField("", text: $viewModel.password)
+                    .padding(12)
+                    .background(Color(hex: "6A6A6A"))
+                    .cornerRadius(10)
+                    .foregroundColor(.white)
                     .textInputAutocapitalization(.never)
+                    .padding(.bottom, 80)
                 
+                //                Button(action: viewModel.register) {
+                //                    if viewModel.isLoading {
+                //                        ProgressView()
+                //                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                //                            .frame(maxWidth: .infinity)
+                //                            .padding()
+                //                    } else {
+                //                        Text("登録する")
+                //                            .fontWeight(.semibold)
+                //                            .foregroundColor(.white)
+                //                            .frame(maxWidth: .infinity)
+                //                            .padding()
+                //                    }
+                //                }
                 Button(action: viewModel.register) {
                     if viewModel.isLoading {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                    } else {
-                        Text("登録する")
+                        // --- ローディング中 ---
+                        HStack {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            Text("作成中")
+                                .foregroundColor(.white)
+                                .fontWeight(.semibold)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.orange) // オレンジ背景
+                        .cornerRadius(10)
+                    } else if viewModel.displayName.isEmpty || viewModel.email.isEmpty || viewModel.password.isEmpty {
+                        // --- 未入力 ---
+                        Text("作成")
                             .fontWeight(.semibold)
-                            .foregroundColor(.white)
+                            .foregroundColor(.black) // 黒文字
                             .frame(maxWidth: .infinity)
                             .padding()
+                            .background(Color.white) // 白背景
+                            .cornerRadius(10)
+                    } else {
+                        // --- 入力済み ---
+                        Text("作成")
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white) // 白文字
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.orange) // オレンジ背景
+                            .cornerRadius(10)
                     }
                 }
-                .background(viewModel.displayName.isEmpty || viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading ? Color.gray : Color.blue)
-                .cornerRadius(8)
                 .disabled(viewModel.displayName.isEmpty || viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading)
-                if !viewModel.message.isEmpty{
+                
+                // --- エラーメッセージ ---
+                if !viewModel.message.isEmpty {
                     Text(viewModel.message)
                         .foregroundColor(.red)
                 }
+                //                .background(viewModel.displayName.isEmpty || viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading ? Color.gray : Color.blue)
+                //                .cornerRadius(8)
+                //                .disabled(viewModel.displayName.isEmpty || viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading)
+                //                if !viewModel.message.isEmpty{
+                //                    Text(viewModel.message)
+                //                        .foregroundColor(.red)
+                //                }
+                //            }
             }
             .padding()
             .navigationTitle("アカウント作成")

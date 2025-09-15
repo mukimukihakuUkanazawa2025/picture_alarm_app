@@ -40,6 +40,8 @@ struct LoginView: View {
                         .background(Color(hex: "6A6A6A"))
                         .cornerRadius(10)
                         .foregroundColor(.white)
+                        .textInputAutocapitalization(.never)
+                        .keyboardType(.emailAddress)
 //                    .textFieldStyle(RoundedBorderTextFieldStyle())
                         .autocapitalization(.none)
                     HStack{
@@ -54,6 +56,7 @@ struct LoginView: View {
                         .background(Color(hex: "6A6A6A"))
                         .cornerRadius(10)
                         .foregroundColor(.white)
+                        .textInputAutocapitalization(.never)
 //                        .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.bottom, 80)
                     
