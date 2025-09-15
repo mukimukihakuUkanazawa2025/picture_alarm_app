@@ -16,6 +16,7 @@ struct SignUpView: View {
     var onSuccess: (() -> Void)? = nil
     
     var body: some View {
+
         //                        .fontWeight(.semibold)
         ZStack{
             Color.black
@@ -89,6 +90,7 @@ struct SignUpView: View {
                                 .foregroundColor(.white)
                                 .fontWeight(.semibold)
                         }
+
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.orange) // オレンジ背景
