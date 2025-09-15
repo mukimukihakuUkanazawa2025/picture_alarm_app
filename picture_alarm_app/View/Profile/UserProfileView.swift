@@ -11,6 +11,7 @@ struct UserProfileView: View {
     // StateObjectとしてViewModelを初期化
     @StateObject private var viewModel: UserProfileViewModel
     
+    @State private var isShowingRemoveFriendAlert = false
     // このViewは表示したいユーザー情報を受け取って初期化される
     init(user: User) {
         _viewModel = StateObject(wrappedValue: UserProfileViewModel(user: user))
@@ -44,12 +45,13 @@ struct UserProfileView: View {
                     .buttonStyle(.borderedProminent)
                     
                 case .requestSent:
-                    Button("✅ 申請済み") {
-                        // ここで申請取り消しロジックを呼ぶこともできる
+                    Button("申請を取り消す") {
+                        Task{
+                            await viewModel.cancelRequest()
+                        }
                     }
                     .buttonStyle(.bordered)
-                    .disabled(true)
-                    
+                    .tint(.gray)
                 case .requestReceived:
                     Button("🎉 承認する") {
                         Task{
@@ -60,11 +62,11 @@ struct UserProfileView: View {
                     .tint(.green)
                     
                 case .friends:
-                    Button("🧑‍🤝‍🧑 友達です") {
-                        // ここで友達解除ロジックを呼ぶこともできる
+                    Button("友達から削除") {
+                        isShowingRemoveFriendAlert = true
                     }
-                    .buttonStyle(.bordered)
-                    .disabled(true)
+                    .buttonStyle(.borderedProminent)
+                    .tint(.red)
                 }
             }
         }
@@ -75,6 +77,15 @@ struct UserProfileView: View {
                 await viewModel.checkFriendshipStatus()
             }
         }
+        .alert("友達から削除", isPresented: $isShowingRemoveFriendAlert) {
+                    Button("削除", role: .destructive) {
+                        Task {
+                            await viewModel.removeFriend()
+                        }
+                    }
+                } message: {
+                    Text("\(viewModel.profileUser.name)さんを友達から削除しますか？この操作は取り消せません。")
+                }
     }
 }
 

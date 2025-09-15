@@ -12,8 +12,13 @@ class UserProfileViewModel: ObservableObject {
     @Published var isLoading = false
     
     let profileUser: User
+    
+
     private var currentUser: FirebaseAuth.User? { Auth.auth().currentUser }
-    private var receivedRequest: FriendRequest?
+    //申請情報保持のためのプロパティ
+    
+    private var sentRequest: FriendRequest?//自分から送った申請
+    private var receivedRequest: FriendRequest?//相手から受け取った申請
 
     init(user: User) {
         self.profileUser = user
@@ -33,6 +38,7 @@ class UserProfileViewModel: ObservableObject {
             do {
                 if let request = try await UserService.shared.checkFriendRequestStatus(from: currentUserId, to: profileUser.id) {
                     if request.fromId == currentUserId {
+                        self.sentRequest = request
                         self.friendshipStatus = .requestSent
                     } else {
                         self.receivedRequest = request
@@ -56,6 +62,7 @@ class UserProfileViewModel: ObservableObject {
         
         do {
             try await UserService.shared.sendFriendRequest(to: profileUser.id, from: currentUserId)
+            await checkFriendshipStatus()
             self.friendshipStatus = .requestSent
         } catch {
             print("Error sending request: \(error.localizedDescription)")
@@ -75,4 +82,31 @@ class UserProfileViewModel: ObservableObject {
             print("Error accepting request: \(error.localizedDescription)")
         }
     }
-}
+    /// 申請を取り消す
+        func cancelRequest() async {
+            guard let requestToCancel = self.sentRequest else { return }
+            isLoading = true
+            defer { isLoading = false }
+            
+            do {
+                try await UserService.shared.declineFriendRequest(requestId: requestToCancel.id)
+                self.friendshipStatus = .none
+            } catch {
+                print("Error canceling request: \(error.localizedDescription)")
+            }
+        }
+        
+        /// 友達を削除する
+        func removeFriend() async {
+            guard let currentUserId = currentUser?.uid else { return }
+            isLoading = true
+            defer { isLoading = false }
+            
+            do {
+                try await UserService.shared.removeFriend(currentUserId: currentUserId, friendId: profileUser.id)
+                self.friendshipStatus = .none
+            } catch {
+                print("Error removing friend: \(error.localizedDescription)")
+            }
+        }
+    }

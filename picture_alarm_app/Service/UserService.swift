@@ -163,5 +163,28 @@ class UserService {
                 createdAt: data["createdAt"] as? Timestamp ?? Timestamp()
             )
         }
+    //FriendsView用
+    func fetchFriendIds(forUserId userId: String) async throws -> [String] {
+            let snapshot = try await db.collection("users").document(userId).collection("friends").getDocuments()
+            
+            // ドキュメントIDが友達のUIDなので、それを抽出して配列にする
+            let friendIds = snapshot.documents.map { $0.documentID }
+            return friendIds
+        }
+    
+    /// 友達関係を削除する
+        func removeFriend(currentUserId: String, friendId: String) async throws {
+            let batch = db.batch()
+            
+            // 1. 自分のfriendsサブコレクションから相手を削除
+            let currentUserFriendRef = db.collection("users").document(currentUserId).collection("friends").document(friendId)
+            batch.deleteDocument(currentUserFriendRef)
+            
+            // 2. 相手のfriendsサブコレクションから自分を削除
+            let friendUserFriendRef = db.collection("users").document(friendId).collection("friends").document(currentUserId)
+            batch.deleteDocument(friendUserFriendRef)
+            
+            try await batch.commit()
+        }
     }
 
