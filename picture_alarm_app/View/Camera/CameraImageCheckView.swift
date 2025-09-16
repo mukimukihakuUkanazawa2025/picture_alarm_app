@@ -41,6 +41,8 @@ struct CameraImageCheckView: View {
                                 
                                 alarmService.isPrepareDone = true
                                 
+                                alarmService.stopAlarm()
+                                
                                 dismiss()
                                 
                                 return
@@ -48,8 +50,10 @@ struct CameraImageCheckView: View {
     //
                             // Call the upload service
                             postService.uploadPost(userName: "test", imageData: imageData) { result in
-    
+
                                 alarmService.isPrepareDone = true
+                                
+                                alarmService.stopAlarm()
                                 
                                 dismiss()
     
@@ -64,6 +68,7 @@ struct CameraImageCheckView: View {
                 Button("確認") {
                     alarmService.isWakeupnow = true
                     
+                    alarmService.stopAlarm()
                     
                     
                     dismiss()
