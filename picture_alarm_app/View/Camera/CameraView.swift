@@ -6,10 +6,10 @@ import ARKit
 
 class CameraViewModel:ObservableObject{
     @Published var faceImage :UIImage?
-        @Published var isCameraOn = false
+    @Published var isCameraOn = false
         
         // ARSCNViewへの参照を保持する
-        var arScnView: ARSCNView?
+    var arScnView: ARSCNView?
 }
 
 class CameraViewController: UIViewController,ARSCNViewDelegate,ARSessionDelegate{

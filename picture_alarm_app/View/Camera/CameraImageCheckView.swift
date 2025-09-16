@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CameraImageCheckView: View {
     
-    @StateObject var cameraviewmodel = CameraViewModel()
+    @StateObject private var alarmService = AlarmService.shared
     
     @Environment(\.dismiss) private var dismiss
     
@@ -30,7 +30,7 @@ struct CameraImageCheckView: View {
             }
             
             
-            if cameraviewmodel.isWakeupnow  {
+            if alarmService.isWakeupnow {
                 Button("送信") {
                     Task {
                         do{
@@ -56,7 +56,7 @@ struct CameraImageCheckView: View {
                 .padding()
             } else {
                 Button("確認") {
-                    cameraviewmodel.isWakeupnow = true
+                    alarmService.isWakeupnow = true
                     
                     dismiss()
                 }

@@ -47,11 +47,13 @@ struct AlarmPrepareView: View {
             }
             
             
-        
-       
+            
+            
+        }
     }
+    
 }
-
-#Preview {
-    AlarmPrepareView()
-}
+//
+//#Preview {
+//    AlarmPrepareView()
+//}
