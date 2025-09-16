@@ -23,15 +23,16 @@ struct ProfileView: View {
             } label: {
                 Text("フレンド追加画面へ")
             }
-            .fullScreenCover(isPresented: $showAddFriendView) {
+            .sheet(isPresented: $showAddFriendView) {
                 AddFriendView()
             }
+            
             Button {
                 showFriendRequestView.toggle()
             } label: {
                 Text("フレンド申請確認画面へ")
             }
-            .fullScreenCover(isPresented: $showFriendRequestView) {
+            .sheet(isPresented: $showFriendRequestView) {
                 FriendRequestsView()
             }
             Button {
@@ -39,15 +40,16 @@ struct ProfileView: View {
             } label: {
                 Text("フレンド一覧画面へ")
             }
-            .fullScreenCover(isPresented: $showFriendsView) {
+            .sheet(isPresented: $showFriendsView) {
                 FriendsView()
             }
+            
             Button {
                 showSettingView.toggle()
             } label: {
                 Text("設定画面へ")
             }
-            .fullScreenCover(isPresented: $showSettingView) {
+            .sheet(isPresented: $showSettingView) {
                 SettingView()
             }
         }

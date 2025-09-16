@@ -24,6 +24,7 @@ struct AlarmData: Equatable, Identifiable {
     }
 }
 
+// アラームのビューモデル
 class AlarmService: ObservableObject {
     static let shared = AlarmService()
     @Published var alarms: [AlarmData] = []
