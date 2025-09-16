@@ -7,7 +7,7 @@
 
 import SwiftUI
 import FirebaseCore
-import FirebaseAppCheck
+//import FirebaseAppCheck
 
 class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
@@ -15,7 +15,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     FirebaseApp.configure()
     
     // 🔹 シミュレータや開発中は AppCheck を無効化
-    AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
+//    AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
 
     return true
   }
@@ -65,11 +65,15 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 //    }
 //  }
         var body: some Scene {
+//            @StateObject var cameraviewmodel = CameraViewModel()
+            
             WindowGroup {
-                NavigationStack {
-                    EntryView()
-                }
-                .tint(.white) // ← これが重要！NavigationStack 全体に白を適用
+//                CameraView(cameraviewmodel: cameraviewmodel)
+                ContentView()
+//                NavigationStack {
+//                    EntryView()
+//                }
+//                .tint(.white) // ← これが重要！NavigationStack 全体に白を適用
             }
         }
 }

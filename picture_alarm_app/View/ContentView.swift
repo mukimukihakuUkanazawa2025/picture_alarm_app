@@ -10,19 +10,22 @@ import SwiftData
 
 struct ContentView: View {
     
+    @StateObject var cameraviewmodel = CameraViewModel()
+    
     
     var body: some View {
         
         TabView {
+            CameraView(cameraviewmodel: cameraviewmodel)
+                .tabItem{
+                    Text("実験")
+                }
             TLView()
                 .tabItem {
-<<<<<<< HEAD
-                        Image(systemName: "house")
-                        Text("タイムラインa")
-=======
+
                     Image(systemName: "house")
                     Text("タイムライン")
->>>>>>> develop
+
                 }
             AlermView()
                 .tabItem {
@@ -40,8 +43,11 @@ struct ContentView: View {
                     Image(systemName: "camera.circle.fill")
                     Text("プロフィール")
                 }
+        }.onChange(of: cameraviewmodel.isCameraOn){
+            print("フェイストラッキング設定変更")
         }
-        .tint(Color(hex: "FF8300"))
+    
+//        .tint(Color(hex: "FF8300"))
     }
     
 }
