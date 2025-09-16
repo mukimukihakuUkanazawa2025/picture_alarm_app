@@ -34,6 +34,7 @@ class AlarmService: ObservableObject {
     private var timer: Timer?
     private var alarmTimer: Timer? // アラーム音を繰り返し再生するタイマー
     @Published var isAlarmPlaying = false // アラームが鳴っているかどうか
+    @Published var isAlarmOn: Bool = false //アラームが設定ずみかチェック
     
     private init() {
         setupAudioSession()
@@ -186,7 +187,7 @@ class AlarmService: ObservableObject {
         }
     }
     
-    /// アラーム音を繰り返し再生開始
+    // アラーム音を繰り返し再生開始
     private func startAlarmSound() {
         // 既にアラームが鳴っている場合は何もしない
         guard !isAlarmPlaying else { return }
@@ -210,6 +211,7 @@ class AlarmService: ObservableObject {
         AudioServicesPlaySystemSound(1005) // アラーム音
         #endif
     }
+
     
     /// ローカル通知をスケジュール (30秒間音付き)
     func scheduleNotification(for alarm: AlarmData) {

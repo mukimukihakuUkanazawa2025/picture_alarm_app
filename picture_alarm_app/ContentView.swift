@@ -12,12 +12,17 @@ struct ContentView: View {
     
     
     var body: some View {
+//        CameraHomeView()
         
         TabView {
+            
+               
             TLView()
                 .tabItem {
+
                     Image(systemName: "house")
                     Text("タイムライン")
+
                 }
             AlermView()
                 .tabItem {
@@ -30,13 +35,13 @@ struct ContentView: View {
                     Text("プロフィール")
                 }
             
-            TestPostingView()
+            CameraHomeView()
                 .tabItem {
                     Image(systemName: "camera.circle.fill")
                     Text("プロフィール")
                 }
         }
-        .tint(Color(hex: "FF8300"))
+//        .tint(Color(hex: "FF8300"))
         .navigationBarBackButtonHidden(true)
     }
     
