@@ -69,7 +69,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             
             WindowGroup {
 //                CameraView(cameraviewmodel: cameraviewmodel)
-                ContentView()
+                EntryView()
 //                NavigationStack {
 //                    EntryView()
 //                }
