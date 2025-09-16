@@ -36,7 +36,7 @@ struct EntryView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color(hex: "FF8300"))
+                            .background(Color(red: 1.0, green: 131/255.0, blue: 0.0))
                             .cornerRadius(12)
                     }
                     
