@@ -70,7 +70,7 @@ struct YourApp: App {
     var body: some Scene {
         WindowGroup {
             EntryView()
-        }
+        }.modelContainer(for: AlarmData.self)
     }
 }
 

@@ -9,8 +9,13 @@
 
 import SwiftUI
 import UserNotifications
+import SwiftData
 
 struct AlermView: View {
+    
+    @Query private var alarmdata: [AlarmData]
+    @Environment(\.modelContext) private var context
+    
     @StateObject private var alarmService = AlarmService.shared
     @State private var wakeUpTime: Date = {
         let calendar = Calendar.current
