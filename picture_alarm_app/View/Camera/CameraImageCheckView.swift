@@ -10,79 +10,108 @@ import SwiftUI
 struct CameraImageCheckView: View {
     
     @StateObject private var alarmService = AlarmService.shared
-    
     @Environment(\.dismiss) private var dismiss
     
-    //撮影された写真
-    @Binding var CapturedImage:UIImage?
-    
+    @Binding var CapturedImage: UIImage?
     var postService = PostService()
     
-    
     var body: some View {
-        VStack{
-            Image(uiImage: CapturedImage!)
-                .resizable()
-                .scaledToFit()
-            
-            Button("けす"){
-                dismiss()
-            }
-            
-            
-            if alarmService.isWakeupnow {
-                Button("送信") {
-                    Task {
-                        do{
-                            // Safely unwrap the image and convert it to Data
-                            guard let image = CapturedImage,
-                                  let imageData = image.jpegData(compressionQuality: 0.8) else {
-                                print("Error: Image data is invalid.")
-                                
-                                alarmService.isPrepareDone = true
-                                
-                                alarmService.stopAlarm()
-                                
-                                dismiss()
-                                
-                                return
+        NavigationView {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                
+                VStack(spacing: 44) {
+                    // 上部メッセージ
+                    Text(alarmService.isWakeupnow ? "準備間に合ったね！" : "確認してね！")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(.top, 40)
+                    
+                    // 撮影画像（丸型）
+                    if let image = CapturedImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 380, height: 380)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.white, lineWidth: 3))
+                            .shadow(radius: 10)
+                    } else {
+                        Circle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 380, height: 380)
+                    }
+                    
+                    Spacer()
+                    
+                    // 下部ボタン
+                    if alarmService.isWakeupnow {
+                        Button(action: {
+                            Task {
+                                if let image = CapturedImage,
+                                   let imageData = image.jpegData(compressionQuality: 0.8) {
+                                    postService.uploadPost(userName: "test", imageData: imageData) { _ in
+                                        alarmService.isPrepareDone = true
+                                        alarmService.stopAlarm()
+                                        dismiss()
+                                    }
+                                } else {
+                                    alarmService.isPrepareDone = true
+                                    alarmService.stopAlarm()
+                                    dismiss()
+                                }
                             }
-    //
-                            // Call the upload service
-                            postService.uploadPost(userName: "test", imageData: imageData) { result in
-
-                                alarmService.isPrepareDone = true
-                                
-                                alarmService.stopAlarm()
-                                
-                                dismiss()
-    
-                                return
+                        }) {
+                            HStack {
+                                Text("送信")
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                Image(systemName: "arrow.right")
                             }
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.orange)
+                            .cornerRadius(12)
+                            .padding(.bottom, 80)
                         }
-                       
+                        .padding(.horizontal, 40)
+                    } else {
+                        Button(action: {
+                            alarmService.isWakeupnow = true
+                            alarmService.stopAlarm()
+                            dismiss()
+                        }) {
+                            HStack {
+                                Text("確認")
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                Image(systemName: "arrow.right")
+                            }
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.orange)
+                            .cornerRadius(12)
+                            .padding(.bottom, 80)
+                        }
+                        .padding(.horizontal, 40)
                     }
                 }
-                .padding()
-            } else {
-                Button("確認") {
-                    alarmService.isWakeupnow = true
-                    
-                    alarmService.stopAlarm()
-                    
-                    
-                    dismiss()
-                }
-                .padding()
             }
-            
-            
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                // 左上に戻る「＜」ボタン
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        CapturedImage = nil
+                        dismiss() }) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.white)
+                    }
+                }
+            }
         }
-        
-        
     }
 }
-
-//#Preview {
-//    CameraImageCheckView()
-//}
