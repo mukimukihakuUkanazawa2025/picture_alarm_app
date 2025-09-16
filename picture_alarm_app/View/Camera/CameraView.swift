@@ -32,9 +32,7 @@ class CameraViewController: UIViewController,ARSCNViewDelegate,ARSessionDelegate
         
         myArSceneView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.width)
         
-//        myArSceneView.showsStatistics = true
-//        myArSceneView.debugOptions = ARSCNDebugOptions.showFeaturePoints
-        
+
         self.view.addSubview(myArSceneView)
     }
 
@@ -67,13 +65,15 @@ class CameraViewController: UIViewController,ARSCNViewDelegate,ARSessionDelegate
         // マテリアルの描画モードを線（ワイヤーフレーム）に設定する
         faceGeometry.firstMaterial?.fillMode = .lines
         
+        faceGeometry.firstMaterial?.diffuse.contents = UIColor.white.withAlphaComponent(0)
+        
         // ジオメトリからノードを作成
         let node = SCNNode(geometry: faceGeometry)
+        
         
         DispatchQueue.main.async {
             self.cameraviewmodel?.isCameraOn = true
         }
-        
         
         return node
     }

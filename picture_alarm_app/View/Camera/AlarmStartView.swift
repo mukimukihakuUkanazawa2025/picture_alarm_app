@@ -17,10 +17,22 @@ struct AlarmStartView: View {
     
     var body: some View {
         VStack{
-            Text("\(wakeupTimeText)")
-            Text("\(leaveTimeText)")
+            if alarmService.isAlarmOn{
+                Text("\(wakeupTimeText)")
+                Text("\(leaveTimeText)")
+            }else{
+                 AlarmDoneView()
+            }
+            
+           
             
         }.onAppear{
+            
+            //当日のアラームが設定されていなかったらアラーム待機画面にしない
+            if alarmService.getTodayAlarm() == nil{
+                alarmService.isAlarmOn = false
+            }
+            
             let formatter = DateFormatter()
             formatter.dateStyle = .none
             formatter.timeStyle = .medium

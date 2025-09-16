@@ -42,6 +42,7 @@ struct ContentView: View {
                 }
         }
 //        .tint(Color(hex: "FF8300"))
+        .navigationBarBackButtonHidden(true)
     }
     
 }
