@@ -4,7 +4,7 @@
 //
 //  Created by A S on 2025/09/12.
 //
-
+//
 import SwiftUI
 
 struct AddFriendView: View {
