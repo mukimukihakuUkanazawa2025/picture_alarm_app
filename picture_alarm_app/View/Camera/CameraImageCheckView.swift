@@ -38,13 +38,19 @@ struct CameraImageCheckView: View {
                             guard let image = CapturedImage,
                                   let imageData = image.jpegData(compressionQuality: 0.8) else {
                                 print("Error: Image data is invalid.")
+                                
+                                alarmService.isPrepareDone = true
+                                
                                 dismiss()
+                                
                                 return
                             }
     //
                             // Call the upload service
                             postService.uploadPost(userName: "test", imageData: imageData) { result in
     
+                                alarmService.isPrepareDone = true
+                                
                                 dismiss()
     
                                 return
@@ -57,6 +63,8 @@ struct CameraImageCheckView: View {
             } else {
                 Button("確認") {
                     alarmService.isWakeupnow = true
+                    
+                    
                     
                     dismiss()
                 }
