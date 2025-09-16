@@ -31,7 +31,7 @@ struct SignUpView: View {
                 }
                 TextField("", text: $viewModel.displayName)
                     .padding(12)
-//                    .background(Color(hex: "6A6A6A"))
+                    .background(Color(hex: "6A6A6A"))
                     .cornerRadius(10)
                     .foregroundColor(.white)
                     .textInputAutocapitalization(.never)
@@ -45,7 +45,7 @@ struct SignUpView: View {
                 }
                 TextField("", text: $viewModel.email)
                     .padding(12)
-//                    .background(Color(hex: "6A6A6A"))
+                    .background(Color(hex: "6A6A6A"))
                     .cornerRadius(10)
                     .foregroundColor(.white)
                     .textInputAutocapitalization(.never)
@@ -60,7 +60,7 @@ struct SignUpView: View {
                 }
                 SecureField("", text: $viewModel.password)
                     .padding(12)
-//                    .background(Color(hex: "6A6A6A"))
+                    .background(Color(hex: "6A6A6A"))
                     .cornerRadius(10)
                     .foregroundColor(.white)
                     .textInputAutocapitalization(.never)
