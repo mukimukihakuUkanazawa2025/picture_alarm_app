@@ -83,9 +83,9 @@ struct ProfileView: View {
                     }
                 }
                 
-                //フレンド申請確認画面
-                ToolbarItem(placement: .navigationBarLeading){
-                    Button(action: {showFriendRequestView.toggle()}){
+                // 右上にフレンド申請確認アイコン
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showFriendRequestView.toggle() }) {
                         Image(systemName: "bell.fill")
                             .foregroundColor(.white)
                     }
