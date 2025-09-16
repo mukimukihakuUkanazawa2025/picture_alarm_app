@@ -8,9 +8,10 @@
 import Foundation
 import AVFoundation
 import AudioToolbox
+import UserNotifications
 
 //アラームデータ構造
-struct AlarmData: Equatable, Identifiable {
+struct AlarmData: Equatable, Identifiable, Encodable, Decodable {
     let id: UUID
     let date: Date
     let wakeUpTime: Date
@@ -36,26 +37,35 @@ class AlarmService: ObservableObject {
     
     private init() {
         setupAudioSession()
+        requestNotificationPermission()
+        loadAlarms()
+        startMonitoring()
     }
     
     /// 日毎のアラームを追加
     func addAlarm(date: Date, wakeUpTime: Date, leaveTime: Date) {
         let alarm = AlarmData(date: date, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
         alarms.append(alarm)
+        saveAlarms()
         startMonitoring()
+        scheduleNotification(for: alarm)
     }
     
     /// アラームを更新
     func updateAlarm(id: UUID, date: Date, wakeUpTime: Date, leaveTime: Date) {
         if let index = alarms.firstIndex(where: { $0.id == id }) {
             alarms[index] = AlarmData(date: date, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
+            saveAlarms()
             startMonitoring()
+            scheduleNotification(for: alarms[index])
         }
     }
     
     /// アラームを削除
     func removeAlarm(id: UUID) {
         alarms.removeAll { $0.id == id }
+        saveAlarms()
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id.uuidString])
         startMonitoring()
     }
     
@@ -65,6 +75,11 @@ class AlarmService: ObservableObject {
         alarmTimer = nil
         isAlarmPlaying = false
         print("🔕 アラーム音を停止しました")
+        
+        // 通知もキャンセル
+        if let currentAlarm = currentAlarm {
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [currentAlarm.id.uuidString])
+        }
     }
     
     /// 特定の日付のアラームを取得
@@ -80,6 +95,8 @@ class AlarmService: ObservableObject {
         return getAlarm(for: Date())
     }
     
+    // MARK: - Private Methods
+    
     //オーディオセッションの初期設定
     private func setupAudioSession() {
         do {
@@ -87,6 +104,39 @@ class AlarmService: ObservableObject {
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
             print("オーディオセッションの設定に失敗: \(error)")
+        }
+    }
+    
+    // 通知許可をリクエスト
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
+            if let error = error {
+                print("通知許可のリクエストに失敗: \(error)")
+            } else if granted {
+                print("通知許可が与えられました")
+            } else {
+                print("通知許可が拒否されました")
+            }
+        }
+    }
+    
+    // アラーム情報をUserDefaultsに保存
+    private func saveAlarms() {
+        do {
+            let data = try JSONEncoder().encode(alarms)
+            UserDefaults.standard.set(data, forKey: "alarms")
+        } catch {
+            print("アラームの保存に失敗しました: \(error)")
+        }
+    }
+    
+    // UserDefaultsからアラーム情報を読み込み
+    private func loadAlarms() {
+        guard let data = UserDefaults.standard.data(forKey: "alarms") else { return }
+        do {
+            alarms = try JSONDecoder().decode([AlarmData].self, from: data)
+        } catch {
+            print("アラームの読み込みに失敗しました: \(error)")
         }
     }
     
@@ -111,7 +161,7 @@ class AlarmService: ObservableObject {
         timer?.invalidate()
         timer = nil
         currentAlarm = nil
-        stopAlarm() // アラーム音も停止
+        stopAlarm() // アラーム音も停止し通知もキャンセル
     }
     
     //アラーム時間になったかをチェック
@@ -159,5 +209,33 @@ class AlarmService: ObservableObject {
         #else
         AudioServicesPlaySystemSound(1005) // アラーム音
         #endif
+    }
+    
+    /// ローカル通知をスケジュール (30秒間音付き)
+    func scheduleNotification(for alarm: AlarmData) {
+        let content = UNMutableNotificationContent()
+        content.title = "アラーム"
+        content.body = "起床時間です！"
+        content.sound = UNNotificationSound.defaultCritical
+        
+        let calendar = Calendar.current
+        var dateComponents = calendar.dateComponents([.year, .month, .day], from: alarm.date)
+        let timeComponents = calendar.dateComponents([.hour, .minute, .second], from: alarm.wakeUpTime)
+        dateComponents.hour = timeComponents.hour
+        dateComponents.minute = timeComponents.minute
+        dateComponents.second = timeComponents.second ?? 0
+        
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+        
+        let request = UNNotificationRequest(identifier: alarm.id.uuidString, content: content, trigger: trigger)
+        
+        // 通知をスケジュール
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("通知のスケジューリングに失敗しました: \(error)")
+            } else {
+                print("🔔 ローカル通知をスケジュールしました: \(alarm.id.uuidString)")
+            }
+        }
     }
 }

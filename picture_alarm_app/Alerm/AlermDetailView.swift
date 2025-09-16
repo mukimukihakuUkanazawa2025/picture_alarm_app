@@ -8,6 +8,7 @@
 // 日付選択機能付きアラーム設定画面
 
 import SwiftUI
+import UserNotifications
 
 struct AlermDetailView: View {
     @Binding var wakeUpTime: Date
@@ -94,6 +95,7 @@ struct AlermDetailView: View {
         }
         .onAppear {
             setupInitialDate()
+            requestNotificationAuthorization()
         }
     }
     
@@ -157,10 +159,23 @@ struct AlermDetailView: View {
                                             minute: calendar.component(.minute, from: leaveTime),
                                             second: 0, of: selectedDate) ?? selectedDate
         
-        // AlarmServiceにアラームを追加
+        // AlarmServiceにアラームを追加して通知をスケジュール
         AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime)
         
         dismiss()
+    }
+    
+    private func requestNotificationAuthorization() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let error = error {
+                print("通知許可リクエストでエラー: \(error.localizedDescription)")
+            }
+            if granted {
+                print("通知許可が得られました。")
+            } else {
+                print("通知許可が拒否されました。")
+            }
+        }
     }
 }
 
