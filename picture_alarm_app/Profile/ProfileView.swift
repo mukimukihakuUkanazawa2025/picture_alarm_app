@@ -11,6 +11,8 @@ import FirebaseAuth
 
 struct ProfileView: View {
     @State var showFriendsView: Bool = false
+    @State var showAddFriendView: Bool = false
+    @State var showFriendRequestView: Bool = false
     
     var body: some View {
         NavigationView {
@@ -75,13 +77,27 @@ struct ProfileView: View {
             .toolbar {
                 // 左上にフレンド追加アイコン
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { showFriendsView.toggle() }) {
-                        Image(systemName: "person.2.fill")
+                    Button(action: { showAddFriendView.toggle() }) {
+                        Image(systemName: "person.2.badge.plus.fill")
+                            .foregroundColor(.white)
+                    }
+                }
+                
+                //フレンド申請確認画面
+                ToolbarItem(placement: .navigationBarLeading){
+                    Button(action: {showFriendRequestView.toggle()}){
+                        Image(systemName: "bell.fill")
                             .foregroundColor(.white)
                     }
                 }
             }
-            .sheet(isPresented: $showFriendsView) {
+            .sheet(isPresented: $showFriendRequestView) {
+                FriendRequestsView()
+            }
+            .sheet(isPresented: $showAddFriendView) {
+                AddFriendView()
+            }
+            .sheet(isPresented: $showFriendsView){
                 FriendsView()
             }
         }
