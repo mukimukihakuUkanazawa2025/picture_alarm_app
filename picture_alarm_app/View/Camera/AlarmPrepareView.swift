@@ -24,7 +24,6 @@ struct AlarmPrepareView: View {
             if Date() >= alarmService.currentAlarm!.wakeUpTime{
                 CameraHomeView()
                 
-                
             }
         }.onAppear{
             

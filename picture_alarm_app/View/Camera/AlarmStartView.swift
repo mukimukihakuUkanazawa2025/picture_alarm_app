@@ -21,12 +21,11 @@ struct AlarmStartView: View {
     
     var body: some View {
         VStack{
-            if alarmService.isAlarmOn{
-               
+            if alarmService.isAlarmOn && !alarmService.isPrepareDone {
+                AlarmPrepareView()
                 
             }else{
                  AlarmDoneView()
-                Text("a")
             }
             
            

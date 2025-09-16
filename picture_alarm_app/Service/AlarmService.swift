@@ -35,8 +35,8 @@ class AlarmService: ObservableObject {
     private var alarmTimer: Timer? // アラーム音を繰り返し再生するタイマー
     @Published var isAlarmPlaying = false // アラームが鳴っているかどうか
     @Published var isAlarmOn: Bool = false //アラームが設定ずみかチェック
-    
     @Published var isWakeupnow: Bool = false //起きているかチェック
+    @Published var isPrepareDone: Bool = false //準備の時間も過ぎた
     
     
     private init() {
