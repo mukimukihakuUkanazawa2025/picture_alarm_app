@@ -5,8 +5,11 @@ import SwiftData
 import ARKit
 
 class CameraViewModel:ObservableObject{
-//    @Published var faceImage :UIImage?
-    @Published var isCameraOn = false
+    @Published var faceImage :UIImage?
+        @Published var isCameraOn = false
+        
+        // ARSCNViewへの参照を保持する
+        var arScnView: ARSCNView?
 }
 
 class CameraViewController: UIViewController,ARSCNViewDelegate,ARSessionDelegate{
@@ -27,7 +30,7 @@ class CameraViewController: UIViewController,ARSCNViewDelegate,ARSessionDelegate
         myArSceneView.delegate = self
         myArSceneView.session.delegate = self
         
-        myArSceneView.frame = self.view.frame
+        myArSceneView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.width)
         
 //        myArSceneView.showsStatistics = true
 //        myArSceneView.debugOptions = ARSCNDebugOptions.showFeaturePoints
@@ -122,6 +125,10 @@ struct CameraView: UIViewControllerRepresentable {
 
 
             let cameraViewController = CameraViewController()
+            
+            DispatchQueue.main.async {
+                        self.cameraviewmodel.arScnView = cameraViewController.myArSceneView
+                    }
             
             cameraViewController.cameraviewmodel = cameraviewmodel
             
