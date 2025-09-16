@@ -103,9 +103,6 @@ class CameraViewController: UIViewController,ARSCNViewDelegate,ARSessionDelegate
                             self.cameraviewmodel?.isCameraOn = false
                         }
                         
-                        
-
-                        
                         myArSceneView.session.remove(anchor: anchor)
                     }
                 }

@@ -12,7 +12,6 @@ struct ContentView: View {
     
     
     var body: some View {
-//        CameraHomeView()
         
         TabView {
             
@@ -35,7 +34,7 @@ struct ContentView: View {
                     Text("プロフィール")
                 }
             
-            CameraHomeView()
+            AlarmStartView()
                 .tabItem {
                     Image(systemName: "camera.circle.fill")
                     Text("プロフィール")
