@@ -41,7 +41,7 @@ struct ContentView: View {
                     Text("プロフィール")
                 }
         }
-//        .tint(Color(hex: "FF8300"))
+        .tint(Color(hex: "FF8300"))
         .navigationBarBackButtonHidden(true)
     }
     

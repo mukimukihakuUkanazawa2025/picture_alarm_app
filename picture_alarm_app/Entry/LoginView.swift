@@ -37,12 +37,12 @@ struct LoginView: View {
                     }
                     TextField("", text: $viewModel.email)
                         .padding(12)
-//                        .background(Color(hex: "6A6A6A"))
+                        .background(Color(hex: "6A6A6A"))
                         .cornerRadius(10)
                         .foregroundColor(.white)
                         .textInputAutocapitalization(.never)
                         .keyboardType(.emailAddress)
-//                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                         .autocapitalization(.none)
                     HStack{
                         Text(" パスワード")
@@ -53,7 +53,7 @@ struct LoginView: View {
                     }
                     SecureField("", text: $viewModel.password)
                         .padding(12)
-//                        .background(Color(hex: "6A6A6A"))
+                        .background(Color(hex: "6A6A6A"))
                         .cornerRadius(10)
                         .foregroundColor(.white)
                         .textInputAutocapitalization(.never)
