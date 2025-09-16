@@ -42,7 +42,7 @@ struct LoginView: View {
                         .foregroundColor(.white)
                         .textInputAutocapitalization(.never)
                         .keyboardType(.emailAddress)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+//                    .textFieldStyle(RoundedBorderTextFieldStyle())
                         .autocapitalization(.none)
                     HStack{
                         Text(" パスワード")
