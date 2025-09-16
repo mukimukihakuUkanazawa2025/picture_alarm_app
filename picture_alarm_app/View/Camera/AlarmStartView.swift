@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct AlarmStartView: View {
+    
+    
     @StateObject private var alarmService = AlarmService.shared
     
     @State var wakeupTimeText = ""
@@ -15,13 +17,16 @@ struct AlarmStartView: View {
     
     @State var isAlarmStart = false
     
+    
+    
     var body: some View {
         VStack{
             if alarmService.isAlarmOn{
-                Text("\(wakeupTimeText)")
-                Text("\(leaveTimeText)")
+               
+                
             }else{
                  AlarmDoneView()
+                Text("a")
             }
             
            
@@ -33,12 +38,21 @@ struct AlarmStartView: View {
                 alarmService.isAlarmOn = false
             }
             
+            alarmService.isAlarmOn = true
+            
             let formatter = DateFormatter()
             formatter.dateStyle = .none
             formatter.timeStyle = .medium
             
-            wakeupTimeText = formatter.string(for: alarmService.currentAlarm!.wakeUpTime) ?? ""
-            leaveTimeText = formatter.string(from: alarmService.currentAlarm!.leaveTime) ?? ""
+            if let currentAlarm = alarmService.currentAlarm {
+                
+                wakeupTimeText = formatter.string(for: currentAlarm.wakeUpTime)!
+                leaveTimeText = formatter.string(for: currentAlarm.leaveTime)!
+                
+            }
+            
+            
+        
         }
     }
     

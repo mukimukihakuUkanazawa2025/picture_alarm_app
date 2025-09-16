@@ -36,6 +36,9 @@ class AlarmService: ObservableObject {
     @Published var isAlarmPlaying = false // アラームが鳴っているかどうか
     @Published var isAlarmOn: Bool = false //アラームが設定ずみかチェック
     
+    @Published var isWakeupnow: Bool = false //起きているかチェック
+    
+    
     private init() {
         setupAudioSession()
         requestNotificationPermission()
