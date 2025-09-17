@@ -57,7 +57,11 @@ class AlarmService: ObservableObject {
     
     /// 日毎のアラームを追加
     func addAlarm(date: Date, wakeUpTime: Date, leaveTime: Date) {
-        let calendar = Calendar(identifier: .gregorian)
+        var calendar = Calendar(identifier: .gregorian)
+        
+        if let jstTimeZone = TimeZone(identifier: "Asia/Tokyo") {
+            calendar.timeZone = jstTimeZone
+        }
         
         // 変更点 4: `alarmdata`を`alarms`に変更
         if let index = alarms.firstIndex(where: { calendar.startOfDay(for: $0.date) == calendar.startOfDay(for: date)}){
@@ -115,7 +119,12 @@ class AlarmService: ObservableObject {
     
     /// 特定の日付のアラームを取得
     func getAlarm(for date: Date) -> AlarmData? {
-        let calendar = Calendar.current
+        var calendar = Calendar.current
+        
+        if let jstTimeZone = TimeZone(identifier: "Asia/Tokyo") {
+            calendar.timeZone = jstTimeZone
+        }
+        
         // 変更点 4: `alarmdata`を`alarms`に変更
         if let existingAlarm = alarms.first(where: { calendar.isDate($0.date, inSameDayAs: date) }) {
             return existingAlarm
@@ -209,7 +218,11 @@ class AlarmService: ObservableObject {
         guard let alarm = currentAlarm else { return }
         
         let now = Date()
-        let calendar = Calendar.current
+        var calendar = Calendar.current
+        
+        if let jstTimeZone = TimeZone(identifier: "Asia/Tokyo") {
+            calendar.timeZone = jstTimeZone
+        }
         
         // 日付と時刻を比較
         let nowComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: now)
