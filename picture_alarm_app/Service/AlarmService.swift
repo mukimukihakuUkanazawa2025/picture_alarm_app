@@ -12,9 +12,6 @@ import UserNotifications
 import SwiftData
 import SwiftUI
 
-
-
-
 // アラームのビューモデル
 @MainActor
 class AlarmService: ObservableObject {
@@ -285,5 +282,12 @@ class AlarmService: ObservableObject {
                 print("🔔 ローカル通知をスケジュールしました: \(alarm.id)")
             }
         }
+    }
+}
+
+extension AlarmService {
+    /// 出発アラームや外部から直接呼び出す用
+    func startAlarm() {
+        startAlarmSound()
     }
 }
