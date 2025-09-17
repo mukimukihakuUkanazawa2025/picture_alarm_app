@@ -9,7 +9,11 @@ import SwiftUI
 
 struct CameraImageCheckView: View {
     
+    @StateObject private var cameraviewmodel = CameraViewModel()
+    
     @StateObject private var alarmService = AlarmService.shared
+    
+    
     @Environment(\.dismiss) private var dismiss
     
     @Binding var CapturedImage: UIImage?
@@ -57,18 +61,22 @@ struct CameraImageCheckView: View {
                                 if let image = CapturedImage,
                                    let imageData = image.jpegData(compressionQuality: 0.8) {
                                     postService.uploadPost( imageData: imageData) { _ in
-                                        alarmService.isPrepareDone = true
-                                        alarmService.stopAlarm()
-                                        //                                        dismiss()
-                                        goToCountdown = true  // ← 遷移トリガー
                                         
-                                        defaults.set(nil, forKey: "wakuupImage")
+                                        Task { @MainActor in
+                                            alarmService.isPrepareDone = true
+                                            alarmService.stopAlarm()
+                                            //                                        dismiss()
+                                            goToCountdown = true  // ← 遷移トリガー
+                                            cameraviewmodel.isCameraOn = false
+                                            defaults.set(nil, forKey: "wakuupImage")
+                                            
+                                            dismiss()
+                                        }
                                         
-                                        dismiss()
                                     }
                                 } else {
                                     defaults.set(nil, forKey: "wakuupImage")
-
+                                    cameraviewmodel.isCameraOn = true
                                     alarmService.isPrepareDone = true
                                     alarmService.stopAlarm()
                                     dismiss()
@@ -95,13 +103,17 @@ struct CameraImageCheckView: View {
                                let imageData = image.jpegData(compressionQuality: 0.8) {
                                 
                                 
-                                defaults.set(imageData, forKey: "wakuupImage")
-                                defaults.synchronize()
+                                Task { @MainActor in
+                                    defaults.set(imageData, forKey: "wakuupImage")
+                                    defaults.synchronize()
+                                    alarmService.isWakeupnow = true
+                                    alarmService.stopAlarm()
+                                    dismiss()
+                                }
+
                             }
                             
-                            alarmService.isWakeupnow = true
-                            alarmService.stopAlarm()
-                            dismiss()
+
                         }) {
                             HStack {
                                 Text("確認")
@@ -118,24 +130,31 @@ struct CameraImageCheckView: View {
                         }
                         .padding(.horizontal, 40)
                     }
+                }.onAppear{
+                    print("テキスト")
+                    cameraviewmodel.isCameraOn = false
                 }
-                // 🔗 遷移リンク（裏に隠す）
-                NavigationLink(
-                    destination: DepartureCountdownView(
-                        departureTime: alarmService.currentAlarm?.leaveTime ?? Date(), // ← leaveTimeを参照
-                        wakeUpImage: CapturedImage
-                    ),
-                    isActive: $goToCountdown
-                ) {
-                    EmptyView()
-                }
+
+//                 🔗 遷移リンク（裏に隠す）
+//                NavigationLink(
+//                    destination: DepartureCountdownView(
+//                        departureTime: alarmService.currentAlarm?.leaveTime ?? Date(), // ← leaveTimeを参照
+//                        wakeUpImage: CapturedImage
+//                    ),
+//                    isActive: $goToCountdown
+//                ) {
+//                    EmptyView()
+//                }
             }
            
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
+                        cameraviewmodel.isCameraOn = true
+                        cameraviewmodel.isFaceOn = false
                         CapturedImage = nil
+                        
                         dismiss()
                         // ← 戻るボタンなのでここはdismiss()でOK
                     }) {

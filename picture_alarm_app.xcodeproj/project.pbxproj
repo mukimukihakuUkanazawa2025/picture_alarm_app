@@ -36,9 +36,22 @@
 		23EC16702E733F62000AEBCD /* picture_alarm_appUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = picture_alarm_appUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2358DAA22E7B14E800BB25EC /* Exceptions for "picture_alarm_app" folder in "picture_alarm_app" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"picture-alarm-app-Info.plist",
+			);
+			target = 23EC16562E733F60000AEBCD /* picture_alarm_app */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		23EC16592E733F60000AEBCD /* picture_alarm_app */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2358DAA22E7B14E800BB25EC /* Exceptions for "picture_alarm_app" folder in "picture_alarm_app" target */,
+			);
 			path = picture_alarm_app;
 			sourceTree = "<group>";
 		};
@@ -415,9 +428,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8CG4864C4M;
+				DEVELOPMENT_TEAM = 89QM95YN84;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "picture-alarm-app-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "カメラを使用します";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -443,9 +458,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8CG4864C4M;
+				DEVELOPMENT_TEAM = 89QM95YN84;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "picture-alarm-app-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "カメラを使用します";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
