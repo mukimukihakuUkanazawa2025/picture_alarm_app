@@ -66,12 +66,20 @@ struct YourApp: App {
 
         UITabBar.appearance().standardAppearance = tabAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabAppearance
+        
+        
     }
+    
+    @StateObject private var authViewModel = AuthViewModel()
 
     var body: some Scene {
         WindowGroup {
-            EntryView()
+            
+            
+            RootView()
+                .environmentObject(authViewModel)
         }.modelContainer(sharedModelContainer)
+           
     }
 }
 

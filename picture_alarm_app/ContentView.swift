@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import FirebaseAuth
 
 struct ContentView: View {
     
