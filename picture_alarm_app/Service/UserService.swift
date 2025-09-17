@@ -99,9 +99,13 @@ class UserService {
             return []
         }
         
-        let snapshot = try await db.collection("users")
-            .whereField("name_lowercase", isEqualTo: nameQuery.lowercased())
-            .getDocuments()
+        let lowercaseQuery = nameQuery.lowercased()
+                let endQuery = lowercaseQuery + "\u{f8ff}"
+                
+                let snapshot = try await db.collection("users")
+                                           .whereField("name_lowercase", isGreaterThanOrEqualTo: lowercaseQuery)
+                                           .whereField("name_lowercase", isLessThan: endQuery)
+                                           .getDocuments()
         
         let users = snapshot.documents.compactMap { doc -> User? in
             let data = doc.data()
@@ -110,11 +114,13 @@ class UserService {
             if id == Auth.auth().currentUser?.uid { return nil }
             
             return User(
-                id: id,
-                name: data["name"] as? String ?? "",
-                createAt: data["createAt"] as? Timestamp ?? Timestamp(),
-                name_lowercase: data["name_lowercase"] as? String ?? ""
-            )
+                            id: id, //ドキュメントIDをidにセット
+                            name: data["name"] as? String ?? "",
+                            createAt: data["createAt"] as? Timestamp ?? Timestamp(),
+                            name_lowercase: data["name_lowercase"] as? String ?? "",
+                            profileImageUrl: data["profileImageUrl"] as? String ?? "",
+                            bio: data["bio"] as? String ?? ""
+                        )
         }
         return users
     }
@@ -123,7 +129,17 @@ class UserService {
     func fetchUser(withId uid: String) async throws -> User? {
             let document = try await db.collection("users").document(uid).getDocument()
             
-            return try document.data(as: User.self)
+            guard let data = document.data() else { return nil }
+            
+            //Userモデルを作成
+            return User(
+                id: document.documentID, // ドキュメントIDをidにセット
+                name: data["name"] as? String ?? "",
+                createAt: data["createAt"] as? Timestamp ?? Timestamp(),
+                name_lowercase: data["name_lowercase"] as? String ?? "",
+                profileImageUrl: data["profileImageUrl"] as? String ?? "",
+                bio: data["bio"] as? String ?? ""
+            )
         }
     /// 2人のユーザーが既に友達かどうかをチェックする
     func checkIfFriends(userId1: String, userId2: String) async -> Bool {
