@@ -30,59 +30,83 @@ struct AlermView: View {
     
     @State private var editedAlarm: AlarmData?
     
+    @State private var isShowWakuUpDetailView = false
+    @State private var isShowLeaveDetailView = false
+    
     var body: some View {
-        NavigationView {
-            VStack(alignment: .leading, spacing: 0) {
-                VStack(alignment: .leading, spacing: 16) {
-                    HStack{
-                        Text(yearString)
-                            .font(.system(size: 34, weight: .semibold))
-                            .foregroundColor(.white)
-                        Spacer()
-                        Button{
-                            selectedDate = Date()
-                            
-                        }label:{
-                            Text("今日")
-                                .font(.title3)
-//                                .fontWeight(.bold)
+        NavigationView{
+            ZStack{
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack{
+                            Text(yearString)
+                                .font(.system(size: 34, weight: .semibold))
                                 .foregroundColor(.white)
-                                .padding()
-                            
-                                .background(Color.orange)
-                                .cornerRadius(12)
+                            Spacer()
+                            Button{
+                                selectedDate = Date()
+                                
+                            }label:{
+                                Text("今日")
+                                    .font(.title3)
+                                //                                .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                    .padding()
+                                
+                                    .background(Color.orange)
+                                    .cornerRadius(12)
+                            }
                         }
+                        
+                        MonthSelector(selectedDate: $selectedDate)
+                        DaySelector(selectedDate: $selectedDate)
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
                     
-                    MonthSelector(selectedDate: $selectedDate)
-                    DaySelector(selectedDate: $selectedDate)
+                    VStack(spacing: 28) {
+                        TimeCardView(title: "起床時間", time: wakeUpTime)
+                            .onTapGesture{
+                                isShowWakuUpDetailView = true
+                            }
+                        TimeCardView(title: "出発時間", time: leaveTime)
+                            .onTapGesture{
+                                isShowLeaveDetailView = true
+                            }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 28)
+                    
+                    Spacer()
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-                
-                VStack(spacing: 28) {
-                    TimeCardView(title: "起床時間", time: wakeUpTime)
-                    TimeCardView(title: "出発時間", time: leaveTime)
+                .onAppear{
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 28)
-                
-                Spacer()
+                .onChange(of: selectedDate){
+                    
+                    //日付に合うアラームを取得
+                    editedAlarm =  alarmService.getAlarm(for: selectedDate)
+                    
+                    
+                    
+                    wakeUpTime = editedAlarm!.wakeUpTime
+                    leaveTime = editedAlarm!.leaveTime
+                    
+                }
+                .background(Color.black.ignoresSafeArea())
+                Color.white
+                    .opacity((isShowWakuUpDetailView || isShowLeaveDetailView) ? 0.3 : 0)
+                    .onTapGesture {
+                        isShowWakuUpDetailView = false
+                        isShowLeaveDetailView = false
+                    }
+                    .ignoresSafeArea()
+                AlermWakuUpDetailView(wakeUpTime: $wakeUpTime, leaveTime: $leaveTime, isShowWakuUpDetailView: $isShowWakuUpDetailView)
+                    .opacity(isShowWakuUpDetailView ? 1 : 0)
+                AlermLeaveDetailView(wakeUpTime: $wakeUpTime, leaveTime: $leaveTime, isShowLeaveDetailView: $isShowLeaveDetailView)
+                    .opacity(isShowLeaveDetailView ? 1 : 0)
+
             }
-            .onAppear{
-            }
-            .onChange(of: selectedDate){
-                
-                //日付に合うアラームを取得
-                editedAlarm =  alarmService.getAlarm(for: selectedDate)
-                
-                
-                
-                wakeUpTime = editedAlarm!.wakeUpTime
-                leaveTime = editedAlarm!.leaveTime
-                
-            }
-            .background(Color.black.ignoresSafeArea())
             .navigationTitle("")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
