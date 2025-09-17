@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import FirebaseAuth
+
 
 struct EntryView: View {
     @State private var navigateToLogin = false
@@ -74,6 +76,8 @@ struct EntryView: View {
             .ignoresSafeArea()
         }
     }
+    
+    
 }
 
 #Preview {

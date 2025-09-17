@@ -1,7 +1,7 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseAuth
-//import FirebaseFirestoreCombineSwift
+
 // ユーザーのデータ構造
 struct User: Identifiable, Codable {
     var id: String
@@ -9,6 +9,7 @@ struct User: Identifiable, Codable {
     var createAt: Timestamp
     var name_lowercase: String?
     var profileImageUrl: String?
+    var bio: String?
 }
 
 // ユーザーのビューモデル
@@ -120,17 +121,10 @@ class UserService {
     
     /// ユーザーIDを指定して、単一のユーザー情報を取得する
     func fetchUser(withId uid: String) async throws -> User? {
-        let document = try await db.collection("users").document(uid).getDocument()
-        
-        guard let data = document.data() else { return nil }
-        
-        return User(
-            id: data["id"] as? String ?? "",
-            name: data["name"] as? String ?? "",
-            createAt: data["createAt"] as? Timestamp ?? Timestamp(),
-            name_lowercase: data["name_lowercase"] as? String ?? ""
-        )
-    }
+            let document = try await db.collection("users").document(uid).getDocument()
+            
+            return try document.data(as: User.self)
+        }
     /// 2人のユーザーが既に友達かどうかをチェックする
     func checkIfFriends(userId1: String, userId2: String) async -> Bool {
         let docRef = db.collection("users").document(userId1).collection("friends").document(userId2)
@@ -196,5 +190,24 @@ class UserService {
         
         try await batch.commit()
     }
+    
+    /// ユーザー情報を更新する
+       func updateUserProfile(userId: String, name: String, bio: String?, newProfileImageUrl: String?) async throws {
+           var data: [String: Any] = [
+               "name": name,
+               "name_lowercase": name.lowercased()
+           ]
+           
+           if let bio = bio {
+               data["bio"] = bio // bioはオプショナルなので、存在すれば追加
+           }
+           
+           if let newProfileImageUrl = newProfileImageUrl {
+               data["profileImageUrl"] = newProfileImageUrl // 新しい画像URLが存在すれば追加
+           }
+           
+           // .merge() を使うと、指定したフィールドだけを更新できる
+           try await db.collection("users").document(userId).setData(data, merge: true)
+       }
 }
 

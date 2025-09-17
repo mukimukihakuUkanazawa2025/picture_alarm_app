@@ -9,8 +9,13 @@
 
 import SwiftUI
 import UserNotifications
+import SwiftData
 
 struct AlermView: View {
+    
+//    @Query private var alarmdata: [AlarmData]
+//    @Environment(\.modelContext) private var context
+    
     @StateObject private var alarmService = AlarmService.shared
     @State private var wakeUpTime: Date = {
         let calendar = Calendar.current
@@ -22,6 +27,8 @@ struct AlermView: View {
     }()
     @State private var showingAlarmDetail = false
     @State private var selectedDate = Date()
+    
+    @State private var editedAlarm: AlarmData?
     
     var body: some View {
         NavigationView {
@@ -45,6 +52,19 @@ struct AlermView: View {
 
                 Spacer()
             }
+            .onAppear{
+            }
+            .onChange(of: selectedDate){
+                
+                //日付に合うアラームを取得
+                editedAlarm =  alarmService.getAlarm(for: selectedDate)
+                
+                
+                
+                wakeUpTime = editedAlarm!.wakeUpTime
+                leaveTime = editedAlarm!.leaveTime
+                
+            }
             .background(Color.black.ignoresSafeArea())
             .navigationTitle("")
             .toolbar {
@@ -59,22 +79,36 @@ struct AlermView: View {
                 AlermDetailView(wakeUpTime: $wakeUpTime, leaveTime: $leaveTime)
             }
             .onAppear {
+                
+                //その日のアラームを取得
                 selectedDate = Date()
-                alarmService.addAlarm(date: Date(), wakeUpTime: wakeUpTime, leaveTime: leaveTime)
+                editedAlarm =  alarmService.getAlarm(for: selectedDate)
+                
+                wakeUpTime = editedAlarm!.wakeUpTime
+                leaveTime = editedAlarm!.leaveTime
             }
             .onChange(of: wakeUpTime) { _ in
-                if let todayAlarm = alarmService.getTodayAlarm() {
-                    alarmService.updateAlarm(id: todayAlarm.id, date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
-                } else {
-                    alarmService.addAlarm(date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
-                }
+                
+                let gettedAlarm:AlarmData = alarmService.getAlarm(for: selectedDate)!
+                
+                alarmService.updateAlarm(id: gettedAlarm.id, date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
+                
+                //                if let todayAlarm = alarmService.getTodayAlarm() {
+                //                    alarmService.updateAlarm(id: todayAlarm.id, date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
+                //                } else {
+                //                    alarmService.addAlarm(date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
+                //                }
             }
             .onChange(of: leaveTime) { _ in
-                if let todayAlarm = alarmService.getTodayAlarm() {
-                    alarmService.updateAlarm(id: todayAlarm.id, date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
-                } else {
-                    alarmService.addAlarm(date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
-                }
+                let gettedAlarm:AlarmData = alarmService.getAlarm(for: selectedDate)!
+                
+                alarmService.updateAlarm(id: gettedAlarm.id, date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
+//
+//                if let todayAlarm = alarmService.getTodayAlarm() {
+//                    alarmService.updateAlarm(id: todayAlarm.id, date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
+//                } else {
+//                    alarmService.addAlarm(date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
+//                }
             }
         }
     }
