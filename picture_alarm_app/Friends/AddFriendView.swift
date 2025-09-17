@@ -45,21 +45,30 @@ struct AddFriendView: View {
                             
                             Spacer()
                             
-                            if let status = viewModel.requestStatus[user.id] {
+                            if let status = viewModel.relationshipStatus[user.id] {
                                 switch status {
-                                case .canRequest:
-                                    Button("追加") {
-                                        Task {
-                                            await viewModel.sendFriendRequest(to: user)
-                                        }
-                                    }
-                                    .buttonStyle(.borderedProminent)
-                                    .tint(.blue)
-                                case .requestSent:
-                                    Button("申請済み") {}
-                                    .buttonStyle(.bordered)
-                                    .disabled(true)
-                                }
+                                            case .none:
+                                                Button("追加") {
+                                                    Task {
+                                                        await viewModel.sendFriendRequest(to: user)
+                                                    }
+                                                }
+                                                .buttonStyle(.borderedProminent)
+                                                .tint(.blue)
+                                            
+                                            case .requestSent:
+                                                Button("申請済み") {}
+                                                .buttonStyle(.bordered)
+                                                .disabled(true)
+                                                
+                                            case .friends: // 👈 このケースを追加
+                                                HStack(spacing: 4) {
+                                                    Image(systemName: "checkmark")
+                                                    Text("友達")
+                                                }
+                                                .font(.footnote)
+                                                .foregroundColor(.gray)
+                                            }
                             }
                         }
                         .padding(.vertical, 8)

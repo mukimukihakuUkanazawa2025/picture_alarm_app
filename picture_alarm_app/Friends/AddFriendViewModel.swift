@@ -5,62 +5,103 @@ import FirebaseAuth
 @MainActor
 class AddFriendViewModel: ObservableObject {
     
-    enum RequestStatus {
-        case canRequest, requestSent
+    enum RelationshipStatus {
+        case none, requestSent, friends
     }
     
     @Published var searchText = ""
     @Published var searchResults: [User] = []
-    @Published var requestStatus: [String: RequestStatus] = [:]
+    @Published var relationshipStatus: [String: RelationshipStatus] = [:]
     @Published var isLoading = false
     
+    private var sentRequests: [String: FriendRequest] = [:]
     private var cancellables = Set<AnyCancellable>()
     private let currentUserId = Auth.auth().currentUser?.uid
+    private let userService = UserService.shared
 
     init() {
         $searchText
             .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
             .removeDuplicates()
             .sink { [weak self] query in
-                // async関数を呼び出すためにTaskで囲む
-                Task {
-                    await self?.performSearch(query: query)
-                }
+                Task { await self?.performSearch(query: query) }
             }
             .store(in: &cancellables)
     }
     
-    /// 検索を実行する
     func performSearch(query: String) async {
+        guard let currentUserId = self.currentUserId, !query.isEmpty else {
+            self.searchResults = []
+            return
+        }
+        
         isLoading = true
-        defer { isLoading = false } // 関数を抜けるときに必ず実行される
+        defer { isLoading = false }
         
         do {
-            let users = try await UserService.shared.searchUsers(byName: query)
+            let users = try await userService.searchUsers(byName: query)
             self.searchResults = users
-            // 新しい検索結果の申請状況を初期化
-            users.forEach { user in
-                self.requestStatus[user.id] = .canRequest
+            
+            // TaskGroupを使って関係性を並行チェック
+            self.relationshipStatus = await withTaskGroup(
+                of: (String, RelationshipStatus, FriendRequest?).self,
+                returning: [String: RelationshipStatus].self
+            ) { group in
+                
+                for user in users {
+                    let userId = user.id
+                    
+                    group.addTask {
+                        if await self.userService.checkIfFriends(userId1: currentUserId, userId2: userId) {
+                            return (userId, .friends, nil)
+                        } else if let request = try? await self.userService.checkFriendRequestStatus(from: currentUserId, to: userId) {
+                            if request.fromId == currentUserId {
+                                return (userId, .requestSent, request)
+                            }
+                        }
+                        return (userId, .none, nil)
+                    }
+                }
+                
+                var statuses: [String: RelationshipStatus] = [:]
+                for await (userId, status, request) in group {
+                    statuses[userId] = status
+                    if let request = request { self.sentRequests[userId] = request }
+                }
+                return statuses
             }
         } catch {
             print("Error searching users: \(error.localizedDescription)")
-            self.searchResults = [] // エラー時は結果をクリア
+            self.searchResults = []
         }
     }
     
-    /// 友達申請を送る
     func sendFriendRequest(to user: User) async {
         guard let currentUserId = self.currentUserId else { return }
+        let userId = user.id // 👇 guard letは不要
         
-        // UIに即時反映
-        requestStatus[user.id] = .requestSent
+        relationshipStatus[userId] = .requestSent
         
         do {
-            try await UserService.shared.sendFriendRequest(to: user.id, from: currentUserId)
+            try await userService.sendFriendRequest(to: userId, from: currentUserId)
+            await performSearch(query: self.searchText)
         } catch {
             print("Error sending friend request: \(error.localizedDescription)")
-            // エラーが起きたらボタンを元に戻す
-            self.requestStatus[user.id] = .canRequest
+            relationshipStatus[userId] = .none
+        }
+    }
+    
+    func cancelFriendRequest(to user: User) async {
+        let userId = user.id // 👇 guard letは不要
+        guard let requestToCancel = self.sentRequests[userId] else { return }
+        
+        relationshipStatus[userId] = .none
+        
+        do {
+            try await userService.declineFriendRequest(requestId: requestToCancel.id)
+        } catch {
+            print("Error canceling friend request: \(error.localizedDescription)")
+            relationshipStatus[userId] = .requestSent
         }
     }
 }
