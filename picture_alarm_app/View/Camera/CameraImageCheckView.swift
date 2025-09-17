@@ -53,11 +53,13 @@ struct CameraImageCheckView: View {
                             Task {
                                 if let image = CapturedImage,
                                    let imageData = image.jpegData(compressionQuality: 0.8) {
-                                    postService.uploadPost(userName: "test", imageData: imageData) { _ in
+                                    postService.uploadPost( imageData: imageData) { _ in
                                         alarmService.isPrepareDone = true
                                         alarmService.stopAlarm()
                                         //                                        dismiss()
                                         goToCountdown = true  // ← 遷移トリガー
+                                        
+                                        dismiss()
                                     }
                                 } else {
                                     alarmService.isPrepareDone = true

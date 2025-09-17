@@ -72,7 +72,7 @@ struct TestPostingView: View {
                 Button("投稿する") {
                     print("投稿開始: 画像データサイズ = \(imageData.count) バイト")
                     isUploading = true
-                    postService.uploadPost(userName: userName, imageData: imageData) { error in
+                    postService.uploadPost(imageData: imageData) { error in
                         isUploading = false
                         if let error = error {
                             print("投稿エラー詳細: \(error)")

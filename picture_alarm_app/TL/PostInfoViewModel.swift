@@ -13,7 +13,11 @@ class PostService {
     private let db = Firestore.firestore()
     private let storage = Storage.storage()
     
-    func uploadPost(userName: String, imageData: Data, completion: @escaping (Error?) -> Void) {
+    var currentUserData: User?
+    
+    private let userService = UserService.shared
+    
+    func uploadPost(imageData: Data, completion: @escaping (Error?) -> Void) {
         
         // サインイン状態確認
         guard let currentUser = Auth.auth().currentUser else {
@@ -41,10 +45,12 @@ class PostService {
                     return
                 }
                 
+                self.currentUserData = try await userService.fetchUser(withId: currentUser.uid)
+                
                 // Firestoreに投稿情報を保存
                 let post: [String: Any] = [
                     "id": postRef.documentID,
-                    "userName": userName,
+                    "userName": self.currentUserData?.name ?? "No name",
                     "postTime": FieldValue.serverTimestamp(),
                     "imageUrl": urlString,
                     "goodCount": 0,
