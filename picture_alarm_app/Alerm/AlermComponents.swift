@@ -56,7 +56,7 @@ struct MonthSelector: View {
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 8)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    RoundedRectangle(cornerRadius: 15, style: .continuous)
                                         .fill(isSameMonth(monthDate, selectedDate) ? Color.white : Color.clear)
                                 )
                         }
