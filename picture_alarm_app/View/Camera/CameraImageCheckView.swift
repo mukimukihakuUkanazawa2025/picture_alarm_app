@@ -111,12 +111,15 @@ struct CameraImageCheckView: View {
                     isActive: $goToCountdown
                 ) {
                     EmptyView()
-                }            }
+                }
+            }
+           
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
                         CapturedImage = nil
+                        dismiss()
                         // ← 戻るボタンなのでここはdismiss()でOK
                     }) {
                         Image(systemName: "chevron.left")

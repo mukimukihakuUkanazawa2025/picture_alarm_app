@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct CameraViewWrapper: View {
+    @StateObject private var alarmService: AlarmService = .shared
     @StateObject private var cameraviewmodel = CameraViewModel()
     @State private var capturedImage: UIImage? = nil
     @State private var isShowingCheckView = false
+    @State private var wakeuptime:String = ""
 
     var body: some View {
         ZStack {
@@ -25,7 +27,7 @@ struct CameraViewWrapper: View {
                         .font(.headline)
                         .padding(.top, 60)
 
-                    Text("08時20分") // TODO: Firestoreやアラーム設定から取得する
+                    Text(wakeuptime) // TODO: Firestoreやアラーム設定から取得する
                         .foregroundColor(.white)
                         .font(.system(size: 45))
                         .font(.system(size: 28, weight: .bold))
@@ -90,7 +92,19 @@ struct CameraViewWrapper: View {
                 CameraImageCheckView(CapturedImage: .constant(capturedImage))
             }
         }
+        .onAppear{
+            settime()
+        }
     }
+    
+    private func settime() {
+        let dateFormatter = DateFormatter()
+        
+        dateFormatter.dateFormat = "HH時mm分"
+        
+        wakeuptime = dateFormatter.string(from: alarmService.currentAlarm!.wakeUpTime )
+    }
+    
 }
 
 #Preview {

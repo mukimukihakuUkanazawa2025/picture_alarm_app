@@ -11,6 +11,10 @@ struct DepartureCountdownView: View {
     let departureTime: Date                // 出発時刻
     let wakeUpImage: UIImage?              // 寝起きで撮影した写真
     
+    @StateObject private var cameraviewmodel = CameraViewModel()
+    @State private var capturedImage: UIImage? = nil
+    @State private var isShowingCheckView = false
+    
     @State private var remainingTime: TimeInterval = 0
     
     // Combine のタイマー（毎秒更新）
@@ -31,25 +35,66 @@ struct DepartureCountdownView: View {
                     .font(.system(size: 35, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
                 
-                // --- 寝起き写真を表示（円形に切り抜き） ---
-                if let image = wakeUpImage {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 280, height: 280)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.orange, lineWidth: 5))
-                        .clipped()
-                } else {
-                    Circle()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(width: 280, height: 280)
-                        .overlay(Circle().stroke(Color.orange, lineWidth: 5))
-                }
-                
+                // --- カメラ映像 ---
+                CameraView(cameraviewmodel: cameraviewmodel)
+                    .clipShape(Circle())
+                    .overlay(
+                        Circle()
+                            .stroke(
+                                cameraviewmodel.isCameraOn ? Color(hex: "FF8300") : .white,
+                                lineWidth: 4
+                            )
+                    )
+                    .frame(width: 380, height: 380)
+
                 Spacer()
+                
+                Text("写真を撮ってアラームを止めよう！")
+                    .foregroundColor(.white)
+                    .font(.system(size: 20))
+                    .font(.system(size: 28, weight: .bold))
+                    .padding(.bottom, 20)
+                
+                Button(action: {
+                    if let view = cameraviewmodel.arScnView {
+                        let snapshot = view.snapshot()
+                        self.capturedImage = snapshot
+                        self.isShowingCheckView = true
+                    }
+                }) {
+                    if cameraviewmodel.isCameraOn {
+                        // --- 顔があるとき（有効） ---
+                        Text("撮影")
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white) // 白文字
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.orange) // オレンジ背景
+                            .cornerRadius(10)
+                    } else {
+                        // --- 顔がないとき（無効） ---
+                        Text("撮影")
+                            .fontWeight(.semibold)
+                            .foregroundColor(.black) // 黒文字
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.white) // 白背景
+                            .cornerRadius(10)
+                    }
+                }
+                .disabled(!cameraviewmodel.isCameraOn) // 顔がないときは押せない
+                .padding(.horizontal, 40)
+                .padding(.bottom, 80)
+                
+//                Spacer()
             }
             .padding(.top, 60)
+        }
+        // --- 撮影後の確認画面へ遷移 ---
+        .fullScreenCover(isPresented: $isShowingCheckView) {
+            if let capturedImage = capturedImage {
+                CameraImageCheckView(CapturedImage: .constant(capturedImage))
+            }
         }
         .onAppear {
             updateRemainingTime()

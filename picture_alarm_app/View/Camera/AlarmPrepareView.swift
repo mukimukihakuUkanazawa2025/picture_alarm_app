@@ -20,21 +20,15 @@ struct AlarmPrepareView: View {
         VStack{
             
             if alarmService.isWakeupnow && alarmService.currentAlarm != nil{
-                if Date() >= alarmService.currentAlarm!.leaveTime{
                     
+                    DepartureCountdownView(departureTime:  alarmService.currentAlarm!.leaveTime, wakeUpImage: UIImage(systemName: "house"))
                     
-                    CameraHomeView()
-                    
-                }
-                Text("\(leaveTimeText)")
-            } else if !alarmService.isWakeupnow && alarmService.currentAlarm != nil{
-                if Date() >= alarmService.currentAlarm!.wakeUpTime{
                    
-                    
-                    CameraHomeView()
-                    
-                }
-                Text("\(wakeupTimeText)")
+
+            } else if !alarmService.isWakeupnow && alarmService.currentAlarm != nil{
+                
+                CameraViewWrapper()
+                
             }else{
                 Text("アラームが設定されていないよ！")
             }
