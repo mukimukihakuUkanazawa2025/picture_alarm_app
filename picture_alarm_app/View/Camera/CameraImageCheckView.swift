@@ -15,6 +15,8 @@ struct CameraImageCheckView: View {
     @Binding var CapturedImage: UIImage?
     var postService = PostService()
     
+    @State private var goToCountdown = false   // ← 遷移フラグ
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -54,7 +56,8 @@ struct CameraImageCheckView: View {
                                     postService.uploadPost(userName: "test", imageData: imageData) { _ in
                                         alarmService.isPrepareDone = true
                                         alarmService.stopAlarm()
-                                        dismiss()
+                                        //                                        dismiss()
+                                        goToCountdown = true  // ← 遷移トリガー
                                     }
                                 } else {
                                     alarmService.isPrepareDone = true
@@ -99,14 +102,23 @@ struct CameraImageCheckView: View {
                         .padding(.horizontal, 40)
                     }
                 }
-            }
+                // 🔗 遷移リンク（裏に隠す）
+                NavigationLink(
+                    destination: DepartureCountdownView(
+                        departureTime: alarmService.currentAlarm?.leaveTime ?? Date(), // ← leaveTimeを参照
+                        wakeUpImage: CapturedImage
+                    ),
+                    isActive: $goToCountdown
+                ) {
+                    EmptyView()
+                }            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                // 左上に戻る「＜」ボタン
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
                         CapturedImage = nil
-                        dismiss() }) {
+                        // ← 戻るボタンなのでここはdismiss()でOK
+                    }) {
                         Image(systemName: "chevron.left")
                             .foregroundColor(.white)
                     }
@@ -115,3 +127,19 @@ struct CameraImageCheckView: View {
         }
     }
 }
+//            }
+//            .navigationBarTitleDisplayMode(.inline)
+//            .toolbar {
+//                // 左上に戻る「＜」ボタン
+//                ToolbarItem(placement: .navigationBarLeading) {
+//                    Button(action: {
+//                        CapturedImage = nil
+//                        dismiss() }) {
+//                        Image(systemName: "chevron.left")
+//                            .foregroundColor(.white)
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
