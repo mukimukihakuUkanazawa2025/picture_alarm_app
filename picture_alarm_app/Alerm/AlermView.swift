@@ -60,6 +60,7 @@ struct AlermView: View {
                 
                 // --- 月/日セレクタ ---
                 MonthSelector(selectedDate: $selectedDate)
+                    .padding(.top, 8)
                     .padding(.bottom, 16)
                 DaySelector(selectedDate: $selectedDate)
                 

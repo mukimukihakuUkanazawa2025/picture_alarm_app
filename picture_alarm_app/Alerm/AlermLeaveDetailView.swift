@@ -19,36 +19,38 @@ struct AlermLeaveDetailView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            Capsule()
-                .fill(Color.gray.opacity(0.5))
-                .frame(width: 40, height: 6)
-                .padding(.top, 12)
+//            Capsule()
+//                .fill(Color.gray.opacity(0.5))
+//                .frame(width: 40, height: 6)
             
             Text("出発時間を設定")
                 .font(.headline)
                 .foregroundColor(.white)
-                .padding(.top, 16)
+//                .padding(.top, 16)
             
-            DatePicker("", selection: $leaveTime, displayedComponents: .hourAndMinute)
-                .datePickerStyle(.wheel)
-                .labelsHidden()
-                .tint(.orange)
-                .environment(\.colorScheme, .dark)
-                .frame(height: 200)
-                .padding(.top, 24)
+//            DatePicker("", selection: $leaveTime, displayedComponents: .hourAndMinute)
+//                .datePickerStyle(.wheel)
+//                .labelsHidden()
+//                .tint(.orange)
+//                .environment(\.colorScheme, .dark)
+//                .frame(height: 200)
+//                .padding(.top, 24)
             
-            Spacer()
+            DatePicker(
+                "",
+                selection: $wakeUpTime,
+                displayedComponents: [.hourAndMinute]
+            )
+            .datePickerStyle(.wheel)
+            .labelsHidden()
+            .tint(.orange)
+            .environment(\.colorScheme, .dark)
+            .frame(height: 200)
+            .padding(.top, 24)
+            .padding(.bottom, 32)
+            
             
             HStack(spacing: 16) {
-                Button("キャンセル") {
-                    isShowLeaveDetailView = false
-                }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.gray.opacity(0.3))
-                .cornerRadius(12)
-                .foregroundColor(.white)
-                
                 Button("保存") {
                     saveAlarm()
                     isShowLeaveDetailView = false
@@ -58,6 +60,7 @@ struct AlermLeaveDetailView: View {
                 .background(Color(hex: "FF8300"))
                 .cornerRadius(12)
                 .foregroundColor(.white)
+                .padding(.bottom, 16)
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 32)
