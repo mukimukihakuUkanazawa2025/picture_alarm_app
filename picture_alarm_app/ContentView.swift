@@ -23,13 +23,13 @@ struct ContentView: View {
         
         ZStack{
             TabView {
-                   
+                
                 TLView()
                     .tabItem {
-
+                        
                         Image(systemName: "house")
                         Text("タイムライン")
-
+                        
                     }
                 AlermView()
                     .tabItem {
@@ -42,11 +42,11 @@ struct ContentView: View {
                         Text("プロフィール")
                     }
                 
-    //            AlarmStartView()
-    //                .tabItem {
-    //                    Image(systemName: "camera.circle.fill")
-    //                    Text("プロフィール")
-    //                }
+                //            AlarmStartView()
+                //                .tabItem {
+                //                    Image(systemName: "camera.circle.fill")
+                //                    Text("プロフィール")
+                //                }
             }
             .tint(Color(hex: "FF8300"))
             .navigationBarBackButtonHidden(true)
@@ -63,11 +63,11 @@ struct ContentView: View {
                         .frame(width: 50, height: 50)
                         .background(.orange)
                         .clipShape(Circle())
-                        
-                        
+                    
+                    
                 }
                 .padding(.bottom, 75) // 下から30ポイント上に配置
-
+                
                 .popover(isPresented: .constant(true)) {
                     popoverView
                         .presentationCompactAdaptation(PresentationAdaptation.popover)
@@ -81,14 +81,14 @@ struct ContentView: View {
         }
         .onAppear{
             if alarmService.isWakeupnow && alarmService.currentAlarm != nil{
-              
                 
-               
+                
+                
             } else if !alarmService.isWakeupnow && alarmService.currentAlarm != nil{
                 
-              
+                
             }else{
-              
+                
                 isShowPopover = false
             }
         }
@@ -105,7 +105,7 @@ struct ContentView: View {
                 Text("出発時刻")
                 Text(wakeuptime)
                 
-               
+                
             } else if !alarmService.isWakeupnow && alarmService.currentAlarm != nil{
                 
                 Text("起床時間")
@@ -113,7 +113,7 @@ struct ContentView: View {
                 
             }else{
                 Text("アラームが設定されていないよ！")
-//                isShowAlermStartView = false
+                //                isShowAlermStartView = false
             }
         }.onAppear{
             settime()
@@ -125,11 +125,15 @@ struct ContentView: View {
     
     private func settime() {
         let dateFormatter = DateFormatter()
-        
         dateFormatter.dateFormat = "HH時mm分"
         
-        wakeuptime = dateFormatter.string(from: alarmService.currentAlarm!.wakeUpTime )
-        leaveTime = dateFormatter.string(from: alarmService.currentAlarm!.leaveTime )
+        if let current = alarmService.currentAlarm {
+            wakeuptime = dateFormatter.string(from: current.wakeUpTime)
+            leaveTime  = dateFormatter.string(from: current.leaveTime)
+        } else {
+            wakeuptime = "--:--"
+            leaveTime  = "--:--"
+        }
     }
     
     
