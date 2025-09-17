@@ -13,8 +13,8 @@ import SwiftData
 
 struct AlermView: View {
     
-//    @Query private var alarmdata: [AlarmData]
-//    @Environment(\.modelContext) private var context
+    //    @Query private var alarmdata: [AlarmData]
+    //    @Environment(\.modelContext) private var context
     
     @StateObject private var alarmService = AlarmService.shared
     @State private var wakeUpTime: Date = {
@@ -34,22 +34,39 @@ struct AlermView: View {
         NavigationView {
             VStack(alignment: .leading, spacing: 0) {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text(yearString)
-                        .font(.system(size: 34, weight: .semibold))
-                        .foregroundColor(.white)
+                    HStack{
+                        Text(yearString)
+                            .font(.system(size: 34, weight: .semibold))
+                            .foregroundColor(.white)
+                        Spacer()
+                        Button{
+                            selectedDate = Date()
+                            
+                        }label:{
+                            Text("今日")
+                                .font(.title3)
+//                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .padding()
+                            
+                                .background(Color.orange)
+                                .cornerRadius(12)
+                        }
+                    }
+                    
                     MonthSelector(selectedDate: $selectedDate)
                     DaySelector(selectedDate: $selectedDate)
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
-
+                
                 VStack(spacing: 28) {
                     TimeCardView(title: "起床時間", time: wakeUpTime)
                     TimeCardView(title: "出発時間", time: leaveTime)
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 28)
-
+                
                 Spacer()
             }
             .onAppear{
@@ -103,12 +120,12 @@ struct AlermView: View {
                 let gettedAlarm:AlarmData = alarmService.getAlarm(for: selectedDate)!
                 
                 alarmService.updateAlarm(id: gettedAlarm.id, date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
-//
-//                if let todayAlarm = alarmService.getTodayAlarm() {
-//                    alarmService.updateAlarm(id: todayAlarm.id, date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
-//                } else {
-//                    alarmService.addAlarm(date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
-//                }
+                //
+                //                if let todayAlarm = alarmService.getTodayAlarm() {
+                //                    alarmService.updateAlarm(id: todayAlarm.id, date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
+                //                } else {
+                //                    alarmService.addAlarm(date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
+                //                }
             }
         }
     }
@@ -136,11 +153,12 @@ struct AlermView: View {
         // 出発時刻を起床時刻の1時間後に設定
         leaveTime = calendar.date(byAdding: .hour, value: 1, to: oneMinuteLater) ?? oneMinuteLater
     }
-
+    
     // MARK: - 日付表示ユーティリティ
     private var calendar: Calendar { Calendar.current }
     private var yearString: String {
         let f = DateFormatter()
+        f.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
         f.dateFormat = "yyyy年"
         return f.string(from: selectedDate)
     }
@@ -163,7 +181,7 @@ struct AlermView: View {
         f.dateFormat = "HH:mm"
         return f.string(from: date)
     }
-
+    
     // 月選択用
     private var monthsInYear: [Date] {
         let year = calendar.component(.year, from: selectedDate)
@@ -200,6 +218,7 @@ struct MonthSelector: View {
     @Binding var selectedDate: Date
     private let calendar = Calendar.current
     
+    // 変更点 1: ID生成時も時刻を正午に設定
     private var monthsInYear: [Date] {
         let year = calendar.component(.year, from: selectedDate)
         return (1...12).compactMap { month -> Date? in
@@ -207,6 +226,7 @@ struct MonthSelector: View {
             comps.year = year
             comps.month = month
             comps.day = 1
+            comps.hour = 12 // 👈 タイムゾーン問題を避けるため正午に設定
             return calendar.date(from: comps)
         }
     }
@@ -232,23 +252,46 @@ struct MonthSelector: View {
     }
     
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 16) {
-                ForEach(monthsInYear, id: \.self) { monthDate in
-                    Button(action: { setMonth(monthDate) }) {
-                        Text(monthString(from: monthDate))
-                            .font(.title3)
-                            .foregroundColor(isSameMonth(monthDate, selectedDate) ? .black : .white)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                    .fill(isSameMonth(monthDate, selectedDate) ? Color.white : Color.clear)
-                            )
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    ForEach(monthsInYear, id: \.self) { monthDate in
+                        Button(action: { setMonth(monthDate) }) {
+                            Text(monthString(from: monthDate))
+                                .font(.title3)
+                                .foregroundColor(isSameMonth(monthDate, selectedDate) ? .black : .white)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                        .fill(isSameMonth(monthDate, selectedDate) ? Color.white : Color.clear)
+                                )
+                        }
+                        .id(monthDate) // IDは正午の日付になっている
                     }
                 }
+                .padding(.horizontal, 16)
             }
-            .padding(.horizontal, 16)
+            // 変更点 2: スクロール処理をヘルパー関数で統一
+            .onChange(of: selectedDate) { newDate in
+                withAnimation {
+                    scrollToCenter(for: newDate, proxy: proxy)
+                }
+            }
+            .onAppear {
+                scrollToCenter(for: selectedDate, proxy: proxy)
+            }
+        }
+    }
+    
+    // 変更点 3: 共通のスクロール関数を作成
+    private func scrollToCenter(for date: Date, proxy: ScrollViewProxy) {
+        var components = calendar.dateComponents([.year, .month], from: date)
+        components.day = 1
+        components.hour = 12 // 👈 タイムゾーン問題を避けるため正午に設定
+        
+        if let startOfMonth = calendar.date(from: components) {
+            proxy.scrollTo(startOfMonth, anchor: .center)
         }
     }
 }
@@ -268,23 +311,32 @@ struct DaySelector: View {
     private func dayNumberString(_ day: Date) -> String { String(calendar.component(.day, from: day)) }
     
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 24) {
-                ForEach(daysInMonth, id: \.self) { day in
-                    Button(action: { selectedDate = day }) {
-                        Text(dayNumberString(day))
-                            .font(.title2)
-                            .foregroundColor(isSelectedDay(day) ? Color.white : Color.gray)
-                            .padding(.horizontal, 18)
-                            .padding(.vertical, 10)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .fill(isSelectedDay(day) ? Color.orange : Color.clear)
-                            )
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 24) {
+                    ForEach(daysInMonth, id: \.self) { day in
+                        Button(action: { selectedDate = day }) {
+                            Text(dayNumberString(day))
+                                .font(.title2)
+                                .foregroundColor(isSelectedDay(day) ? Color.white : Color.gray)
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 10)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(isSelectedDay(day) ? Color.orange : Color.clear)
+                                )
+                        }
                     }
                 }
+                .padding(.horizontal, 16)
+            }.onChange(of: selectedDate){ newDate in
+                // アニメーション付きで、選択された日付のボタンまでスクロール
+                
+                withAnimation {
+                    proxy.scrollTo(newDate, anchor: .center)
+                }
+                
             }
-            .padding(.horizontal, 16)
         }
     }
 }
