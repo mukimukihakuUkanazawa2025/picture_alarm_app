@@ -12,6 +12,8 @@ import FirebaseAuth
 @MainActor
 class EditProfileViewModel: ObservableObject {
     
+    let defaults = UserDefaults.standard
+    
     @Published var user: User?
     
     // 編集可能なフィールド
@@ -23,10 +25,14 @@ class EditProfileViewModel: ObservableObject {
         didSet { Task { await loadImage(from: selectedPhoto) } }
     }
     @Published var profileImage: UIImage?
+    @Published var hitozichiImage: UIImage?
     
     @Published var isLoading = false
     @Published var didSaveProfile = false
     
+    @Published var selectHitozichiPhoto: PhotosPickerItem? {
+        didSet { Task { await loadHitozichiImage(from: selectHitozichiPhoto) } }
+    }
     private let userService = UserService.shared
     private let storageService = StorageService.shared
     
@@ -43,6 +49,10 @@ class EditProfileViewModel: ObservableObject {
         
         self.displayName = self.user?.name ?? ""
         self.bio = self.user?.bio ?? ""
+        
+        if let imageData = defaults.data(forKey: "hitozichiImage"){
+            self.hitozichiImage = UIImage(data: imageData)
+        }
     }
     
     /// 選択されたフォトライブラリのアイテムをUIImageに変換する
@@ -50,6 +60,13 @@ class EditProfileViewModel: ObservableObject {
         guard let item = item else { return }
         guard let data = try? await item.loadTransferable(type: Data.self) else { return }
         self.profileImage = UIImage(data: data)
+    }
+    
+    /// 選択されたフォトライブラリのアイテムをUIImageに変換する
+    private func loadHitozichiImage(from item: PhotosPickerItem?) async {
+        guard let item = item else { return }
+        guard let data = try? await item.loadTransferable(type: Data.self) else { return }
+        self.hitozichiImage = UIImage(data: data)
     }
     
     /// 変更を保存する
@@ -72,6 +89,17 @@ class EditProfileViewModel: ObservableObject {
                 bio: bio,
                 newProfileImageUrl: newImageUrl
             )
+            
+            //人質写真をUserdefaultsに保存
+            if let hitozichiimage = self.hitozichiImage {
+                let data = hitozichiimage.jpegData(compressionQuality: 0.8) as NSData?
+                       if let imageData = data {
+//                           saveArray.append(imageData)
+                           
+                           defaults.set(imageData, forKey: "hitozichiImage")
+                           defaults.synchronize()
+                       }
+            }
             
             self.didSaveProfile = true
             

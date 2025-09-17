@@ -17,6 +17,9 @@ struct CameraImageCheckView: View {
     
     @State private var goToCountdown = false   // ← 遷移フラグ
     
+    let defaults = UserDefaults.standard
+    
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -59,9 +62,13 @@ struct CameraImageCheckView: View {
                                         //                                        dismiss()
                                         goToCountdown = true  // ← 遷移トリガー
                                         
+                                        defaults.set(nil, forKey: "wakuupImage")
+                                        
                                         dismiss()
                                     }
                                 } else {
+                                    defaults.set(nil, forKey: "wakuupImage")
+
                                     alarmService.isPrepareDone = true
                                     alarmService.stopAlarm()
                                     dismiss()
@@ -84,6 +91,14 @@ struct CameraImageCheckView: View {
                         .padding(.horizontal, 40)
                     } else {
                         Button(action: {
+                            if let image = CapturedImage,
+                               let imageData = image.jpegData(compressionQuality: 0.8) {
+                                
+                                
+                                defaults.set(imageData, forKey: "wakuupImage")
+                                defaults.synchronize()
+                            }
+                            
                             alarmService.isWakeupnow = true
                             alarmService.stopAlarm()
                             dismiss()
