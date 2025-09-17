@@ -99,9 +99,13 @@ class UserService {
             return []
         }
         
-        let snapshot = try await db.collection("users")
-            .whereField("name_lowercase", isEqualTo: nameQuery.lowercased())
-            .getDocuments()
+        let lowercaseQuery = nameQuery.lowercased()
+                let endQuery = lowercaseQuery + "\u{f8ff}"
+                
+                let snapshot = try await db.collection("users")
+                                           .whereField("name_lowercase", isGreaterThanOrEqualTo: lowercaseQuery)
+                                           .whereField("name_lowercase", isLessThan: endQuery)
+                                           .getDocuments()
         
         let users = snapshot.documents.compactMap { doc -> User? in
             let data = doc.data()
@@ -110,7 +114,7 @@ class UserService {
             if id == Auth.auth().currentUser?.uid { return nil }
             
             return User(
-                            id: id, // 👈 ドキュメントIDをidにセット
+                            id: id, //ドキュメントIDをidにセット
                             name: data["name"] as? String ?? "",
                             createAt: data["createAt"] as? Timestamp ?? Timestamp(),
                             name_lowercase: data["name_lowercase"] as? String ?? "",
@@ -129,7 +133,7 @@ class UserService {
             
             //Userモデルを作成
             return User(
-                id: document.documentID, // 👈 ドキュメントIDをidにセット
+                id: document.documentID, // ドキュメントIDをidにセット
                 name: data["name"] as? String ?? "",
                 createAt: data["createAt"] as? Timestamp ?? Timestamp(),
                 name_lowercase: data["name_lowercase"] as? String ?? "",
