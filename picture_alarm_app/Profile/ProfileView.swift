@@ -7,104 +7,102 @@
 
 // 自分の投稿情報やアカウント設定を行う画面
 import SwiftUI
-import FirebaseAuth
 
 struct ProfileView: View {
-    @State var showFriendsView: Bool = false
-    @State var showAddFriendView: Bool = false
-    @State var showFriendRequestView: Bool = false
+    @StateObject private var viewModel = ProfileViewModel()
+    
+    // 各シートの表示状態を管理
+    @State private var showFriendsView = false
+    @State private var showAddFriendView = false
+    @State private var showFriendRequestView = false
+    @State private var showSettingsView = false 
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
-                VStack(spacing: 16) {
-                    // プロフィールアイコン
-                    Image(systemName: "person.circle.fill")
-                        .resizable()
-                        .frame(width: 120, height: 120)
-                        .foregroundColor(.gray)
-                        .padding(.top, 20)
-                    
-                    // ユーザー名
-                    Text(Auth.auth().currentUser?.displayName ?? "ゲストユーザー")
-                        .font(.title)
-                        .foregroundColor(.white)
-                    
-                    // 友達数（仮）
-                    VStack {
-                        Text("友達")
-                            .foregroundColor(.gray)
-                            .font(.subheadline)
+                VStack(spacing: 20) {
+                    if viewModel.isLoading {
+                        ProgressView().progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    } else if let user = viewModel.currentUser {
                         
-                        Button(action: {
-                            showFriendsView.toggle()
-                        }) {
-                            Text("15") // ← ここは将来的に Firestore の friends.count に置き換え
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
+                        // --- プロフィールヘッダー ---
+                        VStack(spacing: 12) {
+            
+                            Button(action: { showSettingsView = true }) {
+                                AsyncImage(url: URL(string: user.profileImageUrl ?? "")) { image in
+                                    image.resizable().aspectRatio(contentMode: .fill)
+                                } placeholder: {
+                                    Image(systemName: "person.circle.fill")
+                                        .resizable().foregroundColor(.gray.opacity(0.5))
+                                }
+                                .frame(width: 100, height: 100)
+                                .clipShape(Circle())
+                            }
+                            
+                            Text(user.name)
+                                .font(.title2).fontWeight(.bold)
                         }
-                    }
-                    .padding(.vertical, 8)
-                    
-                    // プロフィールシェアボタン
-                    Button(action: {
-                        print("プロフィールをシェア tapped")
-                    }) {
-                        Label("プロフィールをシェア", systemImage: "square.and.arrow.up")
-                            .foregroundColor(.white)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.gray.opacity(0.5))
-                            .cornerRadius(12)
-                    }
-                    .padding(.horizontal)
-                    
-                    Divider().background(Color.gray)
-                    
-                    // 投稿一覧（仮で6個）
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                        ForEach(0..<9) { _ in
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.gray.opacity(0.3))
-                                .aspectRatio(1, contentMode: .fit)
+                        .padding(.top)
+                        
+                        // --- 友達情報 ---
+                        Button(action: { showFriendsView = true }) {
+                            VStack {
+                                // 👇 友達の数をViewModelから動的に表示
+                                Text("\(viewModel.friendCount)")
+                                    .font(.title3).fontWeight(.bold)
+                                Text("友達")
+                                    .font(.caption).foregroundColor(.gray)
+                            }
                         }
+                        
+                        Divider().background(Color.gray.opacity(0.5))
+                        
+                        // --- 投稿一覧グリッド (仮) ---
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 4) {
+                            ForEach(0..<9) { _ in
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.3))
+                                    .aspectRatio(1, contentMode: .fit)
+                            }
+                        }
+                        
                     }
-                    .padding(.horizontal)
                 }
+                .padding(.horizontal)
             }
-            .background(Color.black.ignoresSafeArea())
+            .background(.black)
+            .foregroundColor(.white)
+            .navigationTitle("プロフィール")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                // 左上にフレンド追加アイコン
+                // ツールバーのボタンを整理
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { showAddFriendView.toggle() }) {
-                        Image(systemName: "person.2.badge.plus.fill")
-                            .foregroundColor(.white)
+                    Button(action: { showAddFriendView = true }) {
+                        Image(systemName: "person.badge.plus")
                     }
                 }
                 
-                // 右上にフレンド申請確認アイコン
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showFriendRequestView.toggle() }) {
-                        Image(systemName: "bell.fill")
-                            .foregroundColor(.white)
+                    Button(action: { showFriendRequestView = true }) {
+                        Image(systemName: "bell")
                     }
                 }
             }
-            .sheet(isPresented: $showFriendRequestView) {
-                FriendRequestsView()
-            }
-            .sheet(isPresented: $showAddFriendView) {
-                AddFriendView()
-            }
-            .sheet(isPresented: $showFriendsView){
-                FriendsView()
+            // --- 各画面をシートで表示 ---
+            .sheet(isPresented: $showFriendsView) { FriendsView() }
+            .sheet(isPresented: $showAddFriendView) { AddFriendView() }
+            .sheet(isPresented: $showFriendRequestView) { FriendRequestsView() }
+            .sheet(isPresented: $showSettingsView) { EditProfileView(onProfileUpdate:{
+                Task{
+                    await viewModel.fetchUserProfile()
+                }
+            }) }
+        }
+        .preferredColorScheme(.dark)
+        .onAppear {
+            Task {
+                await viewModel.fetchUserProfile()
             }
         }
     }
 }
-
-#Preview {
-    ProfileView()
-}
-
