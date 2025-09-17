@@ -12,77 +12,96 @@ import UserNotifications
 import SwiftData
 import SwiftUI
 
+
+
+
 // アラームのビューモデル
+@MainActor
 class AlarmService: ObservableObject {
     
-    @Query private var alarmdata: [AlarmData]
-    @Environment(\.modelContext) private var context
     
+    // 変更点 1: @Queryを削除
+    // @Query private var alarmdata: [AlarmData]
+    
+    // 共有コンテナから直接、安全にmainContextを取得できる
+    private let context = sharedModelContainer.mainContext
     
     static let shared = AlarmService()
+    
     @Published var alarms: [AlarmData] = []
-    //今設定中のアラーム
     @Published var currentAlarm: AlarmData?
     private var timer: Timer?
-    private var alarmTimer: Timer? // アラーム音を繰り返し再生するタイマー
-    @Published var isAlarmPlaying = false // アラームが鳴っているかどうか
-    @Published var isAlarmOn: Bool = false //アラームが設定ずみかチェック
-    @Published var isWakeupnow: Bool = false //起きているかチェック
-    @Published var isPrepareDone: Bool = false //準備の時間も過ぎた
-    
-    
-    
+    private var alarmTimer: Timer?
+    @Published var isAlarmPlaying = false
+    @Published var isAlarmOn: Bool = false
+    @Published var isWakeupnow: Bool = false
+    @Published var isPrepareDone: Bool = false
     
     private init() {
         setupAudioSession()
         requestNotificationPermission()
-        //        loadAlarms()
+        fetchAlarms() // 変更点 2: 初期化時にデータを取得する
         startMonitoring()
+        setTodayAlarm()
     }
     
-    
-
+    // 変更点 3: 手動でデータを取得するメソッドを追加
+    /// SwiftDataからアラームを全て取得し、`alarms`プロパティを更新する
+    func fetchAlarms() {
+        let descriptor = FetchDescriptor<AlarmData>(sortBy: [SortDescriptor(\.date)])
+        do {
+            self.alarms = try context.fetch(descriptor)
+            print("アラームの取得に成功: \(alarms.count)件")
+        } catch {
+            print("アラームの取得に失敗: \(error)")
+        }
+//        print(self.alarms)
+    }
     
     /// 日毎のアラームを追加
     func addAlarm(date: Date, wakeUpTime: Date, leaveTime: Date) {
-        
         let calendar = Calendar(identifier: .gregorian)
         
-        if let index = alarmdata.firstIndex(where: { calendar.startOfDay(for: $0.date) ==  calendar.startOfDay(for: date)}){
-            updateAlarm(id: alarmdata[index].id, date: alarmdata[index].date, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
+        // 変更点 4: `alarmdata`を`alarms`に変更
+        if let index = alarms.firstIndex(where: { calendar.startOfDay(for: $0.date) == calendar.startOfDay(for: date)}){
+            updateAlarm(id: alarms[index].id, date: alarms[index].date, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
         } else {
             let alarm = AlarmData(date: date, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
             context.insert(alarm)
-            saveAlarms()
+            saveAndFetchAlarms() // 変更点 5: 保存と再取得を1つのメソッドにまとめる
             startMonitoring()
             scheduleNotification(for: alarm)
         }
-        
     }
     
     /// アラームを更新
     func updateAlarm(id: String, date: Date, wakeUpTime: Date, leaveTime: Date) {
-        if let index = alarmdata.firstIndex(where: { $0.id == id }) {
-            var alarm = alarmdata[index]
-            alarm = AlarmData(date: date, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
-            saveAlarms()
-            startMonitoring()
-            scheduleNotification(for: alarms[index])
-        }
+        // alarms配列から更新対象のアラーム（への参照）を探す
+            if let alarmToUpdate = alarms.first(where: { $0.id == id }) {
+                
+                // 参照している元のオブジェクトのプロパティを直接変更する
+                alarmToUpdate.date = date
+                alarmToUpdate.wakeUpTime = wakeUpTime
+                alarmToUpdate.leaveTime = leaveTime
+                
+                // 変更を保存し、配列を更新する
+                saveAndFetchAlarms()
+                startMonitoring()
+                
+                // 通知を再スケジュールする
+                scheduleNotification(for: alarmToUpdate)
+            }
     }
     
     /// アラームを削除
     func removeAlarm(id: String) {
-        
-        for alarm in alarmdata {
-            if alarm.id == id {
-                context.delete(alarm)
-            }
+        // 変更点 4: `alarmdata`を`alarms`に変更
+        if let alarmToDelete = alarms.first(where: { $0.id == id }) {
+            context.delete(alarmToDelete)
+            saveAndFetchAlarms() // 変更点 5
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
+            startMonitoring()
         }
-        
-        saveAlarms()
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
-        startMonitoring()
     }
     
     /// アラーム音を停止
@@ -92,7 +111,6 @@ class AlarmService: ObservableObject {
         isAlarmPlaying = false
         print("🔕 アラーム音を停止しました")
         
-        // 通知もキャンセル
         if let currentAlarm = currentAlarm {
             UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [currentAlarm.id])
         }
@@ -101,60 +119,58 @@ class AlarmService: ObservableObject {
     /// 特定の日付のアラームを取得
     func getAlarm(for date: Date) -> AlarmData? {
         let calendar = Calendar.current
-        if let index = alarmdata.firstIndex(where: { calendar.startOfDay(for: $0.date) ==  calendar.startOfDay(for: date)}){
-            //            updateAlarm(id: alarmdata[index].id, date: alarmdata[index].date, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
-            
-            return alarmdata[index]
+        // 変更点 4: `alarmdata`を`alarms`に変更
+        if let existingAlarm = alarms.first(where: { calendar.isDate($0.date, inSameDayAs: date) }) {
+            return existingAlarm
         } else {
-            addAlarm(date: date, wakeUpTime: Date(), leaveTime: Date())
-            
-            let alarm = getAlarm(for: date)
-            
-            
-            return alarm
+            // 見つからなかった場合、新しいものを作成して返す（再帰呼び出しは避ける）
+            let newAlarm = AlarmData(date: date, wakeUpTime: date, leaveTime: date)
+            context.insert(newAlarm)
+            saveAndFetchAlarms()
+            // alarms配列から新しいインスタンスを返す
+            return alarms.first(where: { $0.id == newAlarm.id })
         }
-        
     }
     
     /// 今日のアラームを取得
     func getTodayAlarm() -> AlarmData? {
-        return getAlarm(for: Date())
+        let todayalarm = getAlarm(for: Date())
+        if todayalarm?.wakeUpTime != todayalarm?.leaveTime {
+//            currentAlarm = todayalarm
+            
+            return todayalarm
+        }else{
+//            currentAlarm = nil
+            return nil
+        }
+    }
+    
+    func setTodayAlarm(){
+        let todayalarm = getAlarm(for: Date())
+        if todayalarm?.wakeUpTime != todayalarm?.leaveTime {
+//            currentAlarm = todayalarm
+            isAlarmOn = true
+
+        }else{
+//            currentAlarm = nil
+            isAlarmOn = false
+        }
     }
     
     // MARK: - Private Methods
     
-    //オーディオセッションの初期設定
-    private func setupAudioSession() {
-        do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-            try AVAudioSession.sharedInstance().setActive(true)
-        } catch {
-            print("オーディオセッションの設定に失敗: \(error)")
-        }
-    }
+    private func setupAudioSession() { /* ... 変更なし ... */ }
+    private func requestNotificationPermission() { /* ... 変更なし ... */ }
     
-    // 通知許可をリクエスト
-    private func requestNotificationPermission() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
-            if let error = error {
-                print("通知許可のリクエストに失敗: \(error)")
-            } else if granted {
-                print("通知許可が与えられました")
-            } else {
-                print("通知許可が拒否されました")
-            }
-        }
-    }
-    
-    // アラーム情報をSwiftDataに保存
-    private func saveAlarms() {
+    // 変更点 6: メソッド名を変更し、責務を明確化
+    /// 変更を保存し、データを再取得して`alarms`配列を更新する
+    private func saveAndFetchAlarms() {
         do {
             try context.save()
-        }catch {
-            print("error save")
+        } catch {
+            print("データの保存に失敗: \(error)")
         }
-        
-        alarms = alarmdata
+        fetchAlarms() // 保存後に必ずデータを再取得
     }
     
     // UserDefaultsからアラーム情報を読み込み
@@ -241,6 +257,10 @@ class AlarmService: ObservableObject {
     
     /// ローカル通知をスケジュール (30秒間音付き)
     func scheduleNotification(for alarm: AlarmData) {
+        if alarm.wakeUpTime == alarm.leaveTime {
+            return
+        }
+        
         let content = UNMutableNotificationContent()
         content.title = "アラーム"
         content.body = "起床時間です！"

@@ -5,7 +5,7 @@ import SwiftData
 //アラームデータ構造
 
 @Model
-class AlarmData: Identifiable {
+final class AlarmData: Identifiable {
     var id: String
     var date: Date
     var wakeUpTime: Date

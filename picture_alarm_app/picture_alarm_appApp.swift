@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseCore
+import SwiftData
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
@@ -70,9 +71,26 @@ struct YourApp: App {
     var body: some Scene {
         WindowGroup {
             EntryView()
-        }.modelContainer(for: AlarmData.self)
+        }.modelContainer(sharedModelContainer)
     }
 }
+
+
+// 共有のModelContainerを先に作ってしまう
+let sharedModelContainer: ModelContainer = {
+    // あなたのアプリで使うモデルのスキーマを定義
+    let schema = Schema([
+        AlarmData.self, // 例：Alarmモデル
+        // 他のモデルがあればここに追加
+    ])
+    let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+
+    do {
+        return try ModelContainer(for: schema, configurations: [modelConfiguration])
+    } catch {
+        fatalError("Could not create ModelContainer: \(error)")
+    }
+}() // 即時実行クロージャで初期化
 
 
 ////

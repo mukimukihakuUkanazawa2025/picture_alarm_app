@@ -159,8 +159,12 @@ struct AlermDetailView: View {
                                             minute: calendar.component(.minute, from: leaveTime),
                                             second: 0, of: selectedDate) ?? selectedDate
         
-        // AlarmServiceにアラームを追加して通知をスケジュール
-        AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime)
+//        // AlarmServiceにアラームを追加して通知をスケジュール
+//        AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime)
+        
+        let gettedAlarm:AlarmData = AlarmService.shared.getAlarm(for: selectedDate)!
+        
+        AlarmService.shared.updateAlarm(id: gettedAlarm.id, date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime)
         
         dismiss()
     }

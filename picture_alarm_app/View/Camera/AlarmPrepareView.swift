@@ -19,24 +19,30 @@ struct AlarmPrepareView: View {
     var body: some View {
         VStack{
             
-            if alarmService.isWakeupnow{
+            if alarmService.isWakeupnow && alarmService.currentAlarm != nil{
                 if Date() >= alarmService.currentAlarm!.leaveTime{
-                    Text("\(leaveTimeText)")
+                    
                     
                     CameraHomeView()
                     
                 }
-            } else {
+                Text("\(leaveTimeText)")
+            } else if !alarmService.isWakeupnow && alarmService.currentAlarm != nil{
                 if Date() >= alarmService.currentAlarm!.wakeUpTime{
-                    Text("\(wakeupTimeText)")
+                   
                     
                     CameraHomeView()
                     
                 }
+                Text("\(wakeupTimeText)")
+            }else{
+                Text("アラームが設定されていないよ！")
             }
             
             
         }.onAppear{
+            
+            alarmService.setTodayAlarm()
             
             //当日のアラームが設定されていなかったらアラーム待機画面にしない
             if alarmService.getTodayAlarm() == nil{

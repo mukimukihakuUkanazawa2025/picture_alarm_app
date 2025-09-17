@@ -32,6 +32,8 @@ struct AlarmStartView: View {
             
         }.onAppear{
             
+            alarmService.fetchAlarms()
+            
             //当日のアラームが設定されていなかったらアラーム待機画面にしない
             if alarmService.getTodayAlarm() == nil{
                 alarmService.isAlarmOn = false
