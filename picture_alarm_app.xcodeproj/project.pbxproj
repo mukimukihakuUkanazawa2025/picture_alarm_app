@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		422880A72E799ACE0091ED98 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 422880A62E799ACE0091ED98 /* FirebaseCore */; };
-		422880A92E799AE40091ED98 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 422880A82E799AE40091ED98 /* FirebaseFirestore */; };
-		422880AB2E799B270091ED98 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 422880AA2E799B270091ED98 /* FirebaseStorage */; };
-		4228815D2E799D530091ED98 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 4228815C2E799D530091ED98 /* FirebaseAuth */; };
+		4282F8082E7AEFEE00715AB9 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 4282F8072E7AEFEE00715AB9 /* FirebaseAuth */; };
+		4282F80A2E7AEFEE00715AB9 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4282F8092E7AEFEE00715AB9 /* FirebaseCore */; };
+		4282F80C2E7AEFEE00715AB9 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 4282F80B2E7AEFEE00715AB9 /* FirebaseFirestore */; };
+		4282F80E2E7AEFEE00715AB9 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 4282F80D2E7AEFEE00715AB9 /* FirebaseStorage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,36 +36,9 @@
 		23EC16702E733F62000AEBCD /* picture_alarm_appUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = picture_alarm_appUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		6FBD8AD12E798EBC00B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appTests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"GoogleService-Info.plist",
-				Profile/EditProfileViewModel.swift,
-				Profile/ProfileViewModel.swift,
-				Service/StorageService.swift,
-			);
-			target = 23EC16652E733F62000AEBCD /* picture_alarm_appTests */;
-		};
-		6FBD8AD22E798EBC00B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appUITests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"GoogleService-Info.plist",
-				Profile/EditProfileViewModel.swift,
-				Profile/ProfileViewModel.swift,
-				Service/StorageService.swift,
-			);
-			target = 23EC166F2E733F62000AEBCD /* picture_alarm_appUITests */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		23EC16592E733F60000AEBCD /* picture_alarm_app */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				6FBD8AD12E798EBC00B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appTests" target */,
-				6FBD8AD22E798EBC00B2164C /* Exceptions for "picture_alarm_app" folder in "picture_alarm_appUITests" target */,
-			);
 			path = picture_alarm_app;
 			sourceTree = "<group>";
 		};
@@ -86,10 +59,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				422880A72E799ACE0091ED98 /* FirebaseCore in Frameworks */,
-				422880A92E799AE40091ED98 /* FirebaseFirestore in Frameworks */,
-				422880AB2E799B270091ED98 /* FirebaseStorage in Frameworks */,
-				4228815D2E799D530091ED98 /* FirebaseAuth in Frameworks */,
+				4282F80A2E7AEFEE00715AB9 /* FirebaseCore in Frameworks */,
+				4282F80E2E7AEFEE00715AB9 /* FirebaseStorage in Frameworks */,
+				4282F8082E7AEFEE00715AB9 /* FirebaseAuth in Frameworks */,
+				4282F80C2E7AEFEE00715AB9 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -116,7 +89,6 @@
 				23EC16592E733F60000AEBCD /* picture_alarm_app */,
 				23EC16692E733F62000AEBCD /* picture_alarm_appTests */,
 				23EC16732E733F62000AEBCD /* picture_alarm_appUITests */,
-				422880A52E799ACE0091ED98 /* Frameworks */,
 				23EC16582E733F60000AEBCD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -129,13 +101,6 @@
 				23EC16702E733F62000AEBCD /* picture_alarm_appUITests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		422880A52E799ACE0091ED98 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -158,10 +123,10 @@
 			);
 			name = picture_alarm_app;
 			packageProductDependencies = (
-				422880A62E799ACE0091ED98 /* FirebaseCore */,
-				422880A82E799AE40091ED98 /* FirebaseFirestore */,
-				422880AA2E799B270091ED98 /* FirebaseStorage */,
-				4228815C2E799D530091ED98 /* FirebaseAuth */,
+				4282F8072E7AEFEE00715AB9 /* FirebaseAuth */,
+				4282F8092E7AEFEE00715AB9 /* FirebaseCore */,
+				4282F80B2E7AEFEE00715AB9 /* FirebaseFirestore */,
+				4282F80D2E7AEFEE00715AB9 /* FirebaseStorage */,
 			);
 			productName = picture_alarm_app;
 			productReference = 23EC16572E733F60000AEBCD /* picture_alarm_app.app */;
@@ -246,7 +211,7 @@
 			mainGroup = 23EC164E2E733F60000AEBCD;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				422880A42E799A4D0091ED98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				4282F8062E7AEFEE00715AB9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 23EC16582E733F60000AEBCD /* Products */;
@@ -450,10 +415,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 24NW965W29;
+				DEVELOPMENT_TEAM = 8CG4864C4M;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "このアプリはアラーム解除のために写真撮影を行います";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -464,7 +428,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "app.hakuu.mukimuki.picture-alarm-app";
+				PRODUCT_BUNDLE_IDENTIFIER = "app.hakuu.mukimuki.picture-alarm-app-aosuke";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -479,10 +443,9 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 24NW965W29;
+				DEVELOPMENT_TEAM = 8CG4864C4M;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "このアプリはアラーム解除のために写真撮影を行います";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -493,7 +456,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "app.hakuu.mukimuki.picture-alarm-app";
+				PRODUCT_BUNDLE_IDENTIFIER = "app.hakuu.mukimuki.picture-alarm-app-aosuke";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -615,7 +578,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		422880A42E799A4D0091ED98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+		4282F8062E7AEFEE00715AB9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
 			requirement = {
@@ -626,25 +589,25 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		422880A62E799ACE0091ED98 /* FirebaseCore */ = {
+		4282F8072E7AEFEE00715AB9 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 422880A42E799A4D0091ED98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = 4282F8062E7AEFEE00715AB9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		4282F8092E7AEFEE00715AB9 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4282F8062E7AEFEE00715AB9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
 		};
-		422880A82E799AE40091ED98 /* FirebaseFirestore */ = {
+		4282F80B2E7AEFEE00715AB9 /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 422880A42E799A4D0091ED98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = 4282F8062E7AEFEE00715AB9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
 		};
-		422880AA2E799B270091ED98 /* FirebaseStorage */ = {
+		4282F80D2E7AEFEE00715AB9 /* FirebaseStorage */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 422880A42E799A4D0091ED98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = 4282F8062E7AEFEE00715AB9 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
-		};
-		4228815C2E799D530091ED98 /* FirebaseAuth */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 422880A42E799A4D0091ED98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAuth;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -128,8 +128,13 @@ struct ContentView: View {
         
         dateFormatter.dateFormat = "HH時mm分"
         
-        wakeuptime = dateFormatter.string(from: alarmService.currentAlarm!.wakeUpTime )
-        leaveTime = dateFormatter.string(from: alarmService.currentAlarm!.leaveTime )
+        if let alarm = alarmService.currentAlarm {
+            wakeuptime = dateFormatter.string(from: alarm.wakeUpTime)
+            leaveTime = dateFormatter.string(from: alarm.leaveTime)
+        } else {
+            wakeuptime = "未設定"
+            leaveTime = "未設定"
+        }
     }
     
     
