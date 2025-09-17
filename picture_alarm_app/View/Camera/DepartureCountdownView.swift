@@ -41,7 +41,7 @@ struct DepartureCountdownView: View {
                     .overlay(
                         Circle()
                             .stroke(
-                                cameraviewmodel.isCameraOn ? Color(hex: "FF8300") : .white,
+                                cameraviewmodel.isFaceOn ? Color(hex: "FF8300") : .white,
                                 lineWidth: 4
                             )
                     )
@@ -60,9 +60,10 @@ struct DepartureCountdownView: View {
                         let snapshot = view.snapshot()
                         self.capturedImage = snapshot
                         self.isShowingCheckView = true
+                        cameraviewmodel.isCameraOn = false
                     }
                 }) {
-                    if cameraviewmodel.isCameraOn {
+                    if cameraviewmodel.isFaceOn {
                         // --- 顔があるとき（有効） ---
                         Text("撮影")
                             .fontWeight(.semibold)
@@ -82,7 +83,7 @@ struct DepartureCountdownView: View {
                             .cornerRadius(10)
                     }
                 }
-                .disabled(!cameraviewmodel.isCameraOn) // 顔がないときは押せない
+                .disabled(!cameraviewmodel.isFaceOn) // 顔がないときは押せない
                 .padding(.horizontal, 40)
                 .padding(.bottom, 80)
                 
@@ -93,11 +94,12 @@ struct DepartureCountdownView: View {
         // --- 撮影後の確認画面へ遷移 ---
         .fullScreenCover(isPresented: $isShowingCheckView) {
             if let capturedImage = capturedImage {
-                CameraImageCheckView(CapturedImage: .constant(capturedImage))
+                CameraImageCheckView(cameraviewmodel: cameraviewmodel , CapturedImage: $capturedImage)
             }
         }
         .onAppear {
             updateRemainingTime()
+            cameraviewmodel.isCameraOn = true
         }
         .onReceive(timer) { _ in
             updateRemainingTime()
