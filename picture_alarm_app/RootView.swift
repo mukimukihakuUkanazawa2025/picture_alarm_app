@@ -1,18 +1,15 @@
-//
-//  RootView.swift
-//  picture_alarm_app
-//
-//  Created by tanaka niko on 2025/09/17.
-//
-
 import SwiftUI
 
 struct RootView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
+    @EnvironmentObject var authViewModel: AuthViewModel
 
-#Preview {
-    RootView()
+    var body: some View {
+        if authViewModel.user != nil {
+            // ログイン済みならContentViewを表示
+            ContentView()
+        } else {
+            // 未ログインならEntryViewを表示
+            EntryView()
+        }
+    }
 }
