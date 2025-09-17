@@ -38,7 +38,7 @@ struct AlermLeaveDetailView: View {
             
             DatePicker(
                 "",
-                selection: $wakeUpTime,
+                selection: $leaveTime,
                 displayedComponents: [.hourAndMinute]
             )
             .datePickerStyle(.wheel)
