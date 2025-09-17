@@ -5,30 +5,17 @@
 //  Created by A S on 2025/09/12.
 //
 
-// 日付選択機能付きアラーム設定画面
-
 import SwiftUI
 import UserNotifications
 
+// 日付選択機能付きアラーム設定画面
 struct AlermDetailView: View {
     @Binding var wakeUpTime: Date
     @Binding var leaveTime: Date
     @Environment(\.dismiss) private var dismiss
     
     @State private var selectedDate = Date()
-    @State private var selectedMonth = Date()
-    @State private var selectedDay = Date()
-    
     private let calendar = Calendar.current
-    private let dateFormatter = DateFormatter()
-    
-    init(wakeUpTime: Binding<Date>, leaveTime: Binding<Date>) {
-        self._wakeUpTime = wakeUpTime
-        self._leaveTime = leaveTime
-        self._selectedDate = State(initialValue: Date())
-        self._selectedMonth = State(initialValue: Date())
-        self._selectedDay = State(initialValue: Date())
-    }
     
     var body: some View {
         NavigationView {
@@ -99,428 +86,39 @@ struct AlermDetailView: View {
         }
     }
     
-    // MARK: - 計算プロパティ
-    
-    private var yearString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy年"
-        return formatter.string(from: selectedDate)
-    }
-    
-    private var monthString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "M月"
-        return formatter.string(from: selectedDate)
-    }
-    
-    private var daysInMonth: [Date] {
-        guard let range = calendar.range(of: .day, in: .month, for: selectedDate) else { return [] }
-        return range.compactMap { day in
-            calendar.date(bySetting: .day, value: day, of: selectedDate)
-        }
-    }
-    
     // MARK: - メソッド
-    
-    private func setupInitialDate() {
-        selectedDate = Date()
-        selectedMonth = Date()
-        selectedDay = Date()
-    }
-    
-    private func selectDay(_ day: Date) {
-        selectedDay = day
-        selectedDate = day
-    }
-    
-    private func isSelectedDay(_ day: Date) -> Bool {
-        calendar.isDate(day, inSameDayAs: selectedDay)
-    }
-    
-    private func dayText(_ day: Date) -> String {
-        let dayNumber = calendar.component(.day, from: day)
-        let isSelected = isSelectedDay(day)
-        return isSelected ? "\(dayNumber)日" : "\(dayNumber)"
-    }
-    
-    private func timeString(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: date)
-    }
+    private func setupInitialDate() { selectedDate = Date() }
     
     private func saveAlarm() {
-        // 選択した日付と時刻を組み合わせてアラームを設定
-        let combinedDate = calendar.date(bySettingHour: calendar.component(.hour, from: wakeUpTime),
-                                         minute: calendar.component(.minute, from: wakeUpTime),
-                                         second: 0, of: selectedDate) ?? selectedDate
+        let combinedDate = calendar.date(
+            bySettingHour: calendar.component(.hour, from: wakeUpTime),
+            minute: calendar.component(.minute, from: wakeUpTime),
+            second: 0,
+            of: selectedDate
+        ) ?? selectedDate
         
-        let combinedLeaveTime = calendar.date(bySettingHour: calendar.component(.hour, from: leaveTime),
-                                              minute: calendar.component(.minute, from: leaveTime),
-                                              second: 0, of: selectedDate) ?? selectedDate
+        let combinedLeaveTime = calendar.date(
+            bySettingHour: calendar.component(.hour, from: leaveTime),
+            minute: calendar.component(.minute, from: leaveTime),
+            second: 0,
+            of: selectedDate
+        ) ?? selectedDate
         
-        //        // AlarmServiceにアラームを追加して通知をスケジュール
-        //        AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime)
-        
-        let gettedAlarm:AlarmData = AlarmService.shared.getAlarm(for: selectedDate)!
-        
-        AlarmService.shared.updateAlarm(id: gettedAlarm.id, date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime)
-        
+        if let gettedAlarm = AlarmService.shared.getAlarm(for: selectedDate) {
+            AlarmService.shared.updateAlarm(
+                id: gettedAlarm.id,
+                date: selectedDate,
+                wakeUpTime: combinedDate,
+                leaveTime: combinedLeaveTime
+            )
+        }
         dismiss()
     }
     
     private func requestNotificationAuthorization() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            if let error = error {
-                print("通知許可リクエストでエラー: \(error.localizedDescription)")
-            }
-            if granted {
-                print("通知許可が得られました。")
-            } else {
-                print("通知許可が拒否されました。")
-            }
-        }
-    }
-}
-
-struct AlermWakuUpDetailView: View {
-    @Binding var wakeUpTime: Date
-    @Binding var leaveTime: Date
-    @Binding var isShowWakuUpDetailView:Bool
-    @Environment(\.dismiss) private var dismiss
-    
-    @State private var selectedDate = Date()
-    @State private var selectedMonth = Date()
-    @State private var selectedDay = Date()
-    
-    private let calendar = Calendar.current
-    private let dateFormatter = DateFormatter()
-    
-    init(wakeUpTime: Binding<Date>, leaveTime: Binding<Date>,isShowWakuUpDetailView:Binding<Bool>) {
-        self._wakeUpTime = wakeUpTime
-        self._leaveTime = leaveTime
-        self._isShowWakuUpDetailView = isShowWakuUpDetailView
-        self._selectedDate = State(initialValue: Date())
-        self._selectedMonth = State(initialValue: Date())
-        self._selectedDay = State(initialValue: Date())
-    }
-    
-    var body: some View {
-//        NavigationView{
-            ZStack {
-//                Color.gray.opacity(0.3)
-//                    .onTapGesture {
-//                        dismiss()
-//                    }
-                
-                VStack(spacing: 0) {
-                    // 時刻設定（ホイール）エリア
-                    VStack(spacing: 28) {
-                        
-                        HStack{
-                            Button("キャンセル") {
-                                isShowWakuUpDetailView = false
-//                                dismiss()
-                                
-                            }
-                            .foregroundColor(.white)
-                            
-                            Spacer()
-                            
-                            Button("保存") {
-                                isShowWakuUpDetailView = false
-                                saveAlarm()
-                            }
-                            .foregroundColor(.white)
-                        }
-                        
-                        // 出発時間
-                        VStack(spacing: 16) {
-                            Text("起床時間")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            DatePicker("", selection: $wakeUpTime, displayedComponents: .hourAndMinute)
-                                .datePickerStyle(.wheel)
-                                .labelsHidden()
-                                .tint(.white)
-                                .environment(\.colorScheme, .dark)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 24)
-                        .background(Color.gray.opacity(0.28))
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical,32)
-                    
-//                    Spacer()
-                }
-
-            }
-            .background(Color.black)
-            .padding()
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .onAppear {
-                setupInitialDate()
-                requestNotificationAuthorization()
-            }
-        }
-    
-    // MARK: - 計算プロパティ
-    
-    private var yearString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy年"
-        return formatter.string(from: selectedDate)
-    }
-    
-    private var monthString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "M月"
-        return formatter.string(from: selectedDate)
-    }
-    
-    private var daysInMonth: [Date] {
-        guard let range = calendar.range(of: .day, in: .month, for: selectedDate) else { return [] }
-        return range.compactMap { day in
-            calendar.date(bySetting: .day, value: day, of: selectedDate)
-        }
-    }
-    
-    // MARK: - メソッド
-    
-    private func setupInitialDate() {
-        selectedDate = Date()
-        selectedMonth = Date()
-        selectedDay = Date()
-    }
-    
-    private func selectDay(_ day: Date) {
-        selectedDay = day
-        selectedDate = day
-    }
-    
-    private func isSelectedDay(_ day: Date) -> Bool {
-        calendar.isDate(day, inSameDayAs: selectedDay)
-    }
-    
-    private func dayText(_ day: Date) -> String {
-        let dayNumber = calendar.component(.day, from: day)
-        let isSelected = isSelectedDay(day)
-        return isSelected ? "\(dayNumber)日" : "\(dayNumber)"
-    }
-    
-    private func timeString(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: date)
-    }
-    
-    private func saveAlarm() {
-        // 選択した日付と時刻を組み合わせてアラームを設定
-        let combinedDate = calendar.date(bySettingHour: calendar.component(.hour, from: wakeUpTime),
-                                         minute: calendar.component(.minute, from: wakeUpTime),
-                                         second: 0, of: selectedDate) ?? selectedDate
-        
-        let combinedLeaveTime = calendar.date(bySettingHour: calendar.component(.hour, from: leaveTime),
-                                              minute: calendar.component(.minute, from: leaveTime),
-                                              second: 0, of: selectedDate) ?? selectedDate
-        
-        if combinedDate <= combinedLeaveTime {
-            //        // AlarmServiceにアラームを追加して通知をスケジュール
-            //        AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime)
-            
-            let gettedAlarm:AlarmData = AlarmService.shared.getAlarm(for: selectedDate)!
-            
-            AlarmService.shared.updateAlarm(id: gettedAlarm.id, date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime)
-        }
-        
-        
-        
-        dismiss()
-    }
-    
-    private func requestNotificationAuthorization() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            if let error = error {
-                print("通知許可リクエストでエラー: \(error.localizedDescription)")
-            }
-            if granted {
-                print("通知許可が得られました。")
-            } else {
-                print("通知許可が拒否されました。")
-            }
-        }
-    }
-}
-
-struct AlermLeaveDetailView: View {
-    @Binding var wakeUpTime: Date
-    @Binding var leaveTime: Date
-    @Binding var isShowLeaveDetailView :Bool
-    @Environment(\.dismiss) private var dismiss
-    
-    @State private var selectedDate = Date()
-    @State private var selectedMonth = Date()
-    @State private var selectedDay = Date()
-    
-    private let calendar = Calendar.current
-    private let dateFormatter = DateFormatter()
-    
-    init(wakeUpTime: Binding<Date>, leaveTime: Binding<Date>,isShowLeaveDetailView: Binding<Bool>) {
-        self._wakeUpTime = wakeUpTime
-        self._leaveTime = leaveTime
-        self._isShowLeaveDetailView = isShowLeaveDetailView
-        self._selectedDate = State(initialValue: Date())
-        self._selectedMonth = State(initialValue: Date())
-        self._selectedDay = State(initialValue: Date())
-    }
-    
-    var body: some View {
-//        NavigationView{
-            ZStack {
-//                Color.gray.opacity(0.3)
-//                    .onTapGesture {
-//                        dismiss()
-//                    }
-                
-                VStack(spacing: 0) {
-                    // 時刻設定（ホイール）エリア
-                    VStack(spacing: 28) {
-                        
-                        HStack{
-                            Button("キャンセル") {
-                                isShowLeaveDetailView = false
-//                                dismiss()
-                                
-                            }
-                            .foregroundColor(.white)
-                            
-                            Spacer()
-                            
-                            Button("保存") {
-                                isShowLeaveDetailView = false
-                                saveAlarm()
-                            }
-                            .foregroundColor(.white)
-                        }
-                        
-                        // 出発時間
-                        VStack(spacing: 16) {
-                            Text("出発時間")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            DatePicker("", selection: $leaveTime, displayedComponents: .hourAndMinute)
-                                .datePickerStyle(.wheel)
-                                .labelsHidden()
-                                .tint(.white)
-                                .environment(\.colorScheme, .dark)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 24)
-                        .background(Color.gray.opacity(0.28))
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical,32)
-                    
-//                    Spacer()
-                }
-
-            }
-            .background(Color.black)
-            .padding()
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .onAppear {
-                setupInitialDate()
-                requestNotificationAuthorization()
-            }
-        }
-//    }
-    
-    // MARK: - 計算プロパティ
-    
-    private var yearString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy年"
-        return formatter.string(from: selectedDate)
-    }
-    
-    private var monthString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "M月"
-        return formatter.string(from: selectedDate)
-    }
-    
-    private var daysInMonth: [Date] {
-        guard let range = calendar.range(of: .day, in: .month, for: selectedDate) else { return [] }
-        return range.compactMap { day in
-            calendar.date(bySetting: .day, value: day, of: selectedDate)
-        }
-    }
-    
-    // MARK: - メソッド
-    
-    private func setupInitialDate() {
-        selectedDate = Date()
-        selectedMonth = Date()
-        selectedDay = Date()
-    }
-    
-    private func selectDay(_ day: Date) {
-        selectedDay = day
-        selectedDate = day
-    }
-    
-    private func isSelectedDay(_ day: Date) -> Bool {
-        calendar.isDate(day, inSameDayAs: selectedDay)
-    }
-    
-    private func dayText(_ day: Date) -> String {
-        let dayNumber = calendar.component(.day, from: day)
-        let isSelected = isSelectedDay(day)
-        return isSelected ? "\(dayNumber)日" : "\(dayNumber)"
-    }
-    
-    private func timeString(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: date)
-    }
-    
-    private func saveAlarm() {
-        // 選択した日付と時刻を組み合わせてアラームを設定
-        let combinedDate = calendar.date(bySettingHour: calendar.component(.hour, from: wakeUpTime),
-                                         minute: calendar.component(.minute, from: wakeUpTime),
-                                         second: 0, of: selectedDate) ?? selectedDate
-        
-        let combinedLeaveTime = calendar.date(bySettingHour: calendar.component(.hour, from: leaveTime),
-                                              minute: calendar.component(.minute, from: leaveTime),
-                                              second: 0, of: selectedDate) ?? selectedDate
-        
-        if combinedDate <= combinedLeaveTime {
-            //        // AlarmServiceにアラームを追加して通知をスケジュール
-            //        AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime)
-            
-            let gettedAlarm:AlarmData = AlarmService.shared.getAlarm(for: selectedDate)!
-            
-            AlarmService.shared.updateAlarm(id: gettedAlarm.id, date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime)
-        }
-        
-        dismiss()
-    }
-    
-    private func requestNotificationAuthorization() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            if let error = error {
-                print("通知許可リクエストでエラー: \(error.localizedDescription)")
-            }
-            if granted {
-                print("通知許可が得られました。")
-            } else {
-                print("通知許可が拒否されました。")
-            }
-        }
+        UNUserNotificationCenter.current().requestAuthorization(
+            options: [.alert, .sound, .badge]
+        ) { _,_ in }
     }
 }
 

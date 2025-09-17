@@ -5,18 +5,13 @@
 //  Created by A S on 2025/09/12.
 //
 
-// アラーム一覧/当日表示UI
-
 import SwiftUI
 import UserNotifications
 import SwiftData
 
 struct AlermView: View {
-    
-    //    @Query private var alarmdata: [AlarmData]
-    //    @Environment(\.modelContext) private var context
-    
     @StateObject private var alarmService = AlarmService.shared
+    
     @State private var wakeUpTime: Date = {
         let calendar = Calendar.current
         return calendar.date(bySettingHour: 7, minute: 0, second: 0, of: Date()) ?? Date()
@@ -25,369 +20,136 @@ struct AlermView: View {
         let calendar = Calendar.current
         return calendar.date(bySettingHour: 8, minute: 0, second: 0, of: Date()) ?? Date()
     }()
+    
     @State private var showingAlarmDetail = false
     @State private var selectedDate = Date()
-    
     @State private var editedAlarm: AlarmData?
     
+    // 起床時間/出発時間のモーダル表示フラグ
     @State private var isShowWakuUpDetailView = false
     @State private var isShowLeaveDetailView = false
     
     var body: some View {
-        NavigationView{
-            ZStack{
+        NavigationView {
+            VStack(alignment: .leading, spacing: 0) {
                 
-                VStack(alignment: .leading, spacing: 0) {
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack{
-                            Text(yearString)
-                                .font(.system(size: 34, weight: .semibold))
-                                .foregroundColor(.white)
-                            Spacer()
-                            Button{
-                                selectedDate = Date()
-                                
-                            }label:{
-                                Text("今日")
-                                    .font(.title3)
-                                //                                .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                                    .padding()
-                                
-                                    .background(Color.orange)
-                                    .cornerRadius(12)
-                            }
-                        }
-                        
-                        MonthSelector(selectedDate: $selectedDate)
-                        DaySelector(selectedDate: $selectedDate)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
-                    
-                    VStack(spacing: 28) {
-                        TimeCardView(title: "起床時間", time: wakeUpTime)
-                            .onTapGesture{
-                                isShowWakuUpDetailView = true
-                            }
-                        TimeCardView(title: "出発時間", time: leaveTime)
-                            .onTapGesture{
-                                isShowLeaveDetailView = true
-                            }
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 28)
+                // --- 年 + 今日ボタン ---
+                HStack {
+                    Text(yearString)
+                        .font(.system(size: 34, weight: .semibold))
+                        .foregroundColor(.white)
                     
                     Spacer()
-                }
-                .onAppear{
-                }
-                .onChange(of: selectedDate){
                     
-                    //日付に合うアラームを取得
-                    editedAlarm =  alarmService.getAlarm(for: selectedDate)
-                    
-                    
-                    
-                    wakeUpTime = editedAlarm!.wakeUpTime
-                    leaveTime = editedAlarm!.leaveTime
-                    
-                }
-                .background(Color.black.ignoresSafeArea())
-                Color.white
-                    .opacity((isShowWakuUpDetailView || isShowLeaveDetailView) ? 0.3 : 0)
-                    .onTapGesture {
-                        isShowWakuUpDetailView = false
-                        isShowLeaveDetailView = false
-                    }
-                    .ignoresSafeArea()
-                AlermWakuUpDetailView(wakeUpTime: $wakeUpTime, leaveTime: $leaveTime, isShowWakuUpDetailView: $isShowWakuUpDetailView)
-                    .opacity(isShowWakuUpDetailView ? 1 : 0)
-                AlermLeaveDetailView(wakeUpTime: $wakeUpTime, leaveTime: $leaveTime, isShowLeaveDetailView: $isShowLeaveDetailView)
-                    .opacity(isShowLeaveDetailView ? 1 : 0)
-
-            }
-            .navigationTitle("")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingAlarmDetail = true }) {
-                        Image(systemName: "pencil")
+                    Button(action: { selectedDate = Date() }) {
+                        Text("今日")
+                            .font(.headline)
                             .foregroundColor(.white)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                            .background(
+                                Calendar.current.isDate(selectedDate, inSameDayAs: Date())
+                                ? Color.gray
+                                : Color(hex: "FF8300")
+                            )
+                            .clipShape(Capsule())
                     }
                 }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                
+                // --- 月/日セレクタ ---
+                MonthSelector(selectedDate: $selectedDate)
+                    .padding(.bottom, 16)
+                DaySelector(selectedDate: $selectedDate)
+                
+                // --- 時刻カード ---
+                VStack(spacing: 28) {
+                    TimeCardView(title: "起床時間", time: wakeUpTime)
+                        .onTapGesture { isShowWakuUpDetailView = true }
+                    
+                    TimeCardView(title: "出発時間", time: leaveTime)
+                        .onTapGesture { isShowLeaveDetailView = true }
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 28)
+                
+                Spacer()
             }
+            .background(Color.black.ignoresSafeArea())
+            .navigationTitle("")
+//            .toolbar {
+//                ToolbarItem(placement: .navigationBarTrailing) {
+//                    Button(action: { showingAlarmDetail = true }) {
+//                        Image(systemName: "pencil")
+//                            .foregroundColor(.white)
+//                    }
+//                }
+//            }
+//             --- 詳細編集シート ---
             .sheet(isPresented: $showingAlarmDetail) {
                 AlermDetailView(wakeUpTime: $wakeUpTime, leaveTime: $leaveTime)
             }
+            // --- 起床時間モーダル ---
+            .sheet(isPresented: $isShowWakuUpDetailView) {
+                AlermWakuUpDetailView(
+                    wakeUpTime: $wakeUpTime,
+                    leaveTime: $leaveTime,
+                    isShowWakuUpDetailView: $isShowWakuUpDetailView
+                )
+                .presentationDetents([.fraction(0.75)]) // 下から 3/4 覆う
+                .presentationDragIndicator(.visible)
+            }
+            // --- 出発時間モーダル ---
+            .sheet(isPresented: $isShowLeaveDetailView) {
+                AlermLeaveDetailView(
+                    wakeUpTime: $wakeUpTime,
+                    leaveTime: $leaveTime,
+                    isShowLeaveDetailView: $isShowLeaveDetailView
+                )
+                .presentationDetents([.fraction(0.75)])
+                .presentationDragIndicator(.visible)
+            }
+            // --- データの反映 ---
             .onAppear {
-                
-                //その日のアラームを取得
                 selectedDate = Date()
-                editedAlarm =  alarmService.getAlarm(for: selectedDate)
-                
-                wakeUpTime = editedAlarm!.wakeUpTime
-                leaveTime = editedAlarm!.leaveTime
+                editedAlarm = alarmService.getAlarm(for: selectedDate)
+                wakeUpTime = editedAlarm?.wakeUpTime ?? wakeUpTime
+                leaveTime = editedAlarm?.leaveTime ?? leaveTime
+            }
+            .onChange(of: selectedDate) { _ in
+                editedAlarm = alarmService.getAlarm(for: selectedDate)
+                wakeUpTime = editedAlarm?.wakeUpTime ?? wakeUpTime
+                leaveTime = editedAlarm?.leaveTime ?? leaveTime
             }
             .onChange(of: wakeUpTime) { _ in
-                
-                let gettedAlarm:AlarmData = alarmService.getAlarm(for: selectedDate)!
-                
-                alarmService.updateAlarm(id: gettedAlarm.id, date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
-                
-                //                if let todayAlarm = alarmService.getTodayAlarm() {
-                //                    alarmService.updateAlarm(id: todayAlarm.id, date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
-                //                } else {
-                //                    alarmService.addAlarm(date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
-                //                }
+                if let gettedAlarm = alarmService.getAlarm(for: selectedDate) {
+                    alarmService.updateAlarm(
+                        id: gettedAlarm.id,
+                        date: selectedDate,
+                        wakeUpTime: wakeUpTime,
+                        leaveTime: leaveTime
+                    )
+                }
             }
             .onChange(of: leaveTime) { _ in
-                let gettedAlarm:AlarmData = alarmService.getAlarm(for: selectedDate)!
-                
-                alarmService.updateAlarm(id: gettedAlarm.id, date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
-                //
-                //                if let todayAlarm = alarmService.getTodayAlarm() {
-                //                    alarmService.updateAlarm(id: todayAlarm.id, date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
-                //                } else {
-                //                    alarmService.addAlarm(date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
-                //                }
+                if let gettedAlarm = alarmService.getAlarm(for: selectedDate) {
+                    alarmService.updateAlarm(
+                        id: gettedAlarm.id,
+                        date: selectedDate,
+                        wakeUpTime: wakeUpTime,
+                        leaveTime: leaveTime
+                    )
+                }
             }
         }
-    }
-    
-    // MARK: - テスト用メソッド
-    
-    private func setWakeUpTimeOneMinuteLater() {
-        let calendar = Calendar.current
-        wakeUpTime = calendar.date(byAdding: .minute, value: 1, to: Date()) ?? Date()
-    }
-    
-    private func setLeaveTimeOneMinuteLater() {
-        let calendar = Calendar.current
-        leaveTime = calendar.date(byAdding: .minute, value: 1, to: Date()) ?? Date()
-    }
-    
-    private func setCurrentTimeOneMinuteLater() {
-        // 現在時刻を1分後に設定（テスト用）
-        let calendar = Calendar.current
-        let oneMinuteLater = calendar.date(byAdding: .minute, value: 1, to: Date()) ?? Date()
-        
-        // 起床時刻を現在時刻の1分後に設定
-        wakeUpTime = oneMinuteLater
-        
-        // 出発時刻を起床時刻の1時間後に設定
-        leaveTime = calendar.date(byAdding: .hour, value: 1, to: oneMinuteLater) ?? oneMinuteLater
     }
     
     // MARK: - 日付表示ユーティリティ
-    private var calendar: Calendar { Calendar.current }
     private var yearString: String {
         let f = DateFormatter()
-        f.calendar = Calendar(identifier: Calendar.Identifier.gregorian)
         f.dateFormat = "yyyy年"
         return f.string(from: selectedDate)
-    }
-    private var monthString: String {
-        let f = DateFormatter()
-        f.dateFormat = "M月"
-        return f.string(from: selectedDate)
-    }
-    private var daysInMonth: [Date] {
-        guard let range = calendar.range(of: .day, in: .month, for: selectedDate) else { return [] }
-        return range.compactMap { day in
-            calendar.date(bySetting: .day, value: day, of: selectedDate)
-        }
-    }
-    private func selectDay(_ day: Date) { selectedDate = day }
-    private func isSelectedDay(_ day: Date) -> Bool { calendar.isDate(day, inSameDayAs: selectedDate) }
-    private func dayNumberString(_ day: Date) -> String { String(calendar.component(.day, from: day)) }
-    private func timeString(from date: Date) -> String {
-        let f = DateFormatter()
-        f.dateFormat = "HH:mm"
-        return f.string(from: date)
-    }
-    
-    // 月選択用
-    private var monthsInYear: [Date] {
-        let year = calendar.component(.year, from: selectedDate)
-        return (1...12).compactMap { month -> Date? in
-            var comps = DateComponents()
-            comps.year = year
-            comps.month = month
-            comps.day = 1
-            return calendar.date(from: comps)
-        }
-    }
-    private func monthString(from date: Date) -> String {
-        let f = DateFormatter()
-        f.dateFormat = "M月"
-        return f.string(from: date)
-    }
-    private func isSameMonth(_ lhs: Date, _ rhs: Date) -> Bool {
-        let l = calendar.dateComponents([.year, .month], from: lhs)
-        let r = calendar.dateComponents([.year, .month], from: rhs)
-        return l.year == r.year && l.month == r.month
-    }
-    private func setMonth(_ monthDate: Date) {
-        let currentDay = calendar.component(.day, from: selectedDate)
-        let range = calendar.range(of: .day, in: .month, for: monthDate) ?? 1..<29
-        var comps = calendar.dateComponents([.year, .month], from: monthDate)
-        comps.day = min(currentDay, range.count)
-        selectedDate = calendar.date(from: comps) ?? monthDate
-    }
-}
-
-// MARK: - Subviews
-
-struct MonthSelector: View {
-    @Binding var selectedDate: Date
-    private let calendar = Calendar.current
-    
-    // 変更点 1: ID生成時も時刻を正午に設定
-    private var monthsInYear: [Date] {
-        let year = calendar.component(.year, from: selectedDate)
-        return (1...12).compactMap { month -> Date? in
-            var comps = DateComponents()
-            comps.year = year
-            comps.month = month
-            comps.day = 1
-            comps.hour = 12 // 👈 タイムゾーン問題を避けるため正午に設定
-            return calendar.date(from: comps)
-        }
-    }
-    
-    private func monthString(from date: Date) -> String {
-        let f = DateFormatter()
-        f.dateFormat = "M月"
-        return f.string(from: date)
-    }
-    
-    private func isSameMonth(_ lhs: Date, _ rhs: Date) -> Bool {
-        let l = calendar.dateComponents([.year, .month], from: lhs)
-        let r = calendar.dateComponents([.year, .month], from: rhs)
-        return l.year == r.year && l.month == r.month
-    }
-    
-    private func setMonth(_ monthDate: Date) {
-        let currentDay = calendar.component(.day, from: selectedDate)
-        let range = calendar.range(of: .day, in: .month, for: monthDate) ?? 1..<29
-        var comps = calendar.dateComponents([.year, .month], from: monthDate)
-        comps.day = min(currentDay, range.count)
-        selectedDate = calendar.date(from: comps) ?? monthDate
-    }
-    
-    var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
-                    ForEach(monthsInYear, id: \.self) { monthDate in
-                        Button(action: { setMonth(monthDate) }) {
-                            Text(monthString(from: monthDate))
-                                .font(.title3)
-                                .foregroundColor(isSameMonth(monthDate, selectedDate) ? .black : .white)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 8)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                        .fill(isSameMonth(monthDate, selectedDate) ? Color.white : Color.clear)
-                                )
-                        }
-                        .id(monthDate) // IDは正午の日付になっている
-                    }
-                }
-                .padding(.horizontal, 16)
-            }
-            // 変更点 2: スクロール処理をヘルパー関数で統一
-            .onChange(of: selectedDate) { newDate in
-                withAnimation {
-                    scrollToCenter(for: newDate, proxy: proxy)
-                }
-            }
-            .onAppear {
-                scrollToCenter(for: selectedDate, proxy: proxy)
-            }
-        }
-    }
-    
-    // 変更点 3: 共通のスクロール関数を作成
-    private func scrollToCenter(for date: Date, proxy: ScrollViewProxy) {
-        var components = calendar.dateComponents([.year, .month], from: date)
-        components.day = 1
-        components.hour = 12 // 👈 タイムゾーン問題を避けるため正午に設定
-        
-        if let startOfMonth = calendar.date(from: components) {
-            proxy.scrollTo(startOfMonth, anchor: .center)
-        }
-    }
-}
-
-struct DaySelector: View {
-    @Binding var selectedDate: Date
-    private let calendar = Calendar.current
-    
-    private var daysInMonth: [Date] {
-        guard let range = calendar.range(of: .day, in: .month, for: selectedDate) else { return [] }
-        return range.compactMap { day in
-            calendar.date(bySetting: .day, value: day, of: selectedDate)
-        }
-    }
-    
-    private func isSelectedDay(_ day: Date) -> Bool { calendar.isDate(day, inSameDayAs: selectedDate) }
-    private func dayNumberString(_ day: Date) -> String { String(calendar.component(.day, from: day)) }
-    
-    var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 24) {
-                    ForEach(daysInMonth, id: \.self) { day in
-                        Button(action: { selectedDate = day }) {
-                            Text(dayNumberString(day))
-                                .font(.title2)
-                                .foregroundColor(isSelectedDay(day) ? Color.white : Color.gray)
-                                .padding(.horizontal, 18)
-                                .padding(.vertical, 10)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                        .fill(isSelectedDay(day) ? Color.orange : Color.clear)
-                                )
-                        }
-                    }
-                }
-                .padding(.horizontal, 16)
-            }.onChange(of: selectedDate){ newDate in
-                // アニメーション付きで、選択された日付のボタンまでスクロール
-                
-                withAnimation {
-                    proxy.scrollTo(newDate, anchor: .center)
-                }
-                
-            }
-        }
-    }
-}
-
-struct TimeCardView: View {
-    let title: String
-    let time: Date
-    
-    private func timeString(from date: Date) -> String {
-        let f = DateFormatter()
-        f.dateFormat = "HH:mm"
-        return f.string(from: date)
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(title)
-                .font(.headline)
-                .foregroundColor(.white)
-            Text(timeString(from: time))
-                .font(.system(size: 48, weight: .bold, design: .rounded))
-                .foregroundColor(.white)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(20)
-        .background(Color.gray.opacity(0.28))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
 
