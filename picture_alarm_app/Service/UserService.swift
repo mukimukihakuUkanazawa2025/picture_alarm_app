@@ -1,7 +1,6 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseAuth
-import FirebaseFirestoreCombineSwift
 
 // ユーザーのデータ構造
 struct User: Identifiable, Codable {
