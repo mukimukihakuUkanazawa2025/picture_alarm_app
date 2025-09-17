@@ -68,10 +68,10 @@ struct ContentView: View {
                 }
                 .padding(.bottom, 75) // 下から30ポイント上に配置
 
-                .popover(isPresented: .constant(isShowPopover)) {
+                .popover(isPresented: .constant(true)) {
                     popoverView
                         .presentationCompactAdaptation(PresentationAdaptation.popover)
-//                        .offset(y: -75)
+                        .offset(y: -75)
                 }
             }
             
