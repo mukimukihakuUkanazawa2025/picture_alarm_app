@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CameraImageCheckView: View {
     
-    @StateObject private var cameraviewmodel = CameraViewModel()
+    @ObservedObject  var cameraviewmodel : CameraViewModel
     
     @StateObject private var alarmService = AlarmService.shared
     
@@ -57,31 +57,60 @@ struct CameraImageCheckView: View {
                     // 下部ボタン
                     if alarmService.isWakeupnow {
                         Button(action: {
-                            Task {
-                                if let image = CapturedImage,
-                                   let imageData = image.jpegData(compressionQuality: 0.8) {
-                                    postService.uploadPost( imageData: imageData) { _ in
-                                        
-                                        Task { @MainActor in
-                                            alarmService.isPrepareDone = true
-                                            alarmService.stopAlarm()
-                                            //                                        dismiss()
-                                            goToCountdown = true  // ← 遷移トリガー
-                                            cameraviewmodel.isCameraOn = false
-                                            defaults.set(nil, forKey: "wakuupImage")
-                                            
-                                            dismiss()
-                                        }
-                                        
-                                    }
-                                } else {
+//                            guard let image = CapturedImage else {
+//                                // 画像がない場合は何もしないで画面を閉じる
+//                                defaults.set(nil, forKey: "wakuupImage")
+//                                defaults.synchronize()
+//                                alarmService.isWakeupnow = true
+//                                alarmService.stopAlarm()
+//                                dismiss()
+//                                return
+//                            }
+                            
+                            if var image = CapturedImage{
+                                let targetSize = CGSize(width: 2024, height: 2024) // 目標サイズ（例: 1080px四方）
+                                image = image.preparingThumbnail(of: targetSize) ?? image
+                                
+                                if let imageData = image.jpegData(compressionQuality: 0.8) {
                                     defaults.set(nil, forKey: "wakuupImage")
-                                    cameraviewmodel.isCameraOn = true
+                                    defaults.synchronize()
+                                    alarmService.isAlarmOn = false
                                     alarmService.isPrepareDone = true
                                     alarmService.stopAlarm()
                                     dismiss()
+                                    
+                                    Task.detached(priority: .background) {
+                                            do {
+                                                // 4. 裏でアップロード処理を実行
+                                                try await postService.uploadPost(imageData: imageData, completion: { _ in
+                                                     print("a")
+                                                })
+                                                
+                                                // 5. (任意) アップロード成功後、裏で何か処理が必要な場合はここで行う
+                                                // 例: アプリ全体の投稿リストを更新する通知を送るなど
+                                                await MainActor.run {
+                                                    // alarmService.postsNeedRefresh = true
+                                                }
+                                                
+                                            } catch {
+                                                // エラーが発生してもUIは既にないので、コンソールにログを出すなどの対応
+                                                print("❌ バックグラウンドでの投稿に失敗しました: \(error.localizedDescription)")
+                                            }
+                                        }
                                 }
+                            }else{
+                                defaults.set(nil, forKey: "wakuupImage")
+                                defaults.synchronize()
+                                alarmService.isAlarmOn = false
+                                alarmService.isPrepareDone = false
+                                alarmService.stopAlarm()
+                                dismiss()
+                        
                             }
+                            
+                            
+                            
+                            
                         }) {
                             HStack {
                                 Text("送信")
@@ -99,20 +128,58 @@ struct CameraImageCheckView: View {
                         .padding(.horizontal, 40)
                     } else {
                         Button(action: {
-                            if let image = CapturedImage,
-                               let imageData = image.jpegData(compressionQuality: 0.8) {
+                            if var image = CapturedImage{
+                                let targetSize = CGSize(width: 1080, height: 1080) // 目標サイズ（例: 1080px四方）
+                                image = image.preparingThumbnail(of: targetSize) ?? image
+
                                 
-                                
-                                Task { @MainActor in
+                                if let imageData = image.jpegData(compressionQuality: 0.8) {
+                                    
+                                    
                                     defaults.set(imageData, forKey: "wakuupImage")
                                     defaults.synchronize()
                                     alarmService.isWakeupnow = true
                                     alarmService.stopAlarm()
                                     dismiss()
+                                    
                                 }
-
                             }
                             
+//                            guard let image = CapturedImage,
+//                                  let imageData = image.jpegData(compressionQuality: 0.3) else {
+//                                // 画像がない場合は何もしないで画面を閉じる
+//                                defaults.set(nil, forKey: "wakuupImage")
+//                                defaults.synchronize()
+//                                alarmService.isWakeupnow = true
+//                                alarmService.stopAlarm()
+//                                dismiss()
+//                                return
+//                            }
+//                            
+//                            defaults.set(imageData, forKey: "wakuupImage")
+//                            defaults.synchronize()
+//                            alarmService.isWakeupnow = true
+//                            alarmService.stopAlarm()
+//                            dismiss()
+//                            
+//                            Task.detached(priority: .background) {
+//                                    do {
+//                                        // 4. 裏でアップロード処理を実行
+//                                        try await postService.uploadPost(imageData: imageData, completion: { _ in
+//                                             print("a")
+//                                        })
+//                                        
+//                                        // 5. (任意) アップロード成功後、裏で何か処理が必要な場合はここで行う
+//                                        // 例: アプリ全体の投稿リストを更新する通知を送るなど
+//                                        await MainActor.run {
+//                                            // alarmService.postsNeedRefresh = true
+//                                        }
+//                                        
+//                                    } catch {
+//                                        // エラーが発生してもUIは既にないので、コンソールにログを出すなどの対応
+//                                        print("❌ バックグラウンドでの投稿に失敗しました: \(error.localizedDescription)")
+//                                    }
+//                                }
 
                         }) {
                             HStack {
@@ -152,7 +219,7 @@ struct CameraImageCheckView: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
                         cameraviewmodel.isCameraOn = true
-                        cameraviewmodel.isFaceOn = false
+//                        cameraviewmodel.isFaceOn = false
                         CapturedImage = nil
                         
                         dismiss()

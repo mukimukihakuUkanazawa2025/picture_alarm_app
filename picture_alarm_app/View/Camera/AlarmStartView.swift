@@ -43,7 +43,7 @@ struct AlarmStartView: View {
                     alarmService.isAlarmOn = false
                 }
                 
-                alarmService.isAlarmOn = true
+//                alarmService.isAlarmOn = true
                 
                 let formatter = DateFormatter()
                 formatter.dateStyle = .none

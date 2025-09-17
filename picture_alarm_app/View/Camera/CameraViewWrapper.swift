@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+
+
 struct CameraViewWrapper: View {
     @StateObject private var alarmService: AlarmService = .shared
     @StateObject private var cameraviewmodel = CameraViewModel()
@@ -91,7 +93,7 @@ struct CameraViewWrapper: View {
         // --- 撮影後の確認画面へ遷移 ---
         .fullScreenCover(isPresented: $isShowingCheckView) {
             if let capturedImage = capturedImage {
-                CameraImageCheckView(CapturedImage: $capturedImage)
+                CameraImageCheckView(cameraviewmodel: cameraviewmodel, CapturedImage: $capturedImage)
             }
         }
         .onAppear{

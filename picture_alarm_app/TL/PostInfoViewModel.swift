@@ -17,7 +17,7 @@ class PostService {
     
     private let userService = UserService.shared
     
-    func uploadPost(imageData: Data, completion: @escaping (Error?) -> Void) {
+    func uploadPost(imageData: Data, completion: @escaping (Error?) -> Void)  async throws {
         
         // サインイン状態確認
         guard let currentUser = Auth.auth().currentUser else {
@@ -28,8 +28,6 @@ class PostService {
         }
         print("サインイン済み UID: \(currentUser.uid)")
         
-        Task {
-            do {
                 // Firestoreの参照
                 let postRef = db.collection("posts").document()
                 
@@ -58,12 +56,8 @@ class PostService {
                 ]
                 
                 try await postRef.setData(post)
-                
-                completion(nil)
-            } catch {
-                print("Error uploading post: \(error.localizedDescription)")
-                completion(error)
-            }
-        }
+            
+
     }
 }
+

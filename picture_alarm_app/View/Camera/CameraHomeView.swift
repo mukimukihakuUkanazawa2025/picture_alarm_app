@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct CameraHomeView: View {
     @StateObject private var alarmService: AlarmService = .shared
@@ -54,7 +55,7 @@ struct CameraHomeView: View {
             }.disabled(!cameraviewmodel.isCameraOn)
         }
         .fullScreenCover(isPresented: $isShowImageCheck){
-            CameraImageCheckView(CapturedImage: $capturedImage)
+            CameraImageCheckView(cameraviewmodel: cameraviewmodel, CapturedImage: $capturedImage)
         }
     }
     
@@ -65,4 +66,16 @@ struct CameraHomeView: View {
 
 #Preview {
     CameraHomeView()
+}
+
+
+
+extension UIImage {
+    /// 指定されたサイズに収まるように画像をリサイズする
+    func preparingThumbnail(of size: CGSize) -> UIImage? {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { (context) in
+            self.draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
 }
