@@ -28,7 +28,6 @@ class FriendRequestsViewModel: ObservableObject {
         guard let currentUserId = Auth.auth().currentUser?.uid else { return }
         isLoading = true
         
-        // ▼▼▼ このdeferブロックを追加 ▼▼▼
         // この関数を抜けるときに、必ずisLoadingをfalseにする
         defer {
             isLoading = false
@@ -65,7 +64,7 @@ class FriendRequestsViewModel: ObservableObject {
             
         } catch {
             print("Error fetching friend requests: \(error.localizedDescription)")
-            // エラーで終了しても、deferが実行されるので問題ない
+          
         }
     }
     

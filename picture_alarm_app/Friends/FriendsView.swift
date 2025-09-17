@@ -40,11 +40,12 @@ struct FriendsView: View {
                                         .resizable()
                                         .foregroundColor(.gray.opacity(0.5))
                                 }
-                                .frame(width: 50, height: 50)
+                                .frame(width: 70, height: 70)
                                 .clipShape(Circle())
                                 
                                 Text(friend.name)
-                                    .fontWeight(.semibold)
+                                    .fontWeight(.bold)
+                                    .font(.subheadline)
                             }
                             .padding(.vertical, 8)
                         }

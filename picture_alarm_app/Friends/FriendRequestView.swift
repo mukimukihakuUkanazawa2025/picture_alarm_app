@@ -39,13 +39,15 @@ struct FriendRequestsView: View {
                                         .resizable()
                                         .foregroundColor(.gray.opacity(0.5))
                                 }
-                                .frame(width: 50, height: 50)
+                                .frame(width: 70, height: 70)
                                 .clipShape(Circle())
                                 
                                 // 申請者の名前
-                                Text(requestInfo.sender.name)
-                                    .fontWeight(.bold)
-                                
+                                VStack{
+                                    Text(requestInfo.sender.name)
+                                        .fontWeight(.bold)
+                                        .font(.subheadline)
+                                }
                                 Spacer()
                                 
                                 // 承認ボタン
@@ -57,7 +59,7 @@ struct FriendRequestsView: View {
                                 .buttonStyle(.borderedProminent)
                                 .tint(.green)
                                 .fontWeight(.bold)
-                                .font(.caption)
+                                .font(.subheadline)
                                 
                                 // 削除ボタン
                                 Button("削除") {
@@ -67,7 +69,7 @@ struct FriendRequestsView: View {
                                 }
                                 .buttonStyle(.bordered)
                                 .tint(.gray)
-                                .font(.caption)
+                                .font(.subheadline)
                             }
                             .padding(.vertical, 8)
                         }

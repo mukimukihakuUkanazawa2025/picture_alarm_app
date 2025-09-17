@@ -38,11 +38,12 @@ struct AddFriendView: View {
                                     .resizable()
                                     .foregroundColor(.gray.opacity(0.5))
                             }
-                            .frame(width: 50, height: 50)
+                            .frame(width: 70, height: 70)
                             .clipShape(Circle())
                             
                             Text(user.name)
-                            
+                                .font(.subheadline)
+                                .bold()
                             Spacer()
                             
                             if let status = viewModel.requestStatus[user.id] {
