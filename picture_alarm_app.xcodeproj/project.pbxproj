@@ -41,6 +41,9 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"GoogleService-Info.plist",
+				Profile/EditProfileViewModel.swift,
+				Profile/ProfileViewModel.swift,
+				Service/StorageService.swift,
 			);
 			target = 23EC16652E733F62000AEBCD /* picture_alarm_appTests */;
 		};
@@ -48,6 +51,9 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"GoogleService-Info.plist",
+				Profile/EditProfileViewModel.swift,
+				Profile/ProfileViewModel.swift,
+				Service/StorageService.swift,
 			);
 			target = 23EC166F2E733F62000AEBCD /* picture_alarm_appUITests */;
 		};
