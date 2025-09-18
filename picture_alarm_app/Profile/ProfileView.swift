@@ -37,6 +37,11 @@ struct ProfileView: View {
                                 }
                                 .frame(width: 100, height: 100)
                                 .clipShape(Circle())
+                                .overlay(alignment: .bottomTrailing) {
+                                    Image(systemName: "square.and.pencil")
+                                        .font(.title)
+                                        .foregroundColor(.white)
+                                }
                             }
                             
                             Text(user.name)
@@ -70,6 +75,7 @@ struct ProfileView: View {
                 }
                 .padding(.horizontal)
             }
+            
             .background(.black)
             .foregroundColor(.white)
             .navigationTitle("プロフィール")
@@ -85,6 +91,11 @@ struct ProfileView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showFriendRequestView = true }) {
                         Image(systemName: "bell")
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showSettingsView = true }) {
+                        Image(systemName: "square.and.pencil")
                     }
                 }
             }
