@@ -17,20 +17,20 @@ struct CameraImageCheckView: View {
     var postService = PostService()
     
     let isWakeupnow: Bool
-        
-        @State private var selectedComment: String = ""
-        
-        /// isWakeupnowに基づいて、表示するコメントリストを決定する
-        private var commentOptions: [String] {
-            if isWakeupnow {
-                return CommentWheel.departureComments
-            } else {
-                return CommentWheel.wakeUpComments
-            }
+    
+    @State private var selectedComment: String = ""
+    
+    /// isWakeupnowに基づいて、表示するコメントリストを決定する
+    private var commentOptions: [String] {
+        if isWakeupnow {
+            return CommentWheel.departureComments
+        } else {
+            return CommentWheel.wakeUpComments
         }
-        
-        
-        let defaults = UserDefaults.standard
+    }
+    
+    
+    let defaults = UserDefaults.standard
     
     var body: some View {
         NavigationView {
@@ -58,7 +58,7 @@ struct CameraImageCheckView: View {
                             .frame(width: 320, height: 320)
                     }
                     
-                  //コメントホイールを表示する
+                    //コメントホイールを表示する
                     VStack {
                         Text("コメントを選択")
                             .font(.headline)
@@ -76,7 +76,7 @@ struct CameraImageCheckView: View {
                         .cornerRadius(10)
                     }
                     .padding(.horizontal, 20)
-
+                    
                     
                     Spacer()
                     
@@ -113,8 +113,8 @@ struct CameraImageCheckView: View {
                 }
                 .onAppear{
                     // Viewが表示されたタイミングで、正しいコメントリストの先頭を初期値として設定
-                                        selectedComment = commentOptions.first ?? ""
-                                        cameraviewmodel.isCameraOn = false
+                    selectedComment = commentOptions.first ?? ""
+                    cameraviewmodel.isCameraOn = false
                 }
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
@@ -132,66 +132,115 @@ struct CameraImageCheckView: View {
         }
     }
     
-
+    
     /// 投稿処理を共通化するメソッド
     private func handlePost(isDeparture: Bool) {
-        guard var image = CapturedImage else {
-            // 画像がない場合は画面を閉じるだけ
-            if !isDeparture {
+        
+        if isDeparture {
+            
+            
+            if var image = CapturedImage{
+                let targetSize = CGSize(width: 2024, height: 2024) // 目標サイズ（例: 1080px四方）
+                image = image.preparingThumbnail(of: targetSize) ?? image
+                
+                if let imageData = image.jpegData(compressionQuality: 0.8) {
+                    defaults.set(nil, forKey: "wakuupImage")
+                    defaults.synchronize()
+                    alarmService.isAlarmOn = false
+                    alarmService.isPrepareDone = true
+                    alarmService.stopAlarm()
+                    dismiss()
+                    
+                    Task.detached(priority: .background) {
+                        do {
+                            // 4. 裏でアップロード処理を実行
+                            try await postService.uploadPost(imageData: imageData, comment: selectedComment, completion: { _ in
+                                print("a")
+                            })
+                            
+                            // 5. (任意) アップロード成功後、裏で何か処理が必要な場合はここで行う
+                            // 例: アプリ全体の投稿リストを更新する通知を送るなど
+                            await MainActor.run {
+                                // alarmService.postsNeedRefresh = true
+                            }
+                            
+                        } catch {
+                            // エラーが発生してもUIは既にないので、コンソールにログを出すなどの対応
+                            print("❌ バックグラウンドでの投稿に失敗しました: \(error.localizedDescription)")
+                        }
+                    }
+                }
+            }else{
+                
+                // 出発時：アラーム関連の状態をリセットして画面を閉じる
+                alarmService.isAlarmOn = false
+                alarmService.isPrepareDone = true
+                alarmService.stopAlarm()
+                dismiss()
+                
+            }
+        } else {
+            if var image = CapturedImage{
+                let targetSize = CGSize(width: 2024, height: 2024) // 目標サイズ（例: 1080px四方）
+                image = image.preparingThumbnail(of: targetSize) ?? image
+                
+                if let imageData = image.jpegData(compressionQuality: 0.8) {
+                    // 出発時：アラーム関連の状態をリセットして画面を閉じる
+                    defaults.set(imageData, forKey: "wakuupImage")
+                    defaults.synchronize()
+                    alarmService.isWakeupnow = true
+                    alarmService.stopAlarm()
+                    dismiss()
+                    
+                    Task.detached(priority: .background) {
+                        do {
+                            // 4. 裏でアップロード処理を実行
+                            try await postService.uploadPost(imageData: imageData, comment: selectedComment, completion: { _ in
+                                print("a")
+                            })
+                            
+                            // 5. (任意) アップロード成功後、裏で何か処理が必要な場合はここで行う
+                            // 例: アプリ全体の投稿リストを更新する通知を送るなど
+                            await MainActor.run {
+                                // alarmService.postsNeedRefresh = true
+                            }
+                            
+                        } catch {
+                            // エラーが発生してもUIは既にないので、コンソールにログを出すなどの対応
+                            print("❌ バックグラウンドでの投稿に失敗しました: \(error.localizedDescription)")
+                        }
+                    }
+                }
+            }else{
+                defaults.set(UIImage(named: "person"), forKey: "wakuupImage")
+                defaults.synchronize()
                 alarmService.isWakeupnow = true
                 alarmService.stopAlarm()
+                dismiss()
+                
+                
             }
-            dismiss()
-            return
-        }
+                
+            }
+            
         
-        // 画像をリサイズ
-        let targetSize = CGSize(width: 1080, height: 1080)
-        image = image.preparingThumbnail(of: targetSize) ?? image
+    }
         
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
-            print("画像データの変換に失敗しました")
-            return
-        }
         
-        // 投稿処理をバックグラウンドタスクで実行
-        Task.detached(priority: .background) {
-            do {
-                try await postService.uploadPost(imageData: imageData, comment: selectedComment, completion: { _ in
-                    print("投稿完了！ コメント: \(selectedComment)")
-                })
-            } catch {
-                print("バックグラウンドでの投稿に失敗しました: \(error.localizedDescription)")
+        /// ボタンのデザインを共通化するためのViewModifier
+        struct ActionButtonStyle: ViewModifier {
+            func body(content: Content) -> some View {
+                content
+                    .foregroundColor(.white)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.orange)
+                    .cornerRadius(12)
+                    .padding(.bottom, 60)
             }
         }
-        
-        // UI側の処理を先に進める
-        if isDeparture {
-            // 出発時：アラーム関連の状態をリセットして画面を閉じる
-            alarmService.isAlarmOn = false
-            alarmService.isPrepareDone = true
-            alarmService.stopAlarm()
-        } else {
-            // 起床時：次のステップ（出発カウントダウン）に進む
-            alarmService.isWakeupnow = true
-            alarmService.stopAlarm()
-        }
-        dismiss()
     }
-}
-
-/// ボタンのデザインを共通化するためのViewModifier
-struct ActionButtonStyle: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .foregroundColor(.white)
-            .padding()
-            .frame(maxWidth: .infinity)
-            .background(Color.orange)
-            .cornerRadius(12)
-            .padding(.bottom, 60)
-    }
-}
+    
 #Preview {
     let cameraViewModel = CameraViewModel()
         let sampleImage = UIImage(systemName: "person.fill")
@@ -228,4 +277,5 @@ struct ActionButtonStyle: ViewModifier {
         }
         .background(Color.black)
 }
+    
 
