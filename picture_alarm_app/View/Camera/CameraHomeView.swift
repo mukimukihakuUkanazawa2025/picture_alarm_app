@@ -55,7 +55,7 @@ struct CameraHomeView: View {
             }.disabled(!cameraviewmodel.isCameraOn)
         }
         .fullScreenCover(isPresented: $isShowImageCheck){
-            CameraImageCheckView(cameraviewmodel: cameraviewmodel, CapturedImage: $capturedImage)
+            CameraImageCheckView(cameraviewmodel: cameraviewmodel, CapturedImage: $capturedImage, isWakeupnow: false)
         }
     }
     

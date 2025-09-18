@@ -17,7 +17,7 @@ class PostService {
     
     private let userService = UserService.shared
     
-    func uploadPost(imageData: Data, completion: @escaping (Error?) -> Void)  async throws {
+    func uploadPost(imageData: Data, comment: String?, completion: @escaping (Error?) -> Void)  async throws {
         
         // サインイン状態確認
         guard let currentUser = Auth.auth().currentUser else {
@@ -52,7 +52,7 @@ class PostService {
                     "postTime": FieldValue.serverTimestamp(),
                     "imageUrl": urlString,
                     "goodCount": 0,
-                    "comments": []
+                    "comments": [comment]
                 ]
                 
                 try await postRef.setData(post)
