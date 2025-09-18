@@ -77,6 +77,7 @@ class EditProfileViewModel: ObservableObject {
     /// 変更を保存する
     func saveProfile() async {
         guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+        guard let originalUserName = self.user?.name else { return }
         isLoading = true
         var newImageUrl: String?
         

@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseAuth
+import FirebaseFirestore
 
 @MainActor
 class ProfileViewModel: ObservableObject {
@@ -14,8 +15,10 @@ class ProfileViewModel: ObservableObject {
     @Published var currentUser: User?
     @Published var friendCount = 0
     @Published var isLoading = false
+    @Published var userPosts: [PostInfo] = []
     
     private let userService = UserService.shared
+    private let db = Firestore.firestore()
     
     func fetchUserProfile() async {
         guard let currentUserId = Auth.auth().currentUser?.uid else { return }
@@ -23,15 +26,33 @@ class ProfileViewModel: ObservableObject {
         defer { isLoading = false }
         
         do {
-            // 自分のユーザー情報をFirestoreから取得
             self.currentUser = try await userService.fetchUser(withId: currentUserId)
-            
-            // 自分の友達リストのIDを取得し、その数をカウント
             let friendIds = try await userService.fetchFriendIds(forUserId: currentUserId)
             self.friendCount = friendIds.count
-            
         } catch {
             print("Error fetching user profile: \(error.localizedDescription)")
         }
+    }
+    
+    //userId で投稿を検索す
+    func fetchUserPosts() {
+        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+        
+        db.collection("posts")
+            .whereField("userId", isEqualTo: currentUserId)
+            .order(by: "postTime", descending: true)
+            .addSnapshotListener { [weak self] snapshot, error in
+                guard let documents = snapshot?.documents else { return }
+                
+                self?.userPosts = documents.compactMap { doc in
+                    let data = doc.data()
+                    return PostInfo(
+                        id: doc.documentID,
+                        userId: data["userId"] as? String ?? "",
+                        postTime: (data["postTime"] as? Timestamp)?.dateValue(),
+                        imageUrl: data["imageUrl"] as? String
+                    )
+                }
+            }
     }
 }

@@ -13,51 +13,30 @@ class PostService {
     private let db = Firestore.firestore()
     private let storage = Storage.storage()
     
-    var currentUserData: User?
-    
     private let userService = UserService.shared
     
-    func uploadPost(imageData: Data, comment: String?, completion: @escaping (Error?) -> Void)  async throws {
+    func uploadPost(imageData: Data, comment: String?, completion: @escaping (Error?) -> Void) async throws {
         
-        // サインイン状態確認
         guard let currentUser = Auth.auth().currentUser else {
-            print("投稿失敗: ユーザー未サインイン")
-            completion(NSError(domain: "PostService", code: -1,
-                               userInfo: [NSLocalizedDescriptionKey: "ユーザー未サインイン"]))
+            completion(NSError(domain: "PostService", code: -1, userInfo: [NSLocalizedDescriptionKey: "ユーザー未サインイン"]))
             return
         }
-        print("サインイン済み UID: \(currentUser.uid)")
         
-                // Firestoreの参照
-                let postRef = db.collection("posts").document()
-                
-                // Storageに画像をアップロード
-                let storageRef = storage.reference().child("posts/\(postRef.documentID).jpg")
-                _ = try await storageRef.putDataAsync(imageData, metadata: nil)
-                
-                let url = try await storageRef.downloadURL()
-                guard let urlString = url.absoluteString as String? else {
-                    let error = NSError(domain: "PostService", code: -1, userInfo: [NSLocalizedDescriptionKey: "URL取得失敗"])
-                    print("Error: \(error.localizedDescription)")
-                    completion(error)
-                    return
-                }
-                
-                self.currentUserData = try await userService.fetchUser(withId: currentUser.uid)
-                
-                // Firestoreに投稿情報を保存
-                let post: [String: Any] = [
-                    "id": postRef.documentID,
-                    "userName": self.currentUserData?.name ?? "No name",
-                    "postTime": FieldValue.serverTimestamp(),
-                    "imageUrl": urlString,
-                    "goodCount": 0,
-                    "comments": [comment]
-                ]
-                
-                try await postRef.setData(post)
-            
-
+        let postRef = db.collection("posts").document()
+        let storageRef = storage.reference().child("posts/\(postRef.documentID).jpg")
+        
+        _ = try await storageRef.putDataAsync(imageData, metadata: nil)
+        let url = try await storageRef.downloadURL()
+        
+        let post: [String: Any] = [
+            "id": postRef.documentID,
+            "userId": currentUser.uid,
+            "postTime": FieldValue.serverTimestamp(),
+            "imageUrl": url.absoluteString,
+            "goodCount": 0,
+            "comments": [comment ?? ""]
+        ]
+        
+        try await postRef.setData(post)
     }
 }
-

@@ -15,7 +15,9 @@ struct ProfileView: View {
     @State private var showFriendsView = false
     @State private var showAddFriendView = false
     @State private var showFriendRequestView = false
-    @State private var showSettingsView = false 
+    @State private var showSettingsView = false
+    
+    private let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 3)
     
     var body: some View {
         NavigationStack {
@@ -52,7 +54,7 @@ struct ProfileView: View {
                         // --- 友達情報 ---
                         Button(action: { showFriendsView = true }) {
                             VStack {
-                                // 👇 友達の数をViewModelから動的に表示
+                                //友達の数をViewModelから動的に表示
                                 Text("\(viewModel.friendCount)")
                                     .font(.title3).fontWeight(.bold)
                                 Text("友達")
@@ -62,12 +64,27 @@ struct ProfileView: View {
                         
                         Divider().background(Color.gray.opacity(0.5))
                         
-                        // --- 投稿一覧グリッド (仮) ---
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 4) {
-                            ForEach(0..<9) { _ in
-                                Rectangle()
-                                    .fill(Color.gray.opacity(0.3))
-                                    .aspectRatio(1, contentMode: .fit)
+                        // --- 投稿一覧グリッド ---
+                        LazyVGrid(columns: columns, spacing: 4) {
+                            ForEach(viewModel.userPosts) { post in
+                                if let imageUrl = post.imageUrl, let url = URL(string: imageUrl) {
+                                    AsyncImage(url: url) { phase in
+                                        switch phase {
+                                        case .success(let image):
+                                            image
+                                                .resizable()
+                                                .scaledToFill()
+                                                .aspectRatio(1, contentMode: .fit)
+                                                .clipped()
+                                        case .failure(_):
+                                            Color.gray.opacity(0.3)
+                                                .aspectRatio(1, contentMode: .fit)
+                                        default:
+                                            ProgressView()
+                                                .aspectRatio(1, contentMode: .fit)
+                                        }
+                                    }
+                                }
                             }
                         }
                         
@@ -113,6 +130,7 @@ struct ProfileView: View {
         .onAppear {
             Task {
                 await viewModel.fetchUserProfile()
+                viewModel.fetchUserPosts()
             }
         }
     }
