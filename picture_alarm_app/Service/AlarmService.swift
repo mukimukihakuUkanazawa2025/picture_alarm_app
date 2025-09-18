@@ -190,7 +190,7 @@ class AlarmService: ObservableObject {
     //    }
     
     //タイマーで時間監視を開始
-    private func startMonitoring() {
+    func startMonitoring() {
         stopMonitoring()
         
         // 今日のアラームを取得
