@@ -12,6 +12,7 @@ struct MonthSelector: View {
     @Binding var selectedDate: Date
     private let calendar = Calendar.current
     
+    // 変更点 1: ID生成時も時刻を正午に設定
     private var monthsInYear: [Date] {
         let year = calendar.component(.year, from: selectedDate)
         return (1...12).compactMap { month -> Date? in
@@ -19,7 +20,7 @@ struct MonthSelector: View {
             comps.year = year
             comps.month = month
             comps.day = 1
-            comps.hour = 12 // タイムゾーン問題を避けるため正午に設定
+            comps.hour = 12 // 👈 タイムゾーン問題を避けるため正午に設定
             return calendar.date(from: comps)
         }
     }
@@ -41,6 +42,9 @@ struct MonthSelector: View {
         let range = calendar.range(of: .day, in: .month, for: monthDate) ?? 1..<29
         var comps = calendar.dateComponents([.year, .month], from: monthDate)
         comps.day = min(currentDay, range.count)
+        
+        comps.hour = 12
+        
         selectedDate = calendar.date(from: comps) ?? monthDate
     }
     
@@ -56,16 +60,19 @@ struct MonthSelector: View {
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 8)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 15, style: .continuous)
+                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
                                         .fill(isSameMonth(monthDate, selectedDate) ? Color.white : Color.clear)
                                 )
                         }
-                        .id(monthDate)
+                        .id(monthDate) // IDは正午の日付になっている
                     }
                 }
                 .padding(.horizontal, 16)
             }
+            // 変更点 2: スクロール処理をヘルパー関数で統一
             .onChange(of: selectedDate) { newDate in
+                print(newDate)
+                
                 withAnimation {
                     scrollToCenter(for: newDate, proxy: proxy)
                 }
@@ -76,10 +83,13 @@ struct MonthSelector: View {
         }
     }
     
+    // 変更点 3: 共通のスクロール関数を作成
     private func scrollToCenter(for date: Date, proxy: ScrollViewProxy) {
         var components = calendar.dateComponents([.year, .month], from: date)
         components.day = 1
-        components.hour = 12
+        components.hour = 12 // 👈 タイムゾーン問題を避けるため正午に設定
+        
+        print(components)
         
         if let startOfMonth = calendar.date(from: components) {
             proxy.scrollTo(startOfMonth, anchor: .center)
@@ -94,41 +104,70 @@ struct DaySelector: View {
     
     private var daysInMonth: [Date] {
         guard let range = calendar.range(of: .day, in: .month, for: selectedDate) else { return [] }
-        return range.compactMap { day in
-            calendar.date(bySetting: .day, value: day, of: selectedDate)
+        
+        // selectedDateから年と月を取得
+        var components = calendar.dateComponents([.year, .month], from: selectedDate)
+        // 時刻を安全な正午に設定
+        components.hour = 12
+        
+        return range.compactMap { day -> Date? in
+            components.day = day
+            // 安全なコンポーネントからDateを生成する
+            return calendar.date(from: components)
         }
     }
     
     private func isSelectedDay(_ day: Date) -> Bool { calendar.isDate(day, inSameDayAs: selectedDate) }
     private func dayNumberString(_ day: Date) -> String { String(calendar.component(.day, from: day)) }
     
+    
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
+                HStack(spacing: 24) {
                     ForEach(daysInMonth, id: \.self) { day in
-                        Button(action: { selectedDate = day }) {
+                        Button(action: { selectedDate = day}) {
                             Text(dayNumberString(day))
-                                .font(.title3)
+                                .font(.title2)
                                 .foregroundColor(isSelectedDay(day) ? Color.white : Color.gray)
-                                .frame(width: 36, height: 36)
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 10)
                                 .background(
-                                    Circle()
-                                        .fill(isSelectedDay(day) ? Color(hex: "FF8300") : Color.clear)
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(isSelectedDay(day) ? Color.orange : Color.clear)
                                 )
                         }
-                        .padding(.horizontal, 2)
                     }
                 }
                 .padding(.horizontal, 16)
             }
+            // 変更点 2: スクロール処理をヘルパー関数で統一
             .onChange(of: selectedDate) { newDate in
+                print(newDate)
+                
                 withAnimation {
-                    proxy.scrollTo(newDate, anchor: .center)
+                    scrollToCenter(for: newDate, proxy: proxy)
                 }
+            }
+            .onAppear {
+                scrollToCenter(for: selectedDate, proxy: proxy)
             }
         }
     }
+    
+    // 変更点 3: 共通のスクロール関数を作成
+    private func scrollToCenter(for date: Date, proxy: ScrollViewProxy) {
+        var components = calendar.dateComponents([.year, .month,.day], from: date)
+//        components.day = 1
+        components.hour = 12 // 👈 タイムゾーン問題を避けるため正午に設定
+        
+        print(components)
+        
+        if let startOfMonth = calendar.date(from: components) {
+            proxy.scrollTo(startOfMonth, anchor: .center)
+        }
+    }
+    
 }
 
 // 時刻表示カード

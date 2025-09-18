@@ -12,9 +12,11 @@ struct AlermLeaveDetailView: View {
     @Binding var wakeUpTime: Date
     @Binding var leaveTime: Date
     @Binding var isShowLeaveDetailView: Bool
+    @Binding var alarmStatus:alarmStatus
+    @Binding var selectedDate:Date
     @Environment(\.dismiss) private var dismiss
     
-    @State private var selectedDate = Date()
+//    @State private var selectedDate = Date()
     private let calendar = Calendar.current
     
     var body: some View {
@@ -70,14 +72,18 @@ struct AlermLeaveDetailView: View {
         .presentationDetents([.fraction(0.75)])
         .presentationDragIndicator(.visible)
         .onAppear {
-            setupInitialDate()
+//            setupInitialDate()
             requestNotificationAuthorization()
         }
     }
     
+    
+    
     // --- ロジックはそのまま保持 ---
-    private func setupInitialDate() { selectedDate = Date() }
+//    private func setupInitialDate() { selectedDate = Date() }
     private func saveAlarm() {
+        print(selectedDate)
+        
         let combinedDate = calendar.date(
             bySettingHour: calendar.component(.hour, from: wakeUpTime),
             minute: calendar.component(.minute, from: wakeUpTime),
@@ -92,15 +98,59 @@ struct AlermLeaveDetailView: View {
             of: selectedDate
         ) ?? selectedDate
         
+        print("DEBUG: if文の直前のselectedDateの値 -> \(selectedDate)")
+        
         if combinedDate <= combinedLeaveTime {
-            let gettedAlarm: AlarmData = AlarmService.shared.getAlarm(for: selectedDate)!
-            AlarmService.shared.updateAlarm(
-                id: gettedAlarm.id,
-                date: selectedDate,
-                wakeUpTime: combinedDate,
-                leaveTime: combinedLeaveTime
-            )
+            if  Calendar.current.isDate(selectedDate, inSameDayAs: Date()) {
+                if let alarms =  AlarmService.shared.getAlarm(for: selectedDate){
+                    AlarmService.shared.updateAlarm(
+                        id: alarms.id,
+                        date: selectedDate,
+                        wakeUpTime: combinedDate,
+                        leaveTime: combinedLeaveTime,
+                        isOn: true
+                    )
+                } else {
+
+//                    wakeUpTime = combinedDate
+//                    leaveTime = combinedLeaveTime
+                    
+                    AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime, isOn: true)
+                }
+                
+                print("a")
+            } else {
+                if let alarms =  AlarmService.shared.getAlarm(for: selectedDate){
+                    AlarmService.shared.updateAlarm(
+                        id: alarms.id,
+                        date: selectedDate,
+                        wakeUpTime: combinedDate,
+                        leaveTime: combinedLeaveTime,
+                        isOn:false
+                    )
+                } else {
+                    var newAlarm :AlarmData?
+                    newAlarm?.date = selectedDate
+                    newAlarm?.wakeUpTime = combinedDate
+                    newAlarm?.leaveTime = combinedLeaveTime
+                    AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime,isOn: false)
+                }
+                
+                print("b")
+            }
+            
+            alarmStatus = .setted
+            
+            print(AlarmService.shared.getAlarm(for: selectedDate)?.date)
+            print(AlarmService.shared.getAlarm(for: selectedDate)?.wakeUpTime)
+            print(AlarmService.shared.getAlarm(for: selectedDate)?.leaveTime)
+
+        } else{
+            alarmStatus = .error
         }
+        
+        print(AlarmService.shared.getAlarm(for: selectedDate))
+        
         dismiss()
     }
     private func requestNotificationAuthorization() {
