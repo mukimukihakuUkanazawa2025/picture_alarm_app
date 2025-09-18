@@ -19,23 +19,9 @@ struct AlermWakuUpDetailView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-//            Capsule()
-//                .fill(Color.gray.opacity(0.5))
-//                .frame(width: 40, height: 6)
-            
             Text("起床時間を設定")
                 .font(.headline)
                 .foregroundColor(.white)
-//                .padding(.top, 16)
-            
-//            DatePicker("", selection: $wakeUpTime, displayedComponents: .hourAndMinute)
-//                .datePickerStyle(.wheel)
-//                .labelsHidden()
-//                .tint(.orange)
-//                .environment(\.colorScheme, .dark)
-//                .frame(height: 200)
-//                .padding(.top, 24)
-
             DatePicker(
                 "",
                 selection: $wakeUpTime,
@@ -100,7 +86,6 @@ struct AlermWakuUpDetailView: View {
                 leaveTime: combinedLeaveTime
             )
         }
-        dismiss()
     }
     private func requestNotificationAuthorization() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _,_ in }

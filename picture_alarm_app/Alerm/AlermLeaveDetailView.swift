@@ -19,23 +19,9 @@ struct AlermLeaveDetailView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-//            Capsule()
-//                .fill(Color.gray.opacity(0.5))
-//                .frame(width: 40, height: 6)
-            
             Text("出発時間を設定")
                 .font(.headline)
                 .foregroundColor(.white)
-//                .padding(.top, 16)
-            
-//            DatePicker("", selection: $leaveTime, displayedComponents: .hourAndMinute)
-//                .datePickerStyle(.wheel)
-//                .labelsHidden()
-//                .tint(.orange)
-//                .environment(\.colorScheme, .dark)
-//                .frame(height: 200)
-//                .padding(.top, 24)
-            
             DatePicker(
                 "",
                 selection: $leaveTime,
@@ -48,7 +34,6 @@ struct AlermLeaveDetailView: View {
             .frame(height: 200)
             .padding(.top, 24)
             .padding(.bottom, 32)
-            
             
             HStack(spacing: 16) {
                 Button("保存") {
@@ -101,7 +86,6 @@ struct AlermLeaveDetailView: View {
                 leaveTime: combinedLeaveTime
             )
         }
-        dismiss()
     }
     private func requestNotificationAuthorization() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _,_ in }
