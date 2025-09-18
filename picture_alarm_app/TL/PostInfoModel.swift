@@ -17,3 +17,4 @@ struct PostInfo: Identifiable {
     var goodCount: Int = 0 // いいね数
     var comments: [String] = [] // コメント
 }
+
