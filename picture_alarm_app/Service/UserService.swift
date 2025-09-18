@@ -127,19 +127,25 @@ class UserService {
     
     /// ユーザーIDを指定して、単一のユーザー情報を取得する
     func fetchUser(withId uid: String) async throws -> User? {
-            let document = try await db.collection("users").document(uid).getDocument()
-            
-            guard let data = document.data() else { return nil }
-            
-            //Userモデルを作成
-            return User(
-                id: document.documentID, // ドキュメントIDをidにセット
-                name: data["name"] as? String ?? "",
-                createAt: data["createAt"] as? Timestamp ?? Timestamp(),
-                name_lowercase: data["name_lowercase"] as? String ?? "",
-                profileImageUrl: data["profileImageUrl"] as? String ?? "",
-                bio: data["bio"] as? String ?? ""
-            )
+        guard !uid.isEmpty else {
+                        print("Warning: fetchUserに空のuidが渡されたため、処理をスキップします。")
+                        return nil
+                    }
+                    
+                    let document = try await db.collection("users").document(uid).getDocument()
+                    
+                    guard let data = document.data() else { return nil }
+                    
+                    //Userモデルを作成
+                    return User(
+                        id: document.documentID, // ドキュメントIDをidにセット
+                        name: data["name"] as? String ?? "",
+                        createAt: data["createAt"] as? Timestamp ?? Timestamp(),
+                        name_lowercase: data["name_lowercase"] as? String ?? "",
+                        profileImageUrl: data["profileImageUrl"] as? String ?? "",
+                        bio: data["bio"] as? String ?? ""
+                    )
+                
         }
     /// 2人のユーザーが既に友達かどうかをチェックする
     func checkIfFriends(userId1: String, userId2: String) async -> Bool {
@@ -225,5 +231,9 @@ class UserService {
            // .merge() を使うと、指定したフィールドだけを更新できる
            try await db.collection("users").document(userId).setData(data, merge: true)
        }
+    /// ユーザー情報を削除する
+        func deleteUser(userId: String) async throws {
+            try await db.collection("users").document(userId).delete()
+        }
 }
 

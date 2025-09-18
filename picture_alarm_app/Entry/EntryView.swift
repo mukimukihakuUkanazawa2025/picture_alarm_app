@@ -18,7 +18,6 @@ struct EntryView: View {
         NavigationStack {
             VStack(spacing: 80) {
                 Spacer()
-                
                 Text("寝顔人質カメラ")
                     .font(.largeTitle)
                     .fontWeight(.bold)

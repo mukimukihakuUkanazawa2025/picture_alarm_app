@@ -11,9 +11,11 @@ import FirebaseFirestore
 
 struct PostInfo: Identifiable {
     var id: String // Firebaseでの識別用
-    var userName: String // ユーザー名
+    var userId: String // ユーザーのID
     var postTime: Date? // 投稿時刻
     var imageUrl: String?
     var goodCount: Int = 0 // いいね数
     var comments: [String] = [] // コメント
+    var user: User?
 }
+
