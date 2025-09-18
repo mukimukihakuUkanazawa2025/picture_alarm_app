@@ -22,13 +22,12 @@ struct CameraImageCheckView: View {
     
     /// isWakeupnowに基づいて、表示するコメントリストを決定する
     private var commentOptions: [String] {
-        if isWakeupnow {
+        if isWakeupnow { //出発
             return CommentWheel.departureComments
-        } else {
+        } else { // 寝起き
             return CommentWheel.wakeUpComments
         }
     }
-    
     
     let defaults = UserDefaults.standard
     
@@ -45,7 +44,7 @@ struct CameraImageCheckView: View {
                         .padding(.top, 40)
                     
                     if let image = CapturedImage {
-                        Image(uiImage: image)
+                        Image("wakeup")
                             .resizable()
                             .scaledToFill()
                             .frame(width: 320, height: 320)
@@ -83,12 +82,12 @@ struct CameraImageCheckView: View {
                     // 下部ボタン
                     if alarmService.isWakeupnow {
                         
-                        // 起床時のボタン
+                        // 出発時のボタン
                         Button(action: {
-                            handlePost(isLeave: false)
+                            handlePost(isLeave: true)
                         }) {
                             HStack {
-                                Text("投稿して次に進む")
+                                Text("送信")
                                     .font(.title3)
                                     .fontWeight(.bold)
                                 Image(systemName: "arrow.right")
@@ -98,13 +97,13 @@ struct CameraImageCheckView: View {
                         .padding(.horizontal, 40)
                         
                     } else {
-    
-                        // 出発時のボタン
+                        
+                        // 起床時のボタン
                         Button(action: {
-                            handlePost(isLeave: true)
+                            handlePost(isLeave: false)
                         }) {
                             HStack {
-                                Text("送信")
+                                Text("投稿して次に進む")
                                     .font(.title3)
                                     .fontWeight(.bold)
                                 Image(systemName: "arrow.right")
@@ -172,7 +171,7 @@ struct CameraImageCheckView: View {
                         }
                     }
                 }
-            }else{
+            } else{
                 
                 // 出発時：アラーム関連の状態をリセットして画面を閉じる
                 alarmService.isAlarmOn = false
@@ -181,103 +180,81 @@ struct CameraImageCheckView: View {
                 dismiss()
                 
             }
-        } else { // 出発してなかったら
-            if var image = CapturedImage{
-                let targetSize = CGSize(width: 2024, height: 2024) // 目標サイズ（例: 1080px四方）
-                image = image.preparingThumbnail(of: targetSize) ?? image
-                
-                if let imageData = image.jpegData(compressionQuality: 0.8) {
-                    // 出発時：アラーム関連の状態をリセットして画面を閉じる
-                    defaults.set(imageData, forKey: "wakuupImage")
-                    defaults.synchronize()
-                    alarmService.isWakeupnow = true
-                    alarmService.stopAlarm()
-                    dismiss()
-                    
-                    Task.detached(priority: .background) {
-                        do {
-                            // 4. 裏でアップロード処理を実行
-                            try await postService.uploadPost(imageData: imageData, comment: selectedComment, completion: { _ in
-                                print("a")
+        } else {
+            // 撮影画像はオリジナルとして保存
+            if let image = CapturedImage,
+               let imageData = image.jpegData(compressionQuality: 0.8) {
+                Task.detached(priority: .background) {
+                    do {
+                        try await postService.uploadOriginalImage(imageData: imageData)
+                        
+                        // 投稿用は必ずwakeup.jpg
+                        if let fixedImage = UIImage(named: "wakeup"),
+                           let fixedImageData = fixedImage.jpegData(compressionQuality: 0.8) {
+                            try await postService.uploadPost(imageData: fixedImageData, comment: selectedComment, completion: { _ in
+                                print("wakeup.jpgを投稿しました")
                             })
-                            
-                            // 5. (任意) アップロード成功後、裏で何か処理が必要な場合はここで行う
-                            // 例: アプリ全体の投稿リストを更新する通知を送るなど
-                            await MainActor.run {
-                                // alarmService.postsNeedRefresh = true
-                            }
-                            
-                        } catch {
-                            // エラーが発生してもUIは既にないので、コンソールにログを出すなどの対応
-                            print("❌ バックグラウンドでの投稿に失敗しました: \(error.localizedDescription)")
+                        } else {
+                            print("❌ wakeup.jpgが見つからないかJPEG変換に失敗しました。")
                         }
+                    } catch {
+                        print("❌ 投稿処理失敗: \(error)")
                     }
                 }
-            }else{
-                defaults.set(UIImage(named: "person"), forKey: "wakuupImage")
-                defaults.synchronize()
-                alarmService.isWakeupnow = true
-                alarmService.stopAlarm()
-                dismiss()
-                
-                
-            }
-                
-            }
-            
-        
-    }
-        
-        
-        /// ボタンのデザインを共通化するためのViewModifier
-        struct ActionButtonStyle: ViewModifier {
-            func body(content: Content) -> some View {
-                content
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.orange)
-                    .cornerRadius(12)
-                    .padding(.bottom, 60)
             }
         }
     }
     
+    
+    /// ボタンのデザインを共通化するためのViewModifier
+    struct ActionButtonStyle: ViewModifier {
+        func body(content: Content) -> some View {
+            content
+                .foregroundColor(.white)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.orange)
+                .cornerRadius(12)
+                .padding(.bottom, 60)
+        }
+    }
+}
+
 #Preview {
     let cameraViewModel = CameraViewModel()
-        let sampleImage = UIImage(systemName: "person.fill")
-        
-        return VStack(spacing: 20) {
-            
-            VStack {
-                Text("起床時 (isWakeupnow = false)")
-                    .font(.caption)
-                    .foregroundColor(.white)
-                
-                // isWakeupnow: false を直接渡して起床時ビューを生成
-                CameraImageCheckView(
-                    cameraviewmodel: cameraViewModel,
-                    CapturedImage: .constant(sampleImage),
-                    isWakeupnow: false
-                )
-            }
-            
-            Divider()
-            
-            VStack {
-                Text("出発時 (isWakeupnow = true)")
-                    .font(.caption)
-                    .foregroundColor(.white)
-
-                // isWakeupnow: true を直接渡して出発時ビューを生成
-                CameraImageCheckView(
-                    cameraviewmodel: cameraViewModel,
-                    CapturedImage: .constant(sampleImage),
-                    isWakeupnow: true
-                )
-            }
-        }
-        .background(Color.black)
-}
+    let sampleImage = UIImage(systemName: "person.fill")
     
+    return VStack(spacing: 20) {
+        
+        VStack {
+            Text("起床時 (isWakeupnow = false)")
+                .font(.caption)
+                .foregroundColor(.white)
+            
+            // isWakeupnow: false を直接渡して起床時ビューを生成
+            CameraImageCheckView(
+                cameraviewmodel: cameraViewModel,
+                CapturedImage: .constant(sampleImage),
+                isWakeupnow: false
+            )
+        }
+        
+        Divider()
+        
+        VStack {
+            Text("出発時 (isWakeupnow = true)")
+                .font(.caption)
+                .foregroundColor(.white)
+            
+            // isWakeupnow: true を直接渡して出発時ビューを生成
+            CameraImageCheckView(
+                cameraviewmodel: cameraViewModel,
+                CapturedImage: .constant(sampleImage),
+                isWakeupnow: true
+            )
+        }
+    }
+    .background(Color.black)
+}
+
 
