@@ -11,6 +11,8 @@ final class AlarmData: Identifiable {
     var wakeUpTime: Date
     var leaveTime: Date
     var isOn: Bool = false
+    var isWakeup : Bool = false
+    var isLeave : Bool = false
     
     init(date: Date, wakeUpTime: Date, leaveTime: Date) {
         self.id = UUID().uuidString
