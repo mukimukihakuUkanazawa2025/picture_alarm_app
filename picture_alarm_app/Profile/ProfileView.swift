@@ -17,7 +17,16 @@ struct ProfileView: View {
     @State private var showFriendRequestView = false
     @State private var showSettingsView = false
     
-    private let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 3)
+
+    private let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 2)
+    
+    // 日付を文字列にフォーマットする
+    private func formatDate(_ date: Date?) -> String {
+        guard let date = date else { return "" }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd"
+        return formatter.string(from: date)
+    }
     
     var body: some View {
         NavigationStack {
@@ -29,7 +38,6 @@ struct ProfileView: View {
                         
                         // --- プロフィールヘッダー ---
                         VStack(spacing: 12) {
-            
                             Button(action: { showSettingsView = true }) {
                                 AsyncImage(url: URL(string: user.profileImageUrl ?? "")) { image in
                                     image.resizable().aspectRatio(contentMode: .fill)
@@ -54,7 +62,6 @@ struct ProfileView: View {
                         // --- 友達情報 ---
                         Button(action: { showFriendsView = true }) {
                             VStack {
-                                //友達の数をViewModelから動的に表示
                                 Text("\(viewModel.friendCount)")
                                     .font(.title3).fontWeight(.bold)
                                 Text("友達")
@@ -67,27 +74,44 @@ struct ProfileView: View {
                         // --- 投稿一覧グリッド ---
                         LazyVGrid(columns: columns, spacing: 4) {
                             ForEach(viewModel.userPosts) { post in
-                                if let imageUrl = post.imageUrl, let url = URL(string: imageUrl) {
-                                    AsyncImage(url: url) { phase in
-                                        switch phase {
-                                        case .success(let image):
-                                            image
-                                                .resizable()
-                                                .scaledToFill()
-                                                .aspectRatio(1, contentMode: .fit)
-                                                .clipped()
-                                        case .failure(_):
-                                            Color.gray.opacity(0.3)
-                                                .aspectRatio(1, contentMode: .fit)
-                                        default:
-                                            ProgressView()
-                                                .aspectRatio(1, contentMode: .fit)
-                                        }
+                                
+                                AsyncImage(url: post.imageUrl.flatMap { URL(string: $0) }) { phase in
+                                    switch phase {
+                                    case .success(let image):
+                                        image
+                                            .resizable()
+                                            .frame(width:160,height:160)
+                                            .clipShape(Circle())
+                                            .overlay(alignment: .topLeading) {
+                                                // 日付を画像の上に表示
+                                                Text(formatDate(post.postTime))
+                                                    .font(.subheadline).bold()
+                                                    .padding(4)
+                                                    .background(.white)
+                                                    .foregroundColor(.black)
+                                                    .cornerRadius(4)
+                                                    .padding(4)
+                                            }
+                                    case .failure:
+                                        
+                                        Color.gray.opacity(0.3)
+                                           
+                                            .frame(width:160,height:160)
+                                            .clipShape(Circle())
+                                        
+
+                                    default:
+                                        // 読み込み中はプログレスビュー
+                                        ProgressView()
+                                       
+                                            .frame(width:160,height:160)
+                                  
                                     }
                                 }
+                                .aspectRatio(1, contentMode: .fit) // 正方形に
+                                .clipped()
                             }
                         }
-                        
                     }
                 }
                 .padding(.horizontal)
