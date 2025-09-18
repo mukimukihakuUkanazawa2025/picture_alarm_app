@@ -27,6 +27,8 @@ struct YourApp: App {
         
         registerBackgroundTask()
         
+        scheduleDailyAlarmSetup()
+        
         // ===== ナビゲーションバー設定 =====
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithOpaqueBackground()
@@ -86,7 +88,7 @@ struct YourApp: App {
                 
         }.modelContainer(sharedModelContainer)
             .onChange(of: scenePhase) { oldPhase, newPhase in
-                        if newPhase == .background {
+                if newPhase == .background || newPhase == .active{
                             print("App is in background. Scheduling daily alarm setup task.")
                             scheduleDailyAlarmSetup()
                         }
