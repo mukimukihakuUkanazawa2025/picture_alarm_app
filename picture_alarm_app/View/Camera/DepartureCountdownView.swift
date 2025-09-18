@@ -94,7 +94,7 @@ struct DepartureCountdownView: View {
         // --- 撮影後の確認画面へ遷移 ---
         .fullScreenCover(isPresented: $isShowingCheckView) {
             if let capturedImage = capturedImage {
-                CameraImageCheckView(cameraviewmodel: cameraviewmodel , CapturedImage: $capturedImage)
+                CameraImageCheckView(cameraviewmodel: cameraviewmodel , CapturedImage: $capturedImage, isWakeupnow: true)
             }
         }
         .onAppear {
