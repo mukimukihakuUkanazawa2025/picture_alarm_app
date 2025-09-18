@@ -75,6 +75,7 @@ struct ProfileView: View {
                 }
                 .padding(.horizontal)
             }
+            
             .background(.black)
             .foregroundColor(.white)
             .navigationTitle("プロフィール")
