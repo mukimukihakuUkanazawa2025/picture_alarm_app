@@ -55,13 +55,13 @@ struct TLView: View {
                                                 .resizable()
                                                 .scaledToFill()
                                                 .frame(width: 200, height: 200)
-                                                .clipShape(Circle())
                                         case .failure:
                                             Image(systemName: "photo")
                                                 .resizable()
                                                 .scaledToFit()
                                                 .frame(width: 200, height: 200)
                                                 .foregroundColor(.gray)
+                                                .clipShape(Circle())
                                         @unknown default:
                                             EmptyView()
                                         }

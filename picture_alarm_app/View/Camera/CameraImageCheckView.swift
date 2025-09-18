@@ -82,12 +82,13 @@ struct CameraImageCheckView: View {
                     
                     // 下部ボタン
                     if alarmService.isWakeupnow {
-                        // 出発時のボタン
+                        
+                        // 起床時のボタン
                         Button(action: {
-                            handlePost(isDeparture: true)
+                            handlePost(isLeave: false)
                         }) {
                             HStack {
-                                Text("送信")
+                                Text("投稿して次に進む")
                                     .font(.title3)
                                     .fontWeight(.bold)
                                 Image(systemName: "arrow.right")
@@ -95,13 +96,15 @@ struct CameraImageCheckView: View {
                             .modifier(ActionButtonStyle())
                         }
                         .padding(.horizontal, 40)
+                        
                     } else {
-                        // 起床時のボタン
+    
+                        // 出発時のボタン
                         Button(action: {
-                            handlePost(isDeparture: false)
+                            handlePost(isLeave: true)
                         }) {
                             HStack {
-                                Text("投稿して次に進む")
+                                Text("送信")
                                     .font(.title3)
                                     .fontWeight(.bold)
                                 Image(systemName: "arrow.right")
@@ -134,10 +137,9 @@ struct CameraImageCheckView: View {
     
     
     /// 投稿処理を共通化するメソッド
-    private func handlePost(isDeparture: Bool) {
+    private func handlePost(isLeave: Bool) {
         
-        if isDeparture {
-            
+        if isLeave {
             
             if var image = CapturedImage{
                 let targetSize = CGSize(width: 2024, height: 2024) // 目標サイズ（例: 1080px四方）
@@ -179,7 +181,7 @@ struct CameraImageCheckView: View {
                 dismiss()
                 
             }
-        } else {
+        } else { // 出発してなかったら
             if var image = CapturedImage{
                 let targetSize = CGSize(width: 2024, height: 2024) // 目標サイズ（例: 1080px四方）
                 image = image.preparingThumbnail(of: targetSize) ?? image
