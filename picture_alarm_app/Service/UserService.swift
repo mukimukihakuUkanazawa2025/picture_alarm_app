@@ -225,5 +225,9 @@ class UserService {
            // .merge() を使うと、指定したフィールドだけを更新できる
            try await db.collection("users").document(userId).setData(data, merge: true)
        }
+    /// Firestoreからユーザー情報を削除する
+        func deleteUser(userId: String) async throws {
+            try await db.collection("users").document(userId).delete()
+        }
 }
 

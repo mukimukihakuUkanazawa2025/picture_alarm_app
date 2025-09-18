@@ -6,8 +6,6 @@
 //
 
 import SwiftUI
-
-import SwiftUI
 import PhotosUI
 
 struct EditProfileView: View {
@@ -63,24 +61,52 @@ struct EditProfileView: View {
                                 .background(Color.gray.opacity(0.2))
                                 .cornerRadius(10)
                             // --- プロフィール画像ピッカー ---
-                            PhotosPicker(selection: $viewModel.selectHitozichiPhoto, matching: .images) {
-                                VStack {
-                                    if let image = viewModel.hitozichiImage {
-                                        Image(uiImage: image)
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                    } else {
-                                        Image(systemName: "person")
-                                            .resizable().foregroundColor(.gray.opacity(0.5))
-                                    }
-                                }
-//                                .frame(width: 120, height: 120)
-//                                .aspectRatio(1,contentMode: .fill)
-                                .background(.gray)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                                
+//                            PhotosPicker(selection: $viewModel.selectHitozichiPhoto, matching: .images) {
+//                                VStack {
+//                                    if let image = viewModel.hitozichiImage {
+//                                        Image(uiImage: image)
+//                                            .resizable()
+//                                            .aspectRatio(contentMode: .fill)
+//                                    } else {
+//                                        Image(systemName: "person")
+//                                            .resizable().foregroundColor(.gray.opacity(0.5))
+//                                    }
+//                                }
+////                                .frame(width: 120, height: 120)
+////                                .aspectRatio(1,contentMode: .fill)
+//                                .background(.gray)
+//                                .clipShape(RoundedRectangle(cornerRadius: 12))
+//                                
+//                            }
+                        }
+                        
+                        // --- ログアウト・アカウント削除ボタン ---
+                        VStack(spacing: 15) {
+                            Button(action: {
+                                viewModel.logout()
+                            }) {
+                                Text("ログアウト")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.gray.opacity(0.4))
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+                            }
+                            
+                            Button(role: .destructive) {
+                                viewModel.isShowingDeleteAlert = true
+                            } label: {
+                                Text("アカウントを削除")
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.red)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
                             }
                         }
+                        .padding(.top, 40) // 上の要素との間隔を調整
                     }
                     .padding()
                 }
@@ -112,10 +138,30 @@ struct EditProfileView: View {
                     dismiss()
                 }
             }
+            // アカウント削除の確認アラート
+            .alert("アカウントを削除", isPresented: $viewModel.isShowingDeleteAlert) {
+                Button("削除", role: .destructive) {
+                    Task {
+                        await viewModel.deleteAccount()
+                    }
+                }
+                Button("キャンセル", role: .cancel) {}
+            } message: {
+                Text("この操作は取り消せません。アカウントを削除すると、プロフィールや投稿など、関連する全てのデータが完全に失われます。本当によろしいですか？")
+            }
+            // エラー表示用アラート
+            .alert("エラー", isPresented: .constant(viewModel.errorMessage != nil), actions: {
+                Button("OK") {
+                    viewModel.errorMessage = nil
+                }
+            }, message: {
+                Text(viewModel.errorMessage ?? "")
+            })
         }
         .preferredColorScheme(.dark)
     }
 }
+
 
 #Preview {
     EditProfileView()

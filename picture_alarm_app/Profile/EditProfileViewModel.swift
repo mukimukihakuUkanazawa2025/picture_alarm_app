@@ -30,11 +30,16 @@ class EditProfileViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var didSaveProfile = false
     
+    @Published var isShowingDeleteAlert = false
+    @Published var errorMessage: String?
+    
     @Published var selectHitozichiPhoto: PhotosPickerItem? {
         didSet { Task { await loadHitozichiImage(from: selectHitozichiPhoto) } }
     }
     private let userService = UserService.shared
     private let storageService = StorageService.shared
+    private let authService = AuthService.shared
+
     
     init() {
         Task {
@@ -116,4 +121,44 @@ class EditProfileViewModel: ObservableObject {
         }
         isLoading = false
     }
+    /// ログアウト処理
+        func logout() {
+            authService.signOut()
+        }
+        
+        /// アカウント削除処理
+    func deleteAccount() async {
+            guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+            isLoading = true
+            
+            do {
+                // 1. Storageのプロフィール画像を削除
+                try await storageService.deleteProfileImage(for: currentUserId)
+                
+                // 2. Firestoreのユーザー情報を削除
+                try await userService.deleteUser(userId: currentUserId)
+                
+                // 3. Authからアカウントを削除
+                try await authService.deleteAccount()
+                
+                isLoading = false
+                
+            } catch {
+                isLoading = false
+                
+                // Firebase Authのエラーかどうかをチェック
+                if let authError = error as NSError?, authError.domain == AuthErrorDomain {
+                    if authError.code == AuthErrorCode.requiresRecentLogin.rawValue {
+                        // 再認証が必要な場合のエラーメッセージ
+                        self.errorMessage = "セキュリティのため、一度ログアウトしてから再度ログインし、アカウント削除を行ってください。"
+                    } else {
+                        // その他のAuthエラー
+                        self.errorMessage = "アカウントの削除に失敗しました: \(error.localizedDescription)"
+                    }
+                } else {
+                    // Auth以外のエラー（StorageやFirestoreなど）
+                    self.errorMessage = "アカウントデータの削除中にエラーが発生しました: \(error.localizedDescription)"
+                }
+            }
+        }
 }

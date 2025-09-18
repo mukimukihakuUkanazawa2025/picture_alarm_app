@@ -26,4 +26,21 @@ class AuthService {
             completion(error)
         }
     }
+    /// 現在のユーザーをサインアウトする
+        func signOut() {
+            do {
+                try Auth.auth().signOut()
+            } catch let signOutError as NSError {
+                print("Error signing out: %@", signOutError)
+            }
+        }
+        
+        /// 現在のユーザーアカウントを削除する
+        func deleteAccount() async throws {
+            guard let user = Auth.auth().currentUser else {
+                // ユーザーがnilの場合はエラーを投げるか、特定の処理を行う
+                throw NSError(domain: "AuthService", code: -1, userInfo: [NSLocalizedDescriptionKey: "ユーザーが見つかりません"])
+            }
+            try await user.delete()
+        }
 }
