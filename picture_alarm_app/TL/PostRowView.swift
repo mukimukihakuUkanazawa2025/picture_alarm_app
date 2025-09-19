@@ -53,8 +53,31 @@ struct PostRowView: View {
             }
             Spacer()
             // 右カラム（投稿写真）
-            if let imageUrl = post.imageUrl, let url = URL(string: imageUrl) {
+            if let thumb = post.thumbnailUrl, let url = URL(string: thumb) {
                 AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image.resizable().scaledToFill()
+                             .frame(width: 150, height: 150).clipShape(Circle())
+                    default:
+                        // fallback to full image if thumbnail fails
+                        if let full = post.imageUrl, let fullUrl = URL(string: full) {
+                            AsyncImage(url: fullUrl) { fullPhase in
+                                switch fullPhase {
+                                case .success(let image):
+                                    image.resizable().scaledToFill()
+                                         .frame(width: 150, height: 150).clipShape(Circle())
+                                default:
+                                    ProgressView().frame(width: 150, height: 150)
+                                }
+                            }
+                        } else {
+                            ProgressView().frame(width: 150, height: 150)
+                        }
+                    }
+                }
+            } else if let full = post.imageUrl, let fullUrl = URL(string: full) {
+                AsyncImage(url: fullUrl) { phase in
                     switch phase {
                     case .success(let image):
                         image.resizable().scaledToFill()

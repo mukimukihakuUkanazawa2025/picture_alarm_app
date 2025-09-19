@@ -26,13 +26,7 @@ struct PostView: View {
                 // --- 左側（ユーザ情報） ---
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 8) {
-                        // ユーザアイコン
-                        //                        Image(uiImage: userImage ?? UIImage(systemName: "person.circle")!)
-                        //                            .resizable()
-                        //                            .scaledToFill()
-                        //                            .frame(width: 40, height: 40)
-                        //                            .clipShape(Circle())
-                        // ユーザーアイコン（userImage が nil の場合はデフォルトアイコンを表示）
+                        // ユーザアイコン（userImage が nil の場合はデフォルトアイコンを表示）
                         if let userImage = userImage {
                             Image(uiImage: userImage)
                                 .resizable()
@@ -56,15 +50,6 @@ struct PostView: View {
                             Text(postTime)
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
-                            //                            // 🔹 起床時刻
-                            //                            Text("起床時刻: \(wakeUpTime)")
-                            //                                .font(.subheadline)
-                            //                                .foregroundColor(.gray)
-                            //
-                            //                            // 🔹 出発時刻
-                            //                            Text("出発時刻: \(departTime)")
-                            //                                .font(.subheadline)
-                            //                                .foregroundColor(.gray)
                         }
                     }
                     
@@ -106,72 +91,6 @@ struct PostView: View {
                 }
                 // 区切り線
                 Divider().background(Color.gray)
-                //        HStack {
-                //
-                //            // アカウント情報
-                //            VStack {
-                //                HStack {
-                //                    // ユーザー画像
-                //                    Image(uiImage: userImage ?? UIImage(systemName: "person.circle")!)
-                //                        .resizable()
-                //                        .foregroundStyle(.gray)
-                //                        .frame(width: 50, height: 50)
-                //                        .cornerRadius(10)
-                //
-                //                    VStack {
-                //                        // アカウント名
-                //                        Text(userName)
-                //                            .frame(maxWidth: .infinity, alignment: .leading)
-                //                        // 投稿時間
-                //                        Text(postTime)
-                //                            .frame(maxWidth: .infinity, alignment: .leading)
-                //
-                //                    }
-                //
-                //                    Spacer()
-                //                }
-                //
-                //                HStack {
-                //                    // コメント
-                //                    Text(userComment)
-                //                        .frame(maxWidth: .infinity, alignment: .leading)
-                //
-                //                    Spacer()
-                //                }
-                //            }
-                //            .padding(.trailing, 10)
-                //
-                // 投稿写真
-                //            if let postImageUrl = postImageUrl {
-                //                AsyncImage(url: postImageUrl) { phase in
-                //                    switch phase {
-                //                    case .empty:
-                //                        ProgressView()
-                //                            .frame(width: 150, height: 150)
-                //                    case .success(let image):
-                //                        image
-                //                            .resizable()
-                //                            .scaledToFill()
-                //                            .frame(width: 150, height: 150)
-                //                            .clipShape(Circle())
-                //                    case .failure(_):
-                //                        Image(systemName: "photo.artframe.circle.fill")
-                //                            .resizable()
-                //                            .foregroundStyle(.black)
-                //                            .frame(width: 150, height: 150)
-                //                            .clipShape(Circle())
-                //                    @unknown default:
-                //                        EmptyView()
-                //                    }
-                //                }
-                //            } else {
-                //                Image(systemName: "photo.artframe.circle.fill")
-                //                    .resizable()
-                //                    .foregroundStyle(.black)
-                //                    .frame(width: 150, height: 150)
-                //                    .clipShape(Circle())
-                //            }
-                
             }
             .padding(.horizontal)
             .padding(.vertical, 8)

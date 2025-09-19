@@ -55,6 +55,7 @@ class PostListViewModel: ObservableObject {
                                     postTime: (data["postTime"] as? Timestamp)?.dateValue(),
                                     imageUrl: data["imageUrl"] as? String,
                                     goodCount: data["goodCount"] as? Int ?? 0,
+                                    thumbnailUrl: data["thumbnailUrl"] as? String,
                                     comments: data["comments"] as? [String] ?? []
                                 )
                                 
