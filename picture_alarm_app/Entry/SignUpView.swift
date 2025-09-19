@@ -11,16 +11,14 @@ import FirebaseFirestore
 
 struct SignUpView: View {
     @StateObject private var viewModel = SignUpViewModel()
+    @State private var passwordConfirm = ""
     
     // サインアップ成功時に親ビューに通知するためのクロージャ
     var onSuccess: (() -> Void)? = nil
     
     var body: some View {
-
-        //                        .fontWeight(.semibold)
         ZStack{
-            Color.black
-                .ignoresSafeArea()
+            Color.black.ignoresSafeArea()
             VStack(spacing: 20) {
                 HStack{
                     Text(" ユーザー名")
@@ -64,24 +62,28 @@ struct SignUpView: View {
                     .cornerRadius(10)
                     .foregroundColor(.white)
                     .textInputAutocapitalization(.never)
-                    .padding(.bottom, 80)
                 
-                //                Button(action: viewModel.register) {
-                //                    if viewModel.isLoading {
-                //                        ProgressView()
-                //                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                //                            .frame(maxWidth: .infinity)
-                //                            .padding()
-                //                    } else {
-                //                        Text("登録する")
-                //                            .fontWeight(.semibold)
-                //                            .foregroundColor(.white)
-                //                            .frame(maxWidth: .infinity)
-                //                            .padding()
-                //                    }
-                //                }
+                HStack{
+                    Text(" パスワード(確認用)")
+                        .foregroundStyle(.white)
+                        .font(.system(size:24))
+                        .bold()
+                    Spacer()
+                }
+                SecureField("", text: $passwordConfirm)
+                    .padding(12)
+                    .background(Color(hex: "6A6A6A"))
+                    .cornerRadius(10)
+                    .foregroundColor(.white)
+                    .textInputAutocapitalization(.never)
+                    .padding(.bottom, 40)
+
                 Button(action: {
                     Task {
+                        if viewModel.password != passwordConfirm {
+                                                    viewModel.message = "パスワードが一致しません"
+                                                    return
+                                                }
                         await viewModel.register()   // ← async 関数を Task 内で呼び出す
                     }
                 }) {
@@ -118,21 +120,14 @@ struct SignUpView: View {
                             .cornerRadius(10)
                     }
                 }
-                .disabled(viewModel.displayName.isEmpty || viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading)
+                .disabled(viewModel.displayName.isEmpty || viewModel.email.isEmpty || viewModel.password.isEmpty || passwordConfirm.isEmpty || viewModel.isLoading)
                 
                 // --- エラーメッセージ ---
                 if !viewModel.message.isEmpty {
                     Text(viewModel.message)
                         .foregroundColor(.red)
+                        .bold()
                 }
-                //                .background(viewModel.displayName.isEmpty || viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading ? Color.gray : Color.blue)
-                //                .cornerRadius(8)
-                //                .disabled(viewModel.displayName.isEmpty || viewModel.email.isEmpty || viewModel.password.isEmpty || viewModel.isLoading)
-                //                if !viewModel.message.isEmpty{
-                //                    Text(viewModel.message)
-                //                        .foregroundColor(.red)
-                //                }
-                //            }
             }
             .padding()
             .navigationTitle("アカウント作成")
@@ -152,69 +147,4 @@ struct SignUpView: View {
             }
         }
     }
-}
-//    /// ユーザー登録と同時に、Firestoreにユーザー情報を作成する
-//    private func register() {
-//        isLoading = true
-//        message = ""
-//
-//        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
-//            if let error = error {
-//                self.message = localizedAuthError(error)
-//                self.isLoading = false
-//                return
-//            }
-//
-//            guard let user = authResult?.user else {
-//                self.message = "不明なエラーが発生しました"
-//                self.isLoading = false
-//                return
-//            }
-//
-//            // 表示名を更新
-//            let changeRequest = user.createProfileChangeRequest()
-//            changeRequest.displayName = self.displayName
-//            changeRequest.commitChanges { commitError in
-//                if let commitError = commitError {
-//                    print("DisplayName更新失敗: \(commitError.localizedDescription)")
-//                }
-//
-//                // Firestoreに保存
-//                let db = Firestore.firestore()
-//                db.collection("users").document(user.uid).setData([
-//                    "uid": user.uid,
-//                    "displayName": self.displayName,
-////                    "email": self.email,
-//                    "createdAt": Timestamp(date: Date())
-//                ]) { err in
-//                    self.isLoading = false
-//                    if let err = err {
-//                        self.message = "データベース保存失敗: \(err.localizedDescription)"
-//                    } else {
-//                        self.message = ""
-//                        onSuccess?() // 親ビューへ成功通知
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    /// Firebaseエラーをユーザー向けの日本語メッセージに変換
-//    private func localizedAuthError(_ error: Error) -> String {
-//        let nsError = error as NSError
-//        switch AuthErrorCode(rawValue: nsError.code) {
-//        case .invalidEmail:
-//            return "メールアドレスの形式が正しくありません"
-//        case .emailAlreadyInUse:
-//            return "このメールアドレスは既に登録されています"
-//        case .weakPassword:
-//            return "パスワードは6文字以上にしてください"
-//        default:
-//            return "登録に失敗しました: \(error.localizedDescription)"
-//        }
-//    }
-//}
-
-#Preview {
-    SignUpView()
 }
