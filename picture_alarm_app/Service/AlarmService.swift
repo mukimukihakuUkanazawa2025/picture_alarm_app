@@ -90,6 +90,11 @@ class AlarmService: ObservableObject {
             startMonitoring()
             scheduleNotification(for: alarm)
         }
+        
+        if  Calendar.current.isDate(date, inSameDayAs: Date()) {
+            isAlarmOn = isOn
+            UserDefaults.standard.set(isAlarmOn, forKey: "isAlarmOn")
+        }
     }
     
     /// アラームを更新
@@ -107,8 +112,15 @@ class AlarmService: ObservableObject {
                 saveAndFetchAlarms()
                 startMonitoring()
                 
+                if  Calendar.current.isDate(date, inSameDayAs: Date()) {
+                    isAlarmOn = isOn
+                    UserDefaults.standard.set(isAlarmOn, forKey: "isAlarmOn")
+                }
+                
                 // 通知を再スケジュールする
                 scheduleNotification(for: alarmToUpdate)
+                
+                
             }
     }
     
@@ -185,13 +197,6 @@ class AlarmService: ObservableObject {
             return nil
         }
         
-        // 変更点 4: `alarmdata`を`alarms`に変更
-//        if let existingAlarm = alarms.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date)  }) {
-//            return existingAlarm
-//        } else {
-//
-//            return nil
-//        }
     }
     
     /// 今日のアラームを取得
@@ -199,9 +204,13 @@ class AlarmService: ObservableObject {
 
         if let todayalarm = getAlarm(for: Date()) {
             currentAlarm = todayalarm
+            if todayalarm.isOn {
+                isAlarmOn = true
+            }
             return todayalarm
         }else{
             currentAlarm = nil
+            isAlarmOn = false
             return nil
         }
 
@@ -210,9 +219,15 @@ class AlarmService: ObservableObject {
     func setTodayAlarm(){
         if let todayalarm = getAlarm(for: Date()) {
             currentAlarm = todayalarm
+            print("revreverre")
+            if todayalarm.isOn {
+                isAlarmOn = true
+            }
            
         }else{
+            print("adfsd")
             currentAlarm = nil
+            isAlarmOn = false
          
         }
     }
@@ -224,7 +239,7 @@ class AlarmService: ObservableObject {
     
     // 変更点 6: メソッド名を変更し、責務を明確化
     /// 変更を保存し、データを再取得して`alarms`配列を更新する
-    private func saveAndFetchAlarms() {
+    func saveAndFetchAlarms() {
         do {
             try context.save()
 //            fetchAlarms()
@@ -393,15 +408,18 @@ class AlarmService: ObservableObject {
     
     /// ローカル通知をスケジュール (30秒間音付き)
     func scheduleNotification(for alarm: AlarmData) {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [alarm.id])//以下
+        //以下
+        
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [alarm.id])
 
             guard alarm.isOn else {
                 print("アラームがオフのため、通知はスケジュールされません。")
+               
+//                NotificationManager.shared.removeDeliveredNotifications(withIdentifiers: alarm.id)
                 return
             }//以上
-        if alarm.wakeUpTime == alarm.leaveTime {
-            return
-        }
+        
+       
         
         let content = UNMutableNotificationContent()
         content.title = "アラーム"
@@ -413,7 +431,9 @@ class AlarmService: ObservableObject {
         let timeComponents = calendar.dateComponents([.hour, .minute, .second], from: alarm.wakeUpTime)
         dateComponents.hour = timeComponents.hour
         dateComponents.minute = timeComponents.minute
-        dateComponents.second = timeComponents.second ?? 0
+        dateComponents.second = 0
+        
+        print(dateComponents)
         
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
         

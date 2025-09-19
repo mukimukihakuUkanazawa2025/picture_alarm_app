@@ -15,6 +15,9 @@ struct CameraViewWrapper: View {
     @State private var capturedImage: UIImage? = nil
     @State private var isShowingCheckView = false
     @State private var wakeuptime:String = ""
+    @Binding var isShowingSecondModal: Bool
+    
+    let onDismissAll: () -> Void
 
     var body: some View {
         ZStack {
@@ -96,7 +99,7 @@ struct CameraViewWrapper: View {
                 CameraImageCheckView(
                     cameraviewmodel: cameraviewmodel,
                     CapturedImage: $capturedImage,
-                    isWakeupnow: alarmService.currentAlarm!.isWakeup
+                    isWakeupnow: alarmService.currentAlarm!.isWakeup, onDismissAll: onDismissAll
                     )
             }
         }
@@ -116,6 +119,6 @@ struct CameraViewWrapper: View {
     
 }
 
-#Preview {
-    CameraViewWrapper()
-}
+//#Preview {
+//    CameraViewWrapper()
+//}

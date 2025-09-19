@@ -16,18 +16,22 @@ struct AlarmPrepareView: View {
     
     @State var isAlarmStart = false
     
+    @Binding var isShowingSecondModal: Bool
+    
+    let onDismissAll: () -> Void
+    
     var body: some View {
         VStack{
             
             if alarmService.currentAlarm!.isWakeup && !alarmService.currentAlarm!.isLeave {
                     
-                    DepartureCountdownView(departureTime:  alarmService.currentAlarm!.leaveTime, wakeUpImage: UIImage(systemName: "house"))
+                DepartureCountdownView(departureTime:  alarmService.currentAlarm!.leaveTime, wakeUpImage: UIImage(systemName: "house"), onDismissAll: onDismissAll, isShowingSecondModal: $isShowingSecondModal)
                     
                    
 
-            } else if !alarmService.currentAlarm!.isWakeup{
+            } else if !alarmService.currentAlarm!.isWakeup && !alarmService.currentAlarm!.isLeave{
                 
-                CameraViewWrapper()
+                CameraViewWrapper(isShowingSecondModal: $isShowingSecondModal, onDismissAll: onDismissAll)
                 
             }else{
                 Text("アラームが設定されていないよ！")
@@ -38,13 +42,20 @@ struct AlarmPrepareView: View {
             
             alarmService.fetchAlarms()
             
+            alarmService.setTodayAlarm()
+            
+            
             //当日のアラームが設定されていなかったらアラーム待機画面にしない
             if alarmService.getTodayAlarm() == nil{
+                print("nosetting😉")
                 alarmService.isAlarmOn = false
+//                UserDefaults.standard.set(alarmService.isAlarmOn, forKey: "isAlarmOn")
             }else{
+                print("設定おk🥶")
                 alarmService.isAlarmOn = true
+//                UserDefaults.standard.set(alarmService.isAlarmOn, forKey: "isAlarmOn")
                 
-                alarmService.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: false, isLeave: false)
+//                alarmService.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: false, isLeave: false)
                 
             }
             UserDefaults.standard.set(alarmService.isAlarmOn, forKey: "isAlarmOn")
@@ -71,6 +82,6 @@ struct AlarmPrepareView: View {
     
 }
 
-#Preview {
-    AlarmPrepareView()
-}
+//#Preview {
+//    AlarmPrepareView()
+//}

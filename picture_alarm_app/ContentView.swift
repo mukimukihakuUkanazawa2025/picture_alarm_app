@@ -14,6 +14,8 @@ struct ContentView: View {
     @StateObject var alarmService = AlarmService.shared
     
     @State var isShowAlermStartView: Bool = false
+    @State var isShowSecondView:Bool = false
+    
     @State var isShowPopover: Bool = true
     
     @State var wakeuptime = ""
@@ -26,7 +28,6 @@ struct ContentView: View {
                 
                 TLView()
                     .tabItem {
-                        
                         Image(systemName: "house")
                         Text("タイムライン")
                         
@@ -65,7 +66,9 @@ struct ContentView: View {
                         .clipShape(Circle())
                     
                     
+                    
                 }
+                .opacity(alarmService.isAlarmOn ? 1 : 0)
                 .padding(.bottom, 75) // 下から30ポイント上に配置
                 
 //                .popover(isPresented: .constant(true)) {
@@ -77,7 +80,13 @@ struct ContentView: View {
             
         }
         .fullScreenCover(isPresented: $isShowAlermStartView){
-            AlarmStartView()
+            AlarmStartView(isShowingSecondModal: $isShowAlermStartView,
+                           onDismissAll: {
+                // このクロージャが呼ばれたら、全ての状態をfalseにする
+                isShowAlermStartView = false
+                isShowSecondView = false
+            }
+            )
         }
         .onAppear{
 //            if alarmService.isWakeupnow && alarmService.currentAlarm != nil{

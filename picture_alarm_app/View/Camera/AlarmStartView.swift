@@ -12,6 +12,10 @@ struct AlarmStartView: View {
     
     @Environment(\.dismiss) private var dismiss
     
+    @Binding var isShowingSecondModal: Bool
+    
+    let onDismissAll: () -> Void
+    
     @StateObject private var alarmService = AlarmService.shared
     
     @State var wakeupTimeText = ""
@@ -25,7 +29,7 @@ struct AlarmStartView: View {
             VStack{
                 if alarmService.isAlarmOn{
                     if !alarmService.currentAlarm!.isWakeup || !alarmService.currentAlarm!.isLeave{
-                        AlarmPrepareView()
+                        AlarmPrepareView(isShowingSecondModal: $isShowingSecondModal, onDismissAll: onDismissAll)
                         
                     }else{
                         AlarmDoneView()
@@ -45,7 +49,7 @@ struct AlarmStartView: View {
                 }else{
                     alarmService.isAlarmOn = true
                     
-                    alarmService.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: false, isLeave: false)
+
                     
                 }
                 
@@ -87,6 +91,6 @@ struct AlarmStartView: View {
     
 }
 
-#Preview {
-    AlarmStartView()
-}
+//#Preview {
+//    AlarmStartView()
+//}

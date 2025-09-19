@@ -83,20 +83,59 @@ struct AlermView: View {
                     .padding()
                     .onChange(of: isAlarmOn) { newValue in
                         
-                        let calendar = Calendar.current
-                        selectedDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: selectedDate) ?? selectedDate
-                        //                       // 時刻が変更されたら、既存のupdateAlarm関数を呼び出す
-                        if let alarms = alarmService.getAlarm(for: selectedDate){
-                            alarmService.updateAlarm(
-                                id: alarms.id,
-                                date: selectedDate,
-                                wakeUpTime: wakeUpTime,
-                                leaveTime: leaveTime,
-                                isOn: newValue // 現在のトグルの値を渡す
-                            )
+                        if  Calendar.current.isDate(selectedDate, inSameDayAs: Date()) {
+                            if let alarms =  AlarmService.shared.getAlarm(for: selectedDate){
+                                AlarmService.shared.updateAlarmStatus(id: alarms.id, isOn: newValue, isWakeup: false, isLeave: false)
+                            } else {
+                                
+                                
+                                AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime, isOn: newValue)
+                                
+                                
+                                let background = BackgroundTasks()
+                                
+                                background.scheduleDepaturePostSetup()
+                                
+                                print("a")
+                                
+                                if newValue {
+                                    AlarmService.shared.isAlarmOn = true
+                                } else {
+                                    AlarmService.shared.isAlarmOn = false
+                                    
+                                }
+                            }
                             
+                        } else {
+                            if let alarms =  AlarmService.shared.getAlarm(for: selectedDate){
+                                AlarmService.shared.updateAlarmStatus(id: alarms.id, isOn: newValue, isWakeup: false, isLeave: false)
+                                
+                            } else {
+                                var newAlarm :AlarmData?
+                                newAlarm?.date = selectedDate
+                                newAlarm?.wakeUpTime = wakeUpTime
+                                newAlarm?.leaveTime = leaveTime
+                                AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime,isOn: newValue)
+                            }
+                            
+                            print("b")
                         }
+                        
+                        if newValue {
+                            alarmstatus = .setted
+                        } else {
+                            alarmstatus = .unsetted
+                        }
+                        
+                        
+
+
                     }
+
+                        
+
+                       
+                    
                 Divider()
                     .background(.white)
                 // --- 状態表示文章 ---
@@ -271,6 +310,7 @@ struct AlermView: View {
     // MARK: - 日付表示ユーティリティ
     private var yearString: String {
         let f = DateFormatter()
+        f.locale = Locale(identifier: "ja_JP")
         f.dateFormat = "yyyy年"
         return f.string(from: selectedDate)
     }

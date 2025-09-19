@@ -92,7 +92,8 @@ struct AlermWakuUpDetailView: View {
                             date: selectedDate,
                             wakeUpTime: combinedDate,
                             leaveTime: combinedLeaveTime,
-                            isOn: true
+                            isOn: true,
+                            
                         )
                         
                     } else {
