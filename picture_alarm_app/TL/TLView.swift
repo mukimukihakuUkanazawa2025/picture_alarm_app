@@ -22,14 +22,7 @@ struct TLView: View {
     private var currentUserId: String?{
         Auth.auth().currentUser?.uid
     }
-    // ▼▼▼ 自身の最新投稿を抜き出すための計算プロパティ ▼▼▼
-    private var myLatestPost: PostInfo? {
-        viewModel.posts.first { $0.userId == currentUserId }
-    }
-    // ▼▼▼ 他のユーザーの投稿を抜き出すための計算プロパティ ▼▼▼
-        private var otherUsersPosts: [PostInfo] {
-            viewModel.posts.filter { $0.userId != currentUserId }
-        }
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
@@ -40,6 +33,7 @@ struct TLView: View {
                         .foregroundStyle(.gray)
                         .padding()
                 } else {
+
                     VStack(spacing: 16) {
                         // --- 自分の投稿だけ特別表示 ---
                         if let myPost = myLatestPost{
@@ -82,13 +76,14 @@ struct TLView: View {
                         }
                         
                         // --- 他人の投稿をリスト表示 ---
+
                         LazyVStack(spacing: 16) {
-                            ForEach(otherUsersPosts) { post in
-                                                            PostRowView(post: post)
-                                                                .padding(.horizontal)
+                            ForEach(viewModel.posts) { post in
+                                PostRowView(post: post)
+                                    .padding(.horizontal)
                             }
                         }
-                    }
+                    
                     .padding(.vertical, 8)
                 }
             }

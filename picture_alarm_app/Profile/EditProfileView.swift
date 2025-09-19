@@ -60,24 +60,22 @@ struct EditProfileView: View {
                                 .padding()
                                 .background(Color.gray.opacity(0.2))
                                 .cornerRadius(10)
-                            // --- プロフィール画像ピッカー ---
-//                            PhotosPicker(selection: $viewModel.selectHitozichiPhoto, matching: .images) {
-//                                VStack {
-//                                    if let image = viewModel.hitozichiImage {
-//                                        Image(uiImage: image)
-//                                            .resizable()
-//                                            .aspectRatio(contentMode: .fill)
-//                                    } else {
-//                                        Image(systemName: "person")
-//                                            .resizable().foregroundColor(.gray.opacity(0.5))
-//                                    }
-//                                }
-////                                .frame(width: 120, height: 120)
-////                                .aspectRatio(1,contentMode: .fill)
-//                                .background(.gray)
-//                                .clipShape(RoundedRectangle(cornerRadius: 12))
-//                                
-//                            }
+                            // --- 顔質画像ピッカー ---
+                            PhotosPicker(selection: $viewModel.selectHitozichiPhoto, matching: .images) {
+                                VStack {
+                                    if let image = viewModel.hitozichiImage {
+                                        Image(uiImage: image)
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                    } else {
+                                        Image(systemName: "person")
+                                            .resizable().foregroundColor(.gray.opacity(0.5))
+                                    }
+                                }
+                                .background(.gray)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                
+                            }
                         }
                         
                         // --- ログアウト・アカウント削除ボタン ---

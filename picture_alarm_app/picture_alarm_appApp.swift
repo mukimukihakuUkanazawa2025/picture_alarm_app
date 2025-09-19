@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseCore
 import SwiftData
+import BackgroundTasks
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
@@ -20,8 +21,15 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct YourApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @Environment(\.scenePhase) private var scenePhase
+     var backgroundtask = BackgroundTask()
 
     init() {
+        
+        backgroundtask.registerBackgroundTask()
+        
+        backgroundtask.scheduleDailyAlarmSetup()
+        
         // ===== ナビゲーションバー設定 =====
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithOpaqueBackground()
@@ -71,6 +79,7 @@ struct YourApp: App {
     }
     
     @StateObject private var authViewModel = AuthViewModel()
+ 
 
     var body: some Scene {
         WindowGroup {
@@ -78,9 +87,90 @@ struct YourApp: App {
             
             RootView()
                 .environmentObject(authViewModel)
+                
         }.modelContainer(sharedModelContainer)
+            .onChange(of: scenePhase) { oldPhase, newPhase in
+                if newPhase == .background || newPhase == .active{
+                            print("App is in background. Scheduling daily alarm setup task.")
+                    backgroundtask.scheduleDailyAlarmSetup()
+//                            scheduleDailyAlarmSetup()
+                        }
+                    }
            
     }
+//    
+//    private let backgroundTaskID = "app.hakuu.mukimuki.picture-alarm-app.background"
+//    
+//    
+//    /// バックグラウンドタスクのハンドラを登録する
+//       private func registerBackgroundTask() {
+//           BGTaskScheduler.shared.register(forTaskWithIdentifier: backgroundTaskID, using: nil) { task in
+//               // 実際に実行したい処理はここ（handleAppRefresh）に書く
+//               self.handleAppRefresh(task: task as! BGAppRefreshTask)
+//           }
+//       }
+//       
+//       /// バックグラウンドタスクをOSにスケジュール（予約）する
+//       private func scheduleDailyAlarmSetup() {
+//           let request = BGAppRefreshTaskRequest(identifier: backgroundTaskID)
+//
+//           // --- ここから修正 ---
+//           let calendar = Calendar.current
+//           let now = Date()
+//
+//           // 基準日を「昨日」ではなく「今日」にする
+//           guard var targetDate = calendar.date(bySettingHour: 5, minute: 41, second: 0, of: now) else {
+//               print("目標時刻の生成に失敗しました。")
+//               return
+//           }
+//
+//           // もし現在の時刻が「今日の朝5時18分」を既に過ぎていたら、
+//           // 目標日を1日進めて「明日の朝5時18分」に設定する
+//           if now > targetDate {
+//               targetDate = calendar.date(byAdding: .day, value: 1, to: targetDate)!
+//           }
+//
+//
+//              // OSに「この時刻以降のできるだけ早いタイミングで実行してください」と伝える
+//              request.earliestBeginDate = targetDate
+//
+//              print("次のバックグラウンドタスクは \(targetDate) 以降にスケジュールされました。")
+//              
+//              // --- ここまで修正 ---
+//
+//              do {
+//                  try BGTaskScheduler.shared.submit(request)
+//                  print("Successfully scheduled background task.")
+//              } catch {
+//                  print("Could not schedule background task: \(error)")
+//              }
+//           
+//           
+//       }
+//       
+//       /// バックグラウンドで実行される実際の処理
+//       private func handleAppRefresh(task: BGAppRefreshTask) {
+//           // タイムリミットが来たら必ずタスクを終了させるための処理
+//           task.expirationHandler = {
+//               task.setTaskCompleted(success: false)
+//           }
+//
+//           print("🌅 Background task started. Setting up today's alarm.")
+//           
+//           // ここであなたのAlarmServiceのメソッドを呼び出す！
+//           // MainActorで実行することで、UI関連のプロパティを安全に扱える
+//           Task { @MainActor in
+//               AlarmService.shared.setTodayAlarm()
+//               AlarmService.shared.startMonitoring() // 監視も再スタート
+//               
+//               // OSにタスクが完了したことを伝える（成功）
+//               task.setTaskCompleted(success: true)
+//               print("✅ Background task completed successfully.")
+//               
+//               // 次の日のタスクを再スケジュールするのを忘れない！
+//               scheduleDailyAlarmSetup()
+//           }
+//       }
 }
 
 
