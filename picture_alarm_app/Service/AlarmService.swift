@@ -32,9 +32,9 @@ class AlarmService: ObservableObject {
     private var timer: Timer?
     private var alarmTimer: Timer?
     @Published var isAlarmPlaying = false
-    @Published var isAlarmOn: Bool = false
-    @Published var isWakeupnow: Bool = false
-    @Published var isPrepareDone: Bool = false
+    @Published var isAlarmOn: Bool = UserDefaults.standard.value(forKey: "isAlarmOn") as? Bool ?? false
+    @Published var isWakeup: Bool = false
+    @Published var isLeave: Bool = false
     
     private init() {
         setupAudioSession()
@@ -42,6 +42,7 @@ class AlarmService: ObservableObject {
         fetchAlarms() // 変更点 2: 初期化時にデータを取得する
         startMonitoring()
         setTodayAlarm()
+        
     }
     
     // 変更点 3: 手動でデータを取得するメソッドを追加
@@ -114,6 +115,26 @@ class AlarmService: ObservableObject {
             }
     }
     
+    //アラームの状態を更新
+    
+    func updateAlarmStatus(id: String, isOn: Bool,isWakeup:Bool,isLeave:Bool) {
+        // alarms配列から更新対象のアラーム（への参照）を探す
+            if let alarmToUpdate = alarms.first(where: { $0.id == id }) {
+                
+                // 参照している元のオブジェクトのプロパティを直接変更する
+                alarmToUpdate.isOn = isOn
+                alarmToUpdate.isWakeup = isWakeup
+                alarmToUpdate.isLeave = isLeave
+                
+                // 変更を保存し、配列を更新する
+                saveAndFetchAlarms()
+                startMonitoring()
+                
+                // 通知を再スケジュールする
+                scheduleNotification(for: alarmToUpdate)
+            }
+    }
+    
     /// アラームを削除
     func removeAlarm(id: String) {
         // 変更点 4: `alarmdata`を`alarms`に変更
@@ -143,8 +164,7 @@ class AlarmService: ObservableObject {
         fetchAlarms()
         
         var calendar = Calendar.current
-        
-        
+
         if let existingAlarm = alarms.first(where: { alarm -> Bool in
             
             // 👇 デバッグ用のprint文を追加
@@ -179,24 +199,24 @@ class AlarmService: ObservableObject {
     
     /// 今日のアラームを取得
     func getTodayAlarm() -> AlarmData? {
-        if let todayalarm = getAlarm(for: Date()){
+
+        if let todayalarm = getAlarm(for: Date()) {
+            currentAlarm = todayalarm
             return todayalarm
-           
-        } else {
+        }else{
+            currentAlarm = nil
             return nil
         }
 
     }
     
     func setTodayAlarm(){
-        let todayalarm = getAlarm(for: Date())
-        if todayalarm?.wakeUpTime != todayalarm?.leaveTime {
-//            currentAlarm = todayalarm
-            isAlarmOn = true
-
+        if let todayalarm = getAlarm(for: Date()) {
+            currentAlarm = todayalarm
+           
         }else{
-//            currentAlarm = nil
-            isAlarmOn = false
+            currentAlarm = nil
+         
         }
     }
     
@@ -219,9 +239,8 @@ class AlarmService: ObservableObject {
         fetchAlarms() // 保存後に必ずデータを再取得
     }
     
-    
     //タイマーで時間監視を開始
-    private func startMonitoring() {
+    func startMonitoring() {
         stopMonitoring()
         
         // 今日のアラームを取得
@@ -251,10 +270,10 @@ class AlarmService: ObservableObject {
         let now = Date()
         var calendar = Calendar.current
         
-        if let jstTimeZone = TimeZone(identifier: "Asia/Tokyo") {
-            calendar.timeZone = jstTimeZone
-        }
-        
+//        if let jstTimeZone = TimeZone(identifier: "Asia/Tokyo") {
+//            calendar.timeZone = jstTimeZone
+//        }
+//        
         // 日付と時刻を比較
         let nowComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: now)
         let alarmDateComponents = calendar.dateComponents([.year, .month, .day], from: alarm.date)
