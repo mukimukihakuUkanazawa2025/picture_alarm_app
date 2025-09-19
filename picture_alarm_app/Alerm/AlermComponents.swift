@@ -187,7 +187,7 @@ struct TimeCardView: View {
                 .font(.headline)
                 .foregroundColor(.white)
             Text(timeString(from: time))
-                .font(.system(size: 48, weight: .bold, design: .rounded))
+                .font(.system(size: 48, weight: .bold))
                 .foregroundColor(.white)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

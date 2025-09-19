@@ -55,7 +55,7 @@ struct AlermView: View {
                             .padding(.vertical, 12)
                             .background(
                                 Calendar.current.isDate(selectedDate, inSameDayAs: Date())
-                                ? Color.gray
+                                ? Color.gray.opacity(0.5)
                                 : Color(hex: "FF8300")
                             )
                             .clipShape(Capsule())
@@ -73,25 +73,57 @@ struct AlermView: View {
                 // --- 状態表示文章 ---
                 switch alarmstatus {
                 case .setted:
-                    Text(" アラームは設定されています")
-                        .padding(.top, 12)
-                        .padding(.leading, 16)
+                    HStack(alignment: .center){
+                        Spacer()
+                        Image(systemName:"clock.badge.checkmark.fill")
+                        Text(" アラームは設定されています")
+                        Spacer()
+                    }
+                        .padding(20)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.orange.opacity(0.2))
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .padding(.horizontal, 16)
+                        .padding(.top, 28)
                 case .unsetted:
-                    Text(" アラームは設定されていません")
-                        .padding(.top, 12)
-                        .padding(.leading, 16)
+                    HStack(alignment: .center){
+                        Spacer()
+                        Image(systemName:"clock.badge.xmark.fill")
+                        Text(" アラームは設定されていません")
+                        Spacer()
+                    }
+                        .padding(20)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.orange.opacity(0.2))
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .padding(.horizontal, 16)
+                        .padding(.top, 28)
                 case .error:
-                    Text(" 起床時刻よりも出発時刻が遅くなるようにしてください")
-                        .padding(.top, 12)
-                        .padding(.leading, 16)
+                    HStack(alignment: .center){
+                        Spacer()
+                        Image(systemName:"exclamationmark.triangle.fill")
+                            .symbolRenderingMode(.multicolor)
+                        Text("出発時刻よりも起床時刻が早くなっています")
+                        Spacer()
+                    }
+                        .padding(20)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.orange.opacity(0.2))
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .padding(.horizontal, 16)
+                        .padding(.top, 28)
                 }
+                    
                 
                 // --- 時刻カード ---
                 VStack(spacing: 28) {
-                    TimeCardView(title: "起床時間", time: wakeUpTime)
+                    TimeCardView(title: "起床時刻", time: wakeUpTime)
                         .onTapGesture { isShowWakuUpDetailView = true }
                     
-                    TimeCardView(title: "出発時間", time: leaveTime)
+                    TimeCardView(title: "出発時刻", time: leaveTime)
                         .onTapGesture { isShowLeaveDetailView = true }
                 }
                 .padding(.horizontal, 16)
