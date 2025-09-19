@@ -124,16 +124,16 @@ struct DaySelector: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 24) {
+                HStack(spacing: 6) {
                     ForEach(daysInMonth, id: \.self) { day in
                         Button(action: { selectedDate = day}) {
                             Text(dayNumberString(day))
-                                .font(.title2)
+                                .font(.title3)
                                 .foregroundColor(isSelectedDay(day) ? Color.white : Color.gray)
                                 .padding(.horizontal, 18)
                                 .padding(.vertical, 10)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    Circle()
                                         .fill(isSelectedDay(day) ? Color.orange : Color.clear)
                                 )
                         }
@@ -196,3 +196,4 @@ struct TimeCardView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
+
