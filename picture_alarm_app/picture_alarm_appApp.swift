@@ -22,7 +22,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct YourApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @Environment(\.scenePhase) private var scenePhase
-    var backgroundtask = BackgroundTasks()
+    @State var backgroundtask = BackgroundTasks()
 
     init() {
         
@@ -92,7 +92,7 @@ struct YourApp: App {
             .onChange(of: scenePhase) { oldPhase, newPhase in
                 if newPhase == .background || newPhase == .active{
                             print("App is in background. Scheduling daily alarm setup task.")
-                    backgroundtask.scheduleDailyAlarmSetup()
+                            backgroundtask.scheduleDailyAlarmSetup()
 //                            scheduleDailyAlarmSetup()
                         }
                     }
