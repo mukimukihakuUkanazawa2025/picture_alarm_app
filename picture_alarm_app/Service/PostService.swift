@@ -17,6 +17,7 @@ struct PostInfo: Identifiable {
     var goodCount: Int = 0 // いいね数
     var comments: [String] = [] // コメント
     var user: User?
+    var status:String? //ユーザーの起床状況
 }
 
 class PostService {
@@ -24,7 +25,7 @@ class PostService {
     private let storage = Storage.storage()
     private let userService = UserService.shared
     
-    func uploadPost(imageData: Data, comment: String?, completion: @escaping (Error?) -> Void) async throws {
+    func uploadPost(imageData: Data, comment: String?, status:UserStatus, completion: @escaping (Error?) -> Void) async throws {
         
         guard let currentUser = Auth.auth().currentUser else {
             completion(NSError(domain: "PostService", code: -1, userInfo: [NSLocalizedDescriptionKey: "ユーザー未サインイン"]))
@@ -43,7 +44,8 @@ class PostService {
             "postTime": FieldValue.serverTimestamp(),
             "imageUrl": url.absoluteString,
             "goodCount": 0,
-            "comments": [comment ?? ""]
+            "comments": [comment ?? ""],
+            "stutus" : status.rawValue
         ]
         
         try await postRef.setData(post)

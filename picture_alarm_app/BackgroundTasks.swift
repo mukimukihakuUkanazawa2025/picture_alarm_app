@@ -260,7 +260,7 @@ class BackgroundTasks {
                     Task.detached(priority: .background) {
                         do {
                             // 4. 裏でアップロード処理を実行
-                            try await postService.uploadPost(imageData: Wakeupimagedata, comment: "準備が終わりませんでした、、、", completion: { _ in
+                            try await postService.uploadPost(imageData: Wakeupimagedata, comment: "準備が終わりませんでした、、、", status: .isWakeup, completion: { _ in
                                 print("can uploard")
                             })
                             
@@ -282,7 +282,7 @@ class BackgroundTasks {
                     Task.detached(priority: .background) {
                         do {
                             // 4. 裏でアップロード処理を実行
-                            try await postService.uploadPost(imageData: (UIImage(named: "wakeup")?.jpegData(compressionQuality: 0.5))!, comment: "準備が終わりませんでした、、、", completion: { _ in
+                            try await postService.uploadPost(imageData: (UIImage(named: "wakeup")?.jpegData(compressionQuality: 0.5))!, comment: "準備が終わりませんでした、、、", status: .isWakeup, completion: { _ in
                                 print("can uploard")
                             })
                             
@@ -310,7 +310,7 @@ class BackgroundTasks {
                     Task.detached(priority: .background) {
                         do {
                             // 4. 裏でアップロード処理を実行
-                            try await postService.uploadPost(imageData: hitozichiimagedata, comment: "寝過ごしてしまいました、、", completion: { _ in
+                            try await postService.uploadPost(imageData: hitozichiimagedata, comment: "寝過ごしてしまいました、、", status: .noActions, completion: { _ in
                                 print("can uploard")
                             })
                             
@@ -332,7 +332,7 @@ class BackgroundTasks {
                     Task.detached(priority: .background) {
                         do {
                             // 4. 裏でアップロード処理を実行
-                            try await postService.uploadPost(imageData: (UIImage(named: "wakeup")?.jpegData(compressionQuality: 0.5))!, comment: "寝過ごしてしまいました、、", completion: { _ in
+                            try await postService.uploadPost(imageData: (UIImage(named: "wakeup")?.jpegData(compressionQuality: 0.5))!, comment: "寝過ごしてしまいました、、", status: .noActions, completion: { _ in
                                 print("can uploard")
                             })
                             

@@ -164,7 +164,7 @@ struct CameraImageCheckView: View {
                     Task.detached(priority: .background) {
                         do {
                             // 4. 裏でアップロード処理を実行
-                            try await postService.uploadPost(imageData: imageData, comment: selectedComment, completion: { _ in
+                            try await postService.uploadPost(imageData: imageData, comment: selectedComment, status: .isLeave, completion: { _ in
                                 print("a")
                             })
                             
@@ -204,7 +204,7 @@ struct CameraImageCheckView: View {
                         // 投稿用は必ずwakeup.jpg
                         if let fixedImage = UIImage(named: "wakeup"),
                            let fixedImageData = fixedImage.jpegData(compressionQuality: 0.8) {
-                            try await postService.uploadPost(imageData: fixedImageData, comment: selectedComment, completion: { _ in
+                            try await postService.uploadPost(imageData: fixedImageData, comment: selectedComment, status: .isWakeup, completion: { _ in
                                 print("wakeup.jpgを投稿しました")
 
                             })
