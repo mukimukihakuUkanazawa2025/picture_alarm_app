@@ -32,26 +32,29 @@ struct TLView: View {
             
             
             ScrollView {
-                VStack{
-                    Text("友達一覧")
+                VStack(alignment:.leading){
+                    Text("みんなの様子")
                         .font(.title)
+                        .foregroundColor(.white)
                         .bold()
+                        .padding()
                     
                     ShowUserStatusView()
+                        .padding()
+                        .foregroundColor(.white)
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(20)
                 }
-                .padding()
-                .foregroundColor(.white)
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(20)
                 Rectangle()
                     .frame(height: 1)
                     .foregroundColor(.gray.opacity(0.5))
-                    .padding(.vertical, 8)
-                VStack{
+                    .padding(.vertical)
+                VStack(alignment:.leading){
                     Text("タイムライン")
                         .font(.title)
                         .foregroundColor(.white)
                         .bold()
+                        .padding(.horizontal)
                     
                     if viewModel.posts.isEmpty {
                         Text("まだ投稿はありません")

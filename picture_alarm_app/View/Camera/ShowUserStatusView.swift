@@ -40,14 +40,14 @@ struct ShowUserStatusView: View {
                                     switch phase {
                                     case .success(let image):
                                         image.resizable().aspectRatio(contentMode: .fill)
-                                             .frame(width: 70, height: 70)
+                                             .frame(width: 50, height: 50)
                                              .clipShape(RoundedRectangle(cornerRadius: 10))
 //                                             .padding()
                                     default:
                                         Image(systemName: "person").resizable()
                                             .foregroundStyle(.black)
                                             .background(.gray)
-                                            .frame(width: 70, height: 70)
+                                            .frame(width: 50, height: 50)
                                             .clipShape(RoundedRectangle(cornerRadius: 10))
                                     }
                                 }
@@ -126,7 +126,7 @@ struct ShowUserStatusView: View {
             }
             Divider().background(Color.gray)
             HStack{
-                Text("予定無しor寝坊のユーザー")
+                Text("未投稿のユーザー")
                     .font(.subheadline)
                     .bold()
                     .padding(.top,4)
