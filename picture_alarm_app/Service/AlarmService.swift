@@ -15,7 +15,7 @@ import SwiftUI
 // アラームのビューモデル
 @MainActor
 class AlarmService: ObservableObject {
-  
+
     // 変更点 1: @Queryを削除
     // @Query private var alarmdata: [AlarmData]
     

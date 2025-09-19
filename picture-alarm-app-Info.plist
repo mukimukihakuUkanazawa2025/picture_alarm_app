@@ -4,13 +4,13 @@
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>app.hakuu.mukimuki.picture-alarm-app.background</string>
+		<string>app.hakuu.mukimuki.picture-alarm-app.background.v2</string>
 		<string>app.hakuu.mukimuki.picture-alarm-app.background.p</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>fetch</string>
 		<string>processing</string>
+		<string>fetch</string>
 	</array>
 </dict>
 </plist>

@@ -39,7 +39,7 @@ struct YourApp: App {
     
     // Firebase / SwiftData 環境
     @StateObject private var authViewModel = AuthViewModel()
-    
+
     init() {
         // ===== Firebase 初期化 =====
         FirebaseApp.configure()
