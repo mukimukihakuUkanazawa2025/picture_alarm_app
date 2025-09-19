@@ -22,7 +22,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct YourApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @Environment(\.scenePhase) private var scenePhase
-     var backgroundtask = BackgroundTask()
+    var backgroundtask = BackgroundTasks()
 
     init() {
         
