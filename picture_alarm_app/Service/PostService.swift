@@ -22,7 +22,6 @@ struct PostInfo: Identifiable {
 class PostService {
     private let db = Firestore.firestore()
     private let storage = Storage.storage()
-    
     private let userService = UserService.shared
     
     func uploadPost(imageData: Data, comment: String?, completion: @escaping (Error?) -> Void) async throws {

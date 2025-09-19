@@ -15,10 +15,7 @@ import SwiftUI
 // アラームのビューモデル
 @MainActor
 class AlarmService: ObservableObject {
-    
-    
-    
-    
+  
     // 変更点 1: @Queryを削除
     // @Query private var alarmdata: [AlarmData]
     
@@ -35,6 +32,9 @@ class AlarmService: ObservableObject {
     @Published var isAlarmOn: Bool = UserDefaults.standard.value(forKey: "isAlarmOn") as? Bool ?? false
     @Published var isWakeup: Bool = false
     @Published var isLeave: Bool = false
+    
+    var postService = PostService()
+    var editProfileViewModel = EditProfileViewModel()
     
     private init() {
         setupAudioSession()
@@ -286,6 +286,68 @@ class AlarmService: ObservableObject {
             nowComponents.hour == alarmTimeComponents.hour &&
             nowComponents.minute == alarmTimeComponents.minute {
             startAlarmSound()
+        }
+        
+        // -----------------------------------------
+        // 追加: 出発時刻から5分過ぎたか判定
+        // -----------------------------------------
+        let fiveMinutesAgo = now.addingTimeInterval(-5 * 60) // 現在時刻から5分前
+        let leaveComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: alarm.leaveTime)
+        let fiveMinutesAgoComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: fiveMinutesAgo)
+        
+        if leaveComponents.year == fiveMinutesAgoComponents.year &&
+           leaveComponents.month == fiveMinutesAgoComponents.month &&
+           leaveComponents.day == fiveMinutesAgoComponents.day &&
+           leaveComponents.hour == fiveMinutesAgoComponents.hour &&
+           leaveComponents.minute == fiveMinutesAgoComponents.minute &&
+           !alarm.isLeave {
+            
+            if alarm.isWakeup { // 起床はできている→寝顔写真を自動投稿
+                print("⏰ 出発時刻から5分過ぎました。寝顔写真を自動投稿します")
+                
+                Task {
+                    if let imageData = UserDefaults.standard.data(forKey: "wakeupImage") {
+                        do {
+                            try await postService.uploadPost(imageData: imageData, comment: "寝顔写真", completion: { _ in
+                                print("wakeup.jpgを投稿しました")
+                            })
+                        } catch {
+                            print("❌ 自動投稿に失敗: \(error)")
+                        }
+                    } else {
+                        print("❌ wakeupImage が見つかりません")
+                    }
+                }
+                
+            } else { // 起床もできていない→見られたくない写真を自動投稿
+                print("⏰ 出発時刻から5分過ぎました。顔質写真を自動投稿します")
+                
+                Task {
+                       // 画像を取得（UserDefaults または ViewModel）
+                       var imageToPost: UIImage?
+                       
+                       // まず EditProfileViewModel の hitozichiImage を利用
+                       imageToPost = editProfileViewModel.hitozichiImage
+                       
+                       // もし nil ならシステム画像を代替
+                       if imageToPost == nil {
+                           imageToPost = UIImage(systemName: "person.crop.circle.fill") // 例: システム画像
+                       }
+                       
+                       if let image = imageToPost,
+                          let imageData = image.jpegData(compressionQuality: 0.8) {
+                           do {
+                               try await postService.uploadPost(imageData: imageData, comment: "出発前写真", completion: { _ in
+                                   print("hitozichiImage を投稿しました")
+                               })
+                           } catch {
+                               print("❌ 自動投稿に失敗: \(error)")
+                           }
+                       } else {
+                           print("❌ 投稿する画像がありません")
+                       }
+                   }
+            }
         }
     }
     
