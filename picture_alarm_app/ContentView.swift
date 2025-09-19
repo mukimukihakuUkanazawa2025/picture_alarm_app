@@ -23,13 +23,11 @@ struct ContentView: View {
         
         ZStack{
             TabView {
-                
                 TLView()
                     .tabItem {
                         
                         Image(systemName: "house")
                         Text("タイムライン")
-                        
                     }
                 AlermView()
                     .tabItem {
@@ -63,8 +61,6 @@ struct ContentView: View {
                         .frame(width: 50, height: 50)
                         .background(.orange)
                         .clipShape(Circle())
-                    
-                    
                 }
                 .padding(.bottom, 75) // 下から30ポイント上に配置
                 
@@ -74,43 +70,26 @@ struct ContentView: View {
 //                        .offset(y: -75)
 //                }
             }
-            
         }
         .fullScreenCover(isPresented: $isShowAlermStartView){
             AlarmStartView()
         }
         .onAppear{
             if alarmService.isWakeupnow && alarmService.currentAlarm != nil{
-                
-                
-                
             } else if !alarmService.isWakeupnow && alarmService.currentAlarm != nil{
-                
-                
             }else{
-                
                 isShowPopover = false
             }
         }
-        
-        
     }
-    
     var popoverView: some View {
-        
-        
-        
         VStack{
             if alarmService.isWakeupnow && alarmService.currentAlarm != nil{
                 Text("出発時刻")
                 Text(wakeuptime)
-                
-                
             } else if !alarmService.isWakeupnow && alarmService.currentAlarm != nil{
-                
                 Text("起床時間")
                 Text(leaveTime)
-                
             }else{
                 Text("アラームが設定されていないよ！")
                 //                isShowAlermStartView = false
@@ -119,14 +98,11 @@ struct ContentView: View {
             settime()
         }
         .padding()
-        
-        
     }
-    
     private func settime() {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "HH時mm分"
-        
+
         if let current = alarmService.currentAlarm {
             wakeuptime = dateFormatter.string(from: current.wakeUpTime)
             leaveTime  = dateFormatter.string(from: current.leaveTime)
@@ -135,11 +111,8 @@ struct ContentView: View {
             leaveTime  = "--:--"
         }
     }
-    
-    
 }
 
 #Preview {
     ContentView()
-    
 }

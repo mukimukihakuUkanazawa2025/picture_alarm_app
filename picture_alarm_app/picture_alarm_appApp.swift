@@ -66,23 +66,17 @@ struct YourApp: App {
 
         UITabBar.appearance().standardAppearance = tabAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabAppearance
-        
-        
     }
     
     @StateObject private var authViewModel = AuthViewModel()
 
     var body: some Scene {
         WindowGroup {
-            
-            
             RootView()
                 .environmentObject(authViewModel)
         }.modelContainer(sharedModelContainer)
-           
     }
 }
-
 
 // 共有のModelContainerを先に作ってしまう
 let sharedModelContainer: ModelContainer = {

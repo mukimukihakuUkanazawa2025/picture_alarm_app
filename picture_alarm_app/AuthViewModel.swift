@@ -12,6 +12,10 @@ class AuthViewModel: ObservableObject {
     // Firebaseの認証状態監視リスナーへの参照を保持するためのハンドル
     private var handle: AuthStateDidChangeListenerHandle?
 
+    var isLoggedIn: Bool {
+            return user != nil
+        }
+    
     init() {
         // AuthViewModelが初期化されたときに、Firebaseの認証状態の監視を開始
         handle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
