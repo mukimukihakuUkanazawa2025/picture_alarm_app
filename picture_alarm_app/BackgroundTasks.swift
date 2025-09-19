@@ -11,13 +11,13 @@ import BackgroundTasks
 import SwiftUI
 
 
-class BackgroundTask: ObservableObject {
+class BackgroundTasks {
     
     private let backgroundTaskID = "app.hakuu.mukimuki.picture-alarm-app.background"
     
     @StateObject var alarmService = AlarmService.shared
     
-    var postService = PostService()
+    
     
     @State var isAlarmOn = UserDefaults.standard.value(forKey: "isAlarmOn") as? Bool ?? false
     
@@ -45,15 +45,14 @@ class BackgroundTask: ObservableObject {
            let now = Date()
 
            // 基準日を「昨日」ではなく「今日」にする
-           guard var targetDate = calendar.date(bySettingHour: 10, minute: 43, second: 0, of: now) else {
+           guard var targetDate = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: now) else {
                print("目標時刻の生成に失敗しました。")
                return
            }
 
-           // もし現在の時刻が「今日の朝5時18分」を既に過ぎていたら、
-           // 目標日を1日進めて「明日の朝5時18分」に設定する
+
            if now > targetDate {
-               targetDate = calendar.date(byAdding: .day, value: 1, to: targetDate)!
+               targetDate = calendar.date(byAdding: .minute, value: 1, to: now)!
            }
 
 
@@ -195,13 +194,15 @@ class BackgroundTask: ObservableObject {
     //謝罪画像の投稿
     private func postFailurePost(alarmdata:AlarmData){
         
+        var postService = PostService()
+        
         if alarmdata.isOn{
             if alarmdata.isWakeup && !alarmdata.isLeave{
                 if let Wakeupimagedata = UserDefaults.standard.object(forKey: "wakeupImageData") as? Data {
                     Task.detached(priority: .background) {
                         do {
                             // 4. 裏でアップロード処理を実行
-                            try await self.postService.uploadPost(imageData: Wakeupimagedata, comment: "準備が終わりませんでした、、、", completion: { _ in
+                            try await postService.uploadPost(imageData: Wakeupimagedata, comment: "準備が終わりませんでした、、、", completion: { _ in
                                 print("a")
                             })
                             
@@ -229,7 +230,7 @@ class BackgroundTask: ObservableObject {
                     Task.detached(priority: .background) {
                         do {
                             // 4. 裏でアップロード処理を実行
-                            try await self.postService.uploadPost(imageData: hitozichiimagedata, comment: "寝過ごしてしまいました、、", completion: { _ in
+                            try await postService.uploadPost(imageData: hitozichiimagedata, comment: "寝過ごしてしまいました、、", completion: { _ in
                                 print("a")
                             })
                             
