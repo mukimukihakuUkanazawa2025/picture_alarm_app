@@ -18,6 +18,7 @@ struct PostInfo: Identifiable {
     var comments: [String] = [] // コメント
     var user: User?
     var status:String? //ユーザーの起床状況
+    var thumbnailUrl: String? // サムネイルURL
 }
 
 class PostService {
@@ -38,17 +39,23 @@ class PostService {
         _ = try await storageRef.putDataAsync(imageData, metadata: nil)
         let url = try await storageRef.downloadURL()
         
+        // Resize Images対応：サムネイルURLを取得
+        let thumbRef = storage.reference().child("thumbnails/\(postRef.documentID)_400x400.jpg")
+        let thumbURL = try? await thumbRef.downloadURL()
+        
         let post: [String: Any] = [
             "id": postRef.documentID,
             "userId": currentUser.uid,
             "postTime": FieldValue.serverTimestamp(),
             "imageUrl": url.absoluteString,
+            "thumbnailUrl": thumbURL?.absoluteString ?? url.absoluteString,
             "goodCount": 0,
             "comments": [comment ?? ""],
-            "stutus" : status.rawValue
+            "status": status.rawValue
         ]
         
         try await postRef.setData(post)
+        completion(nil)
     }
     
     
