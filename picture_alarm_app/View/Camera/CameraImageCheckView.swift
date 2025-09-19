@@ -140,7 +140,7 @@ struct CameraImageCheckView: View {
     /// 投稿処理を共通化するメソッド
     private func handlePost(isLeave: Bool) {
         
-        if isLeave {
+        if alarmService.currentAlarm!.isWakeup {
             
             if var image = CapturedImage{
                 let targetSize = CGSize(width: 2024, height: 2024) // 目標サイズ（例: 1080px四方）

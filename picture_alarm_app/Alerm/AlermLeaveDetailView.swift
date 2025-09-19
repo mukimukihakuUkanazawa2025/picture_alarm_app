@@ -103,6 +103,10 @@ struct AlermLeaveDetailView: View {
                     AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime, isOn: true)
                 }
                 
+                let background = BackgroundTasks()
+                
+                background.scheduleDepaturePostSetup()
+                
                 print("a")
             } else {
                 if let alarms =  AlarmService.shared.getAlarm(for: selectedDate){
