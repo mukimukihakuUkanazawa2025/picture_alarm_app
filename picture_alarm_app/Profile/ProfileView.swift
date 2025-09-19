@@ -87,41 +87,63 @@ struct ProfileView: View {
                         LazyVGrid(columns: columns, spacing: 4) {
                             ForEach(viewModel.userPosts) { post in
                                 
-                                AsyncImage(url: post.imageUrl.flatMap { URL(string: $0) }) { phase in
-                                    switch phase {
-                                    case .success(let image):
-                                        image
-                                            .resizable()
-                                            .frame(width:160,height:160)
-                                            .clipShape(Circle())
-                                            .overlay(alignment: .topLeading) {
-                                                // 日付を画像の上に表示
-                                                Text(formatDate(post.postTime))
-                                                    .font(.subheadline).bold()
-                                                    .padding(4)
-                                                    .background(.white)
-                                                    .foregroundColor(.black)
-                                                    .cornerRadius(4)
-                                                    .padding(4)
-                                            }
-                                    case .failure:
-                                        
-                                        Color.gray.opacity(0.3)
-                                        
-                                            .frame(width:160,height:160)
-                                            .clipShape(Circle())
-                                        
-                                        
-                                    default:
-                                        // 読み込み中はプログレスビュー
-                                        ProgressView()
-                                        
-                                            .frame(width:160,height:160)
-                                        
-                                    }
+                                if let userPostImageUrlStr = post.imageUrl, let userPostImageUrl = URL(string: userPostImageUrlStr) {
+                                    
+                                    KFImage(userPostImageUrl)
+                                        .resizable()
+                                        .cancelOnDisappear(true)
+                                        .cacheOriginalImage()
+                                        .frame(width:160,height:160)
+                                        .clipShape(Circle())
+                                        .overlay(alignment: .topLeading) {
+                                            // 日付を画像の上に表示
+                                            Text(formatDate(post.postTime))
+                                                .font(.subheadline).bold()
+                                                .padding(4)
+                                                .background(.white)
+                                                .foregroundColor(.black)
+                                                .cornerRadius(4)
+                                                .padding(4)
+                                        }
+                                        .aspectRatio(1, contentMode: .fit) // 正方形に
+                                        .clipped()
                                 }
-                                .aspectRatio(1, contentMode: .fit) // 正方形に
-                                .clipped()
+                                
+//                                AsyncImage(url: post.imageUrl.flatMap { URL(string: $0) }) { phase in
+//                                    switch phase {
+//                                    case .success(let image):
+//                                        image
+//                                            .resizable()
+//                                            .frame(width:160,height:160)
+//                                            .clipShape(Circle())
+//                                            .overlay(alignment: .topLeading) {
+//                                                // 日付を画像の上に表示
+//                                                Text(formatDate(post.postTime))
+//                                                    .font(.subheadline).bold()
+//                                                    .padding(4)
+//                                                    .background(.white)
+//                                                    .foregroundColor(.black)
+//                                                    .cornerRadius(4)
+//                                                    .padding(4)
+//                                            }
+//                                    case .failure:
+//                                        
+//                                        Color.gray.opacity(0.3)
+//                                        
+//                                            .frame(width:160,height:160)
+//                                            .clipShape(Circle())
+//                                        
+//                                        
+//                                    default:
+//                                        // 読み込み中はプログレスビュー
+//                                        ProgressView()
+//                                        
+//                                            .frame(width:160,height:160)
+//                                        
+//                                    }
+//                                }
+//                                .aspectRatio(1, contentMode: .fit) // 正方形に
+//                                .clipped()
                             }
                         }
                     }
