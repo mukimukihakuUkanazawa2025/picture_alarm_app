@@ -109,7 +109,7 @@ struct AlermDetailView: View {
                 id: gettedAlarm.id,
                 date: selectedDate,
                 wakeUpTime: combinedDate,
-                leaveTime: combinedLeaveTime
+                leaveTime: combinedLeaveTime, isOn: false
             )
         }
         dismiss()

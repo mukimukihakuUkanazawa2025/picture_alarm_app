@@ -22,3 +22,10 @@ final class AlarmData: Identifiable {
     }
 }
 
+
+
+enum alarmStatus {
+    case setted
+    case unsetted
+    case error
+}

@@ -17,6 +17,8 @@ import SwiftUI
 class AlarmService: ObservableObject {
     
     
+    
+    
     // 変更点 1: @Queryを削除
     // @Query private var alarmdata: [AlarmData]
     
@@ -57,19 +59,37 @@ class AlarmService: ObservableObject {
     }
     
     /// 日毎のアラームを追加
-    func addAlarm(date: Date, wakeUpTime: Date, leaveTime: Date) {
+    func addAlarm(date: Date, wakeUpTime: Date, leaveTime: Date,isOn:Bool) {
         var calendar = Calendar(identifier: .gregorian)
-        
-        if let jstTimeZone = TimeZone(identifier: "Asia/Tokyo") {
-            calendar.timeZone = jstTimeZone
-        }
-        
+//        
+//        if let jstTimeZone = TimeZone(identifier: "Asia/Tokyo") {
+//            calendar.timeZone = jstTimeZone
+//        }
+//        
         // 変更点 4: `alarmdata`を`alarms`に変更
-        if let index = alarms.firstIndex(where: { calendar.startOfDay(for: $0.date) == calendar.startOfDay(for: date)}){
-            updateAlarm(id: alarms[index].id, date: alarms[index].date, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
+        if let index = alarms.firstIndex(where: { calendar.isDate($0.date, inSameDayAs: date) }){
+            print("a")
+            updateAlarm(
+                   id: alarms[index].id,
+                   date: date, // ✅ 新しい日付を正しく渡す
+                   wakeUpTime: wakeUpTime,
+                   leaveTime: leaveTime,
+                   isOn: isOn
+               )
         } else {
             let alarm = AlarmData(date: date, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
+            print("b")
+            alarm.isOn = isOn
             context.insert(alarm)
+            do {
+                try context.save()
+                let descriptor = FetchDescriptor<AlarmData>(sortBy: [SortDescriptor(\.date)])
+                    self.alarms = try context.fetch(descriptor)
+                print("✅ アラームの保存に成功しました。")
+            } catch {
+                print("❌ アラームの保存に失敗しました: \(error)")
+            }
+            
             saveAndFetchAlarms() // 変更点 5: 保存と再取得を1つのメソッドにまとめる
             startMonitoring()
             scheduleNotification(for: alarm)
@@ -77,7 +97,7 @@ class AlarmService: ObservableObject {
     }
     
     /// アラームを更新
-    func updateAlarm(id: String, date: Date, wakeUpTime: Date, leaveTime: Date) {
+    func updateAlarm(id: String, date: Date, wakeUpTime: Date, leaveTime: Date,isOn:Bool) {
         // alarms配列から更新対象のアラーム（への参照）を探す
             if let alarmToUpdate = alarms.first(where: { $0.id == id }) {
                 
@@ -140,27 +160,46 @@ class AlarmService: ObservableObject {
     
     /// 特定の日付のアラームを取得
     func getAlarm(for date: Date) -> AlarmData? {
+        
+        fetchAlarms()
+        
         var calendar = Calendar.current
-        
-//        if let jstTimeZone = TimeZone(identifier: "Asia/Tokyo") {
-//            calendar.timeZone = jstTimeZone
-//        }
-        
-        // 変更点 4: `alarmdata`を`alarms`に変更
-        if let existingAlarm = alarms.first(where: { calendar.isDate($0.date, inSameDayAs: date) }) {
+
+        if let existingAlarm = alarms.first(where: { alarm -> Bool in
+            
+            // 👇 デバッグ用のprint文を追加
+            print("DEBUG: 比較開始 ----")
+            print("  アラームの日付: \(alarm.date)")
+            print("  アラームの起床: \(alarm.wakeUpTime)")
+            print("  アラームの出発: \(alarm.leaveTime)")
+            print("  検索する日付: \(date)")
+            
+            let isMatch = Calendar.current.isDate(alarm.date, inSameDayAs: date) 
+            print("  一致したか？ -> \(isMatch)")
+            print("--------------------")
+            
+            return isMatch
+            
+        }) {
+            print("✅ 一致するアラームが見つかりました: \(existingAlarm)")
             return existingAlarm
         } else {
-            // 見つからなかった場合、新しいものを作成して返す（再帰呼び出しは避ける）
-            let newAlarm = AlarmData(date: date, wakeUpTime: date, leaveTime: date)
-            context.insert(newAlarm)
-            saveAndFetchAlarms()
-            // alarms配列から新しいインスタンスを返す
-            return alarms.first(where: { $0.id == newAlarm.id })
+            print("❌ 一致するアラームは見つかりませんでした。")
+            return nil
         }
+        
+        // 変更点 4: `alarmdata`を`alarms`に変更
+//        if let existingAlarm = alarms.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date)  }) {
+//            return existingAlarm
+//        } else {
+//
+//            return nil
+//        }
     }
     
     /// 今日のアラームを取得
     func getTodayAlarm() -> AlarmData? {
+
         if let todayalarm = getAlarm(for: Date()) {
             currentAlarm = todayalarm
             return todayalarm
@@ -191,6 +230,9 @@ class AlarmService: ObservableObject {
     private func saveAndFetchAlarms() {
         do {
             try context.save()
+//            fetchAlarms()
+            let descriptor = FetchDescriptor<AlarmData>(sortBy: [SortDescriptor(\.date)])
+            self.alarms = try context.fetch(descriptor)
         } catch {
             print("データの保存に失敗: \(error)")
         }

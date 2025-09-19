@@ -10,6 +10,9 @@ import UserNotifications
 import SwiftData
 
 struct AlermView: View {
+    
+    @State private var alarms: [AlarmData] = []
+    
     @StateObject private var alarmService = AlarmService.shared
     
     @State private var wakeUpTime: Date = {
@@ -22,12 +25,15 @@ struct AlermView: View {
     }()
     
     @State private var showingAlarmDetail = false
-    @State private var selectedDate = Date()
+    @State private var selectedDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: Date()) ?? Date()
     @State private var editedAlarm: AlarmData?
     
     // 起床時間/出発時間のモーダル表示フラグ
     @State private var isShowWakuUpDetailView = false
     @State private var isShowLeaveDetailView = false
+    
+    @State private var alarmstatus : alarmStatus = .unsetted
+    @State private var alarmStatusText:String = "アラームが未設定です"
     
     var body: some View {
         NavigationView {
@@ -41,7 +47,7 @@ struct AlermView: View {
                     
                     Spacer()
                     
-                    Button(action: { selectedDate = Date() }) {
+                    Button(action: { selectedDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: Date()) ?? Date()}) {
                         Text("今日")
                             .font(.headline)
                             .foregroundColor(.white)
@@ -63,6 +69,16 @@ struct AlermView: View {
                     .padding(.top, 8)
                     .padding(.bottom, 16)
                 DaySelector(selectedDate: $selectedDate)
+                
+                // --- 状態表示文章 ---
+                switch alarmstatus {
+                case .setted:
+                    Text("アラームは設定されています")
+                case .unsetted:
+                    Text("アラームは設定されていません")
+                case .error:
+                    Text("起床時刻よりも出発時刻が遅くなるようにしてください")
+                }
                 
                 // --- 時刻カード ---
                 VStack(spacing: 28) {
@@ -96,7 +112,9 @@ struct AlermView: View {
                 AlermWakuUpDetailView(
                     wakeUpTime: $wakeUpTime,
                     leaveTime: $leaveTime,
-                    isShowWakuUpDetailView: $isShowWakuUpDetailView
+                    isShowWakuUpDetailView: $isShowWakuUpDetailView,
+                    alarmStatus: $alarmstatus,
+                    selectedDate: $selectedDate
                 )
                 .presentationDetents([.fraction(0.75)]) // 下から 3/4 覆う
                 .presentationDragIndicator(.visible)
@@ -106,43 +124,72 @@ struct AlermView: View {
                 AlermLeaveDetailView(
                     wakeUpTime: $wakeUpTime,
                     leaveTime: $leaveTime,
-                    isShowLeaveDetailView: $isShowLeaveDetailView
+                    isShowLeaveDetailView: $isShowLeaveDetailView,
+                    alarmStatus: $alarmstatus,
+                    selectedDate: $selectedDate
+                    
                 )
                 .presentationDetents([.fraction(0.75)])
                 .presentationDragIndicator(.visible)
             }
             // --- データの反映 ---
             .onAppear {
-                selectedDate = Date()
-                editedAlarm = alarmService.getAlarm(for: selectedDate)
-                wakeUpTime = editedAlarm?.wakeUpTime ?? wakeUpTime
-                leaveTime = editedAlarm?.leaveTime ?? leaveTime
+                selectedDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: Date()) ?? Date()
+                if let alarms = alarmService.getAlarm(for: selectedDate){
+                    editedAlarm = alarmService.getAlarm(for: selectedDate)
+                    wakeUpTime = editedAlarm?.wakeUpTime ?? wakeUpTime
+                    leaveTime = editedAlarm?.leaveTime ?? leaveTime
+                    
+                    print(alarms.wakeUpTime)
+                    print(alarms.leaveTime)
+                    
+                    alarmstatus = .setted
+                } else {
+                    editedAlarm?.date = selectedDate
+                    editedAlarm?.wakeUpTime = wakeUpTime
+                    editedAlarm?.leaveTime = leaveTime
+                    
+                    alarmstatus = .unsetted
+                }
+                
             }
             .onChange(of: selectedDate) { _ in
-                editedAlarm = alarmService.getAlarm(for: selectedDate)
-                wakeUpTime = editedAlarm?.wakeUpTime ?? wakeUpTime
-                leaveTime = editedAlarm?.leaveTime ?? leaveTime
-            }
-            .onChange(of: wakeUpTime) { _ in
-                if let gettedAlarm = alarmService.getAlarm(for: selectedDate) {
-                    alarmService.updateAlarm(
-                        id: gettedAlarm.id,
-                        date: selectedDate,
-                        wakeUpTime: wakeUpTime,
-                        leaveTime: leaveTime
-                    )
+                
+                alarmService.fetchAlarms()
+                
+                alarms = self.alarmService.alarms
+                
+                print(alarms)
+                
+                let calendar = Calendar.current
+                selectedDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: selectedDate) ?? selectedDate
+                
+                if let alarm = alarmService.getAlarm(for: selectedDate){
+//                    editedAlarm = alarms
+                    wakeUpTime = alarm.wakeUpTime ?? wakeUpTime
+                    leaveTime = alarm.leaveTime ?? leaveTime
+                    
+                    print(alarm.wakeUpTime)
+                    print(alarm.leaveTime)
+                    
+                    alarmstatus = .setted
+                } else {
+//                    editedAlarm = AlarmData()
+                    wakeUpTime = calendar.date(bySettingHour: 7, minute: 0, second: 0, of: Date()) ?? Date()
+                    leaveTime = calendar.date(bySettingHour: 8, minute: 0, second: 0, of: Date()) ?? Date()
+                    
+//                    editedAlarm?.date = selectedDate
+//                    editedAlarm?.wakeUpTime = wakeUpTime
+//                    editedAlarm?.leaveTime = leaveTime
+                    
+                    
+                    
+                    alarmstatus = .unsetted
                 }
+                
+               
             }
-            .onChange(of: leaveTime) { _ in
-                if let gettedAlarm = alarmService.getAlarm(for: selectedDate) {
-                    alarmService.updateAlarm(
-                        id: gettedAlarm.id,
-                        date: selectedDate,
-                        wakeUpTime: wakeUpTime,
-                        leaveTime: leaveTime
-                    )
-                }
-            }
+
         }
     }
     
@@ -157,3 +204,4 @@ struct AlermView: View {
 #Preview {
     AlermView()
 }
+
