@@ -8,6 +8,7 @@
 import SwiftUI
 import FirebaseFirestore
 import FirebaseAuth
+import Kingfisher
 
 
 struct ShowUserStatusView: View {
@@ -20,8 +21,8 @@ struct ShowUserStatusView: View {
     
     
     var body: some View {
-//        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-//        if viewModel.
+        //        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        //        if viewModel.
         VStack{
             HStack{
                 Text("出発済みのユーザー")
@@ -36,21 +37,16 @@ struct ShowUserStatusView: View {
                     ForEach(viewModel.isLeaveUsers) { info in
                         VStack{
                             if let profileUrlString = info.user?.profileImageUrl, let url = URL(string: profileUrlString) {
-                                AsyncImage(url: url) { phase in
-                                    switch phase {
-                                    case .success(let image):
-                                        image.resizable().aspectRatio(contentMode: .fill)
-                                             .frame(width: 70, height: 70)
-                                             .clipShape(RoundedRectangle(cornerRadius: 10))
-//                                             .padding()
-                                    default:
-                                        Image(systemName: "person").resizable()
-                                            .foregroundStyle(.black)
-                                            .background(.gray)
-                                            .frame(width: 70, height: 70)
-                                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                                    }
-                                }
+                                
+                                KFImage(url)
+                                    .resizable()
+                                    .cancelOnDisappear(true)
+                                    .cacheOriginalImage()
+                                    .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 70, height: 70)))
+                                    .scaledToFill()
+                                    .frame(width: 70, height: 70)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                
                             } else {
                                 Image(systemName: "person").resizable()
                                     .foregroundStyle(.black)
@@ -72,7 +68,7 @@ struct ShowUserStatusView: View {
                 .padding(.horizontal, 16)
             }
             Divider().background(Color.gray)
-                
+            
             HStack{
                 Text("起床済みのユーザー")
                     .font(.subheadline)
@@ -91,17 +87,17 @@ struct ShowUserStatusView: View {
                                     switch phase {
                                     case .success(let image):
                                         image.resizable().aspectRatio(contentMode: .fill)
-                                             .frame(width: 70, height: 70)
-                                             .clipShape(RoundedRectangle(cornerRadius: 10))
-//                                             .padding()
+                                            .frame(width: 70, height: 70)
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                                        //                                             .padding()
                                     default:
                                         Image(systemName: "person").resizable()
                                             .foregroundStyle(.black)
                                             .background(.gray)
                                             .frame(width: 70, height: 70)
                                             .clipShape(RoundedRectangle(cornerRadius: 10))
-//                                            .padding()
-                                            
+                                        //                                            .padding()
+                                        
                                     }
                                 }
                             } else {
@@ -138,21 +134,16 @@ struct ShowUserStatusView: View {
                     ForEach(viewModel.noActionsUsers) { info in
                         VStack{
                             if let profileUrlString = info.user?.profileImageUrl, let url = URL(string: profileUrlString) {
-                                AsyncImage(url: url) { phase in
-                                    switch phase {
-                                    case .success(let image):
-                                        image.resizable().aspectRatio(contentMode: .fill)
-                                             .frame(width: 70, height: 70)
-                                             .clipShape(RoundedRectangle(cornerRadius: 10))
-//                                             .padding()
-                                    default:
-                                        Image(systemName: "person").resizable()
-                                            .foregroundStyle(.black)
-                                            .background(.gray)
-                                            .frame(width: 70, height: 70)
-                                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                                    }
-                                }
+                                
+                                KFImage(url)
+                                    .resizable()
+                                    .cancelOnDisappear(true)
+                                    .cacheOriginalImage()
+                                    .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 70, height: 70)))
+                                    .scaledToFill()
+                                    .frame(width: 70, height: 70)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                
                             } else {
                                 Image(systemName: "person").resizable()
                                     .foregroundStyle(.black)
