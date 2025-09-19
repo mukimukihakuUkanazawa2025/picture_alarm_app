@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import PhotosUI 
+import PhotosUI
 import FirebaseAuth
 
 @MainActor

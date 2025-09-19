@@ -61,7 +61,7 @@ struct TLView: View {
 //                                        }
 //                                    }
 //                                }
-//                                
+
 //                                Button(action: {
 //                                    print("共有ボタン tapped")
 //                                }) {
