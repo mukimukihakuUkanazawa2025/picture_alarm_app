@@ -35,14 +35,25 @@ class PostService {
         
         let postRef = db.collection("posts").document()
         let storageRef = storage.reference().child("posts/\(postRef.documentID).jpg")
-        
-        _ = try await storageRef.putDataAsync(imageData, metadata: nil)
+
+        // Compress image before upload
+        guard let image = UIImage(data: imageData),
+              let compressedData = image.jpegData(compressionQuality: 0.3) else {
+            completion(NSError(domain: "PostService", code: -2, userInfo: [NSLocalizedDescriptionKey: "画像圧縮失敗"]))
+            return
+        }
+
+        let metadata = StorageMetadata()
+        metadata.contentType = "image/jpeg"
+        metadata.cacheControl = "public,max-age=3600"
+
+        _ = try await storageRef.putDataAsync(compressedData, metadata: metadata)
         let url = try await storageRef.downloadURL()
-        
-        // Resize Images対応：サムネイルURLを取得
+
+        // Resize Images対応：サムネイルURLを取得、存在しなければフル画像を使用
         let thumbRef = storage.reference().child("thumbnails/\(postRef.documentID)_400x400.jpg")
         let thumbURL = try? await thumbRef.downloadURL()
-        
+
         let post: [String: Any] = [
             "id": postRef.documentID,
             "userId": currentUser.uid,
@@ -53,9 +64,13 @@ class PostService {
             "comments": [comment ?? ""],
             "status": status.rawValue
         ]
-        
-        try await postRef.setData(post)
-        completion(nil)
+
+        do {
+            try await postRef.setData(post)
+            completion(nil)
+        } catch {
+            completion(error)
+        }
     }
     
     
