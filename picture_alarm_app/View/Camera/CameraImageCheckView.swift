@@ -44,7 +44,7 @@ struct CameraImageCheckView: View {
                         .padding(.top, 40)
                     
                     if let image = CapturedImage {
-                        Image("wakeup")
+                        Image(uiImage: image)
                             .resizable()
                             .scaledToFill()
                             .frame(width: 320, height: 320)
@@ -52,9 +52,13 @@ struct CameraImageCheckView: View {
                             .overlay(Circle().stroke(Color.white, lineWidth: 3))
                             .shadow(radius: 10)
                     } else {
-                        Circle()
-                            .fill(Color.gray.opacity(0.3))
+                        Image("wakeup")
+                            .resizable()
+                            .scaledToFill()
                             .frame(width: 320, height: 320)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.white, lineWidth: 3))
+                            .shadow(radius: 10)
                     }
                     
                     //コメントホイールを表示する
@@ -140,7 +144,7 @@ struct CameraImageCheckView: View {
     /// 投稿処理を共通化するメソッド
     private func handlePost(isLeave: Bool) {
         
-        if isLeave {
+        if alarmService.currentAlarm!.isWakeup {
             
             if var image = CapturedImage{
                 let targetSize = CGSize(width: 2024, height: 2024) // 目標サイズ（例: 1080px四方）
