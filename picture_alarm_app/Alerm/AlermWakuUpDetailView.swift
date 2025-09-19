@@ -138,9 +138,10 @@ struct AlermWakuUpDetailView: View {
             dismiss()
         }
 
-    }
+    
 
     private func requestNotificationAuthorization() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _,_ in }
     }
 }
+

@@ -81,7 +81,7 @@ struct CameraImageCheckView: View {
                     
                     // 下部ボタン
 
-                    if alarmService.isWakeupnow {
+                if alarmService.currentAlarm!.isWakeup {
                         
 
                         // 出発時のボタン
