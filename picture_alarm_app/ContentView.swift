@@ -24,7 +24,7 @@ struct ContentView: View {
         ZStack{
             TabView {
                 
-                ShowUserStatusView()
+                TLView()
                     .tabItem {
                         
                         Image(systemName: "house")

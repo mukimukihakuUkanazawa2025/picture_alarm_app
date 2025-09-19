@@ -28,7 +28,7 @@ class UserStatusViewModel: ObservableObject {
     private let userService = UserService.shared
     
     init() {
-        fetchUsersStatus()
+//        fetchUsersStatus()
     }
     
     /// 各友達の「今日の最新投稿」を1件ずつ取得する関数
@@ -37,7 +37,7 @@ class UserStatusViewModel: ObservableObject {
         userstatus.removeAll()
         noActionsUsers.removeAll()
         isWakeupUsers.removeAll()
-        isWakeupUsers.removeAll()
+        isLeaveUsers.removeAll()
         
         guard let currentUserId = Auth.auth().currentUser?.uid else {
             return
@@ -75,13 +75,19 @@ class UserStatusViewModel: ObservableObject {
                 
                 print(snapshot.documents)
                 
+                var latestStatus : [String: RappUserStatusInfo] = [:] // ユーザーIDをキーにして、重複を防ぐための辞書
+                
+                for friendId in friendIds {
+                    latestStatus[friendId] = nil
+                }
+                
                 for doc in snapshot.documents {
                     
                     print(doc.data())
                     print("----------------------------------------------------")
                     
                     // 3. アプリ側でフィルタリングし、各ユーザーの「今日の最新投稿」を1件だけ取り出す
-                    var latestStatus : [String: RappUserStatusInfo] = [:] // ユーザーIDをキーにして、重複を防ぐための辞書
+                   
                     
                     // ドキュメントをループ処理
          
@@ -96,8 +102,9 @@ class UserStatusViewModel: ObservableObject {
                         if postDate >= startOfToday && postDate < startOfTomorrow {
                       
                             guard let userId = data["userId"] as? String else { continue }
+                          
                             
-                            let status: UserStatus = switch data["status"] as? String ?? "" {
+                            let status: UserStatus = switch data["stutus"] as? String ?? "" {
                             case "noaction":
                                     .noActions
                             case "iswakeup":
@@ -110,6 +117,7 @@ class UserStatusViewModel: ObservableObject {
                             
                             if latestStatus[userId] == nil {
                                 print("userID:\(userId)")
+                                print("‼️データはこちら：\(data["id"] as? String ?? "")")
                                 // このユーザーの最初の投稿（=最新の投稿）なので辞書に追加
                                 let rappUserStatusInfo = RappUserStatusInfo(
                                     id: userId,
@@ -120,15 +128,22 @@ class UserStatusViewModel: ObservableObject {
                                 
                                 latestStatus[userId]?.user = try? await self.userService.fetchUser(withId: userId)
 
-                                self.userstatus.updateValue(latestStatus[userId]!, forKey: userId)
+//                                self.userstatus.updateValue(latestStatus[userId]!, forKey: userId)
                                 
                             }
                         }
-                                        
+                    
                    
                 }
                 
                 await MainActor.run {
+                    self.userstatus.removeAll()
+                    self.noActionsUsers.removeAll()
+                    self.isWakeupUsers.removeAll()
+                    self.isLeaveUsers.removeAll()
+                    
+                    self.userstatus = latestStatus
+                    
                   for info in userstatus.values {
                     switch info.status {
                     case .noActions:
@@ -138,6 +153,7 @@ class UserStatusViewModel: ObservableObject {
                     case .isLeave:
                         self.isLeaveUsers.append(info)
                     case .none:
+                        self.noActionsUsers.append(info)
                         break // 何もしない
                     }
                 }
