@@ -210,4 +210,3 @@ struct AlermView: View {
 #Preview {
     AlermView()
 }
-
