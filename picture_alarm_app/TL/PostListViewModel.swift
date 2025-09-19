@@ -37,24 +37,42 @@ class PostListViewModel: ObservableObject {
 
                         Task {
                             var newPosts: [PostInfo] = []
+                            var userCache: [String: User] = [:] // cache fetched users
+
+                            await withTaskGroup(of: (String, User?).self) { group in
+                                for doc in documents {
+                                    let data = doc.data()
+                                    let userId = data["userId"] as? String ?? ""
+
+                                    group.addTask {
+                                        if let cachedUser = userCache[userId] {
+                                            return (userId, cachedUser)
+                                        }
+                                        let user = try? await self.userService.fetchUser(withId: userId)
+                                        return (userId, user)
+                                    }
+                                }
+
+                                for await (userId, user) in group {
+                                    userCache[userId] = user
+                                }
+                            }
+
                             for doc in documents {
                                 let data = doc.data()
                                 let userId = data["userId"] as? String ?? ""
 
-                                var post = PostInfo(
+                                let post = PostInfo(
                                     id: doc.documentID,
                                     userId: userId,
                                     postTime: (data["postTime"] as? Timestamp)?.dateValue(),
                                     imageUrl: data["imageUrl"] as? String,
                                     goodCount: data["goodCount"] as? Int ?? 0,
                                     comments: data["comments"] as? [String] ?? [],
-                                    user: nil,
+                                    user: userCache[userId],
                                     status: data["status"] as? String,
                                     thumbnailUrl: data["thumbnailUrl"] as? String
                                 )
-
-                                // ユーザー情報を取得してpostにセット
-                                post.user = try? await self.userService.fetchUser(withId: userId)
                                 newPosts.append(post)
                             }
 
