@@ -24,23 +24,23 @@ struct PostRowView: View {
                             switch phase {
                             case .success(let image):
                                 image.resizable().aspectRatio(contentMode: .fill)
-                                     .frame(width: 40, height: 40).clipShape(Circle())
+                                    .frame(width: 40, height: 40).clipShape(Circle())
                             default:
                                 Image(systemName: "person.circle.fill").resizable()
-                                     .frame(width: 40, height: 40).foregroundColor(.gray)
+                                    .frame(width: 40, height: 40).foregroundColor(.gray)
                             }
                         }
                     } else {
                         Image(systemName: "person.circle.fill").resizable()
-                             .frame(width: 40, height: 40).foregroundColor(.gray)
+                            .frame(width: 40, height: 40).foregroundColor(.gray)
                     }
-
+                    
                     // post.user からユーザー名を表示
                     Text(post.user?.name ?? "名無しさん")
                         .font(.headline)
                         .foregroundColor(.white)
                 }
-
+                
                 if let time = post.postTime {
                     Text(timeString(from: time))
                         .font(.subheadline).foregroundColor(.gray)
@@ -49,46 +49,96 @@ struct PostRowView: View {
                     Text(post.comments.joined(separator: "\n"))
                         .font(.body).foregroundColor(.white)
                 }
+                
                 Spacer()
+            
+                switch post.status {
+                case "iswakeup":
+                    Text("起床済み")
+                        .font(.caption2).foregroundColor(.gray)
+                case "isleave":
+                    Text("出発済み")
+                        .font(.caption2).foregroundColor(.gray)
+                case "noaction":
+                    Text("その他")
+                        .font(.caption2).foregroundColor(.gray)
+                case .none:
+                    Text("その他")
+                        .font(.caption2).foregroundColor(.gray)
+//                    break
+                case .some(_):
+                    Text("その他")
+                        .font(.caption2).foregroundColor(.gray)
+                }
+                
             }
             Spacer()
             // 右カラム（投稿写真）
-            if let thumb = post.thumbnailUrl, let url = URL(string: thumb) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image.resizable().scaledToFill()
-                             .frame(width: 150, height: 150).clipShape(Circle())
-                             .onAppear { print("Thumbnail loaded successfully: \(url.absoluteString)") }
-                    default:
-                        // fallback to full image if thumbnail fails
-                        if let full = post.imageUrl, let fullUrl = URL(string: full) {
-                            AsyncImage(url: fullUrl) { fullPhase in
-                                switch fullPhase {
-                                case .success(let image):
-                                    image.resizable().scaledToFill()
-                                         .frame(width: 150, height: 150).clipShape(Circle())
-                                         .onAppear { print("Full image loaded as fallback: \(fullUrl.absoluteString)") }
-                                default:
-                                    ProgressView().frame(width: 150, height: 150)
+            if  post.status != "iswakeup" {
+                
+                
+                
+                if let thumb = post.thumbnailUrl, let url = URL(string: thumb) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image.resizable().scaledToFill()
+                                .frame(width: 150, height: 150).clipShape(Circle())
+                                .onAppear { print("Thumbnail loaded successfully: \(url.absoluteString)") }
+                        default:
+                            // fallback to full image if thumbnail fails
+                            if let full = post.imageUrl, let fullUrl = URL(string: full) {
+                                AsyncImage(url: fullUrl) { fullPhase in
+                                    switch fullPhase {
+                                    case .success(let image):
+                                        image.resizable().scaledToFill()
+                                            .frame(width: 150, height: 150).clipShape(Circle())
+                                            .onAppear { print("Full image loaded as fallback: \(fullUrl.absoluteString)") }
+                                    default:
+                                        ProgressView().frame(width: 150, height: 150)
+                                    }
                                 }
+                            } else {
+                                ProgressView().frame(width: 150, height: 150)
                             }
-                        } else {
+                        }
+                    }
+                } else if let full = post.imageUrl, let fullUrl = URL(string: full) {
+                    AsyncImage(url: fullUrl) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image.resizable().scaledToFill()
+                                .frame(width: 150, height: 150).clipShape(Circle())
+                                .onAppear { print("Full image loaded: \(fullUrl.absoluteString)") }
+                        default:
                             ProgressView().frame(width: 150, height: 150)
                         }
                     }
+                } else {
+                    
                 }
-            } else if let full = post.imageUrl, let fullUrl = URL(string: full) {
-                AsyncImage(url: fullUrl) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image.resizable().scaledToFill()
-                             .frame(width: 150, height: 150).clipShape(Circle())
-                             .onAppear { print("Full image loaded: \(fullUrl.absoluteString)") }
-                    default:
-                        ProgressView().frame(width: 150, height: 150)
+                
+                    
+                
+            }else{
+                VStack(alignment: .center){
+                    Spacer()
+                    HStack{
+                        Image(systemName: "checkmark")
+                            .foregroundStyle(.white)
+                            .bold()
+                        Text("起床成功！")
+                            .bold()
+//                            .font(.title)
+                            .foregroundStyle(.white)
+                            .font(.system(.title, design: .rounded))
+                        
                     }
+
+                    Spacer()
                 }
+               
+                
             }
         }
         .padding(.horizontal)
