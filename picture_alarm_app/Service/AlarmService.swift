@@ -15,8 +15,7 @@ import SwiftUI
 // アラームのビューモデル
 @MainActor
 class AlarmService: ObservableObject {
-    
-    
+
     // 変更点 1: @Queryを削除
     // @Query private var alarmdata: [AlarmData]
     
@@ -33,6 +32,9 @@ class AlarmService: ObservableObject {
     @Published var isAlarmOn: Bool = UserDefaults.standard.value(forKey: "isAlarmOn") as? Bool ?? false
     @Published var isWakeup: Bool = false
     @Published var isLeave: Bool = false
+    
+    var postService = PostService()
+    var editProfileViewModel = EditProfileViewModel()
     
     private init() {
         setupAudioSession()
@@ -57,19 +59,37 @@ class AlarmService: ObservableObject {
     }
     
     /// 日毎のアラームを追加
-    func addAlarm(date: Date, wakeUpTime: Date, leaveTime: Date) {
+    func addAlarm(date: Date, wakeUpTime: Date, leaveTime: Date,isOn:Bool) {
         var calendar = Calendar(identifier: .gregorian)
-        
-        if let jstTimeZone = TimeZone(identifier: "Asia/Tokyo") {
-            calendar.timeZone = jstTimeZone
-        }
-        
+//        
+//        if let jstTimeZone = TimeZone(identifier: "Asia/Tokyo") {
+//            calendar.timeZone = jstTimeZone
+//        }
+//        
         // 変更点 4: `alarmdata`を`alarms`に変更
-        if let index = alarms.firstIndex(where: { calendar.startOfDay(for: $0.date) == calendar.startOfDay(for: date)}){
-            updateAlarm(id: alarms[index].id, date: alarms[index].date, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
+        if let index = alarms.firstIndex(where: { calendar.isDate($0.date, inSameDayAs: date) }){
+            print("a")
+            updateAlarm(
+                   id: alarms[index].id,
+                   date: date, // ✅ 新しい日付を正しく渡す
+                   wakeUpTime: wakeUpTime,
+                   leaveTime: leaveTime,
+                   isOn: isOn
+               )
         } else {
             let alarm = AlarmData(date: date, wakeUpTime: wakeUpTime, leaveTime: leaveTime)
+            print("b")
+            alarm.isOn = isOn
             context.insert(alarm)
+            do {
+                try context.save()
+                let descriptor = FetchDescriptor<AlarmData>(sortBy: [SortDescriptor(\.date)])
+                    self.alarms = try context.fetch(descriptor)
+                print("✅ アラームの保存に成功しました。")
+            } catch {
+                print("❌ アラームの保存に失敗しました: \(error)")
+            }
+            
             saveAndFetchAlarms() // 変更点 5: 保存と再取得を1つのメソッドにまとめる
             startMonitoring()
             scheduleNotification(for: alarm)
@@ -77,7 +97,7 @@ class AlarmService: ObservableObject {
     }
     
     /// アラームを更新
-    func updateAlarm(id: String, date: Date, wakeUpTime: Date, leaveTime: Date) {
+    func updateAlarm(id: String, date: Date, wakeUpTime: Date, leaveTime: Date,isOn:Bool) {
         // alarms配列から更新対象のアラーム（への参照）を探す
             if let alarmToUpdate = alarms.first(where: { $0.id == id }) {
                 
@@ -140,27 +160,46 @@ class AlarmService: ObservableObject {
     
     /// 特定の日付のアラームを取得
     func getAlarm(for date: Date) -> AlarmData? {
+        
+        fetchAlarms()
+        
         var calendar = Calendar.current
-        
-//        if let jstTimeZone = TimeZone(identifier: "Asia/Tokyo") {
-//            calendar.timeZone = jstTimeZone
-//        }
-        
-        // 変更点 4: `alarmdata`を`alarms`に変更
-        if let existingAlarm = alarms.first(where: { calendar.isDate($0.date, inSameDayAs: date) }) {
+
+        if let existingAlarm = alarms.first(where: { alarm -> Bool in
+            
+            // 👇 デバッグ用のprint文を追加
+            print("DEBUG: 比較開始 ----")
+            print("  アラームの日付: \(alarm.date)")
+            print("  アラームの起床: \(alarm.wakeUpTime)")
+            print("  アラームの出発: \(alarm.leaveTime)")
+            print("  検索する日付: \(date)")
+            
+            let isMatch = Calendar.current.isDate(alarm.date, inSameDayAs: date) 
+            print("  一致したか？ -> \(isMatch)")
+            print("--------------------")
+            
+            return isMatch
+            
+        }) {
+            print("✅ 一致するアラームが見つかりました: \(existingAlarm)")
             return existingAlarm
         } else {
-            // 見つからなかった場合、新しいものを作成して返す（再帰呼び出しは避ける）
-            let newAlarm = AlarmData(date: date, wakeUpTime: date, leaveTime: date)
-            context.insert(newAlarm)
-            saveAndFetchAlarms()
-            // alarms配列から新しいインスタンスを返す
-            return alarms.first(where: { $0.id == newAlarm.id })
+            print("❌ 一致するアラームは見つかりませんでした。")
+            return nil
         }
+        
+        // 変更点 4: `alarmdata`を`alarms`に変更
+//        if let existingAlarm = alarms.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date)  }) {
+//            return existingAlarm
+//        } else {
+//
+//            return nil
+//        }
     }
     
     /// 今日のアラームを取得
     func getTodayAlarm() -> AlarmData? {
+
         if let todayalarm = getAlarm(for: Date()) {
             currentAlarm = todayalarm
             return todayalarm
@@ -191,6 +230,9 @@ class AlarmService: ObservableObject {
     private func saveAndFetchAlarms() {
         do {
             try context.save()
+//            fetchAlarms()
+            let descriptor = FetchDescriptor<AlarmData>(sortBy: [SortDescriptor(\.date)])
+            self.alarms = try context.fetch(descriptor)
         } catch {
             print("データの保存に失敗: \(error)")
         }
@@ -244,6 +286,68 @@ class AlarmService: ObservableObject {
             nowComponents.hour == alarmTimeComponents.hour &&
             nowComponents.minute == alarmTimeComponents.minute {
             startAlarmSound()
+        }
+        
+        // -----------------------------------------
+        // 追加: 出発時刻から5分過ぎたか判定
+        // -----------------------------------------
+        let fiveMinutesAgo = now.addingTimeInterval(-5 * 60) // 現在時刻から5分前
+        let leaveComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: alarm.leaveTime)
+        let fiveMinutesAgoComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: fiveMinutesAgo)
+        
+        if leaveComponents.year == fiveMinutesAgoComponents.year &&
+           leaveComponents.month == fiveMinutesAgoComponents.month &&
+           leaveComponents.day == fiveMinutesAgoComponents.day &&
+           leaveComponents.hour == fiveMinutesAgoComponents.hour &&
+           leaveComponents.minute == fiveMinutesAgoComponents.minute &&
+           !alarm.isLeave {
+            
+            if alarm.isWakeup { // 起床はできている→寝顔写真を自動投稿
+                print("⏰ 出発時刻から5分過ぎました。寝顔写真を自動投稿します")
+                
+                Task {
+                    if let imageData = UserDefaults.standard.data(forKey: "wakeupImage") {
+                        do {
+                            try await postService.uploadPost(imageData: imageData, comment: "寝顔写真", completion: { _ in
+                                print("wakeup.jpgを投稿しました")
+                            })
+                        } catch {
+                            print("❌ 自動投稿に失敗: \(error)")
+                        }
+                    } else {
+                        print("❌ wakeupImage が見つかりません")
+                    }
+                }
+                
+            } else { // 起床もできていない→見られたくない写真を自動投稿
+                print("⏰ 出発時刻から5分過ぎました。顔質写真を自動投稿します")
+                
+                Task {
+                       // 画像を取得（UserDefaults または ViewModel）
+                       var imageToPost: UIImage?
+                       
+                       // まず EditProfileViewModel の hitozichiImage を利用
+                       imageToPost = editProfileViewModel.hitozichiImage
+                       
+                       // もし nil ならシステム画像を代替
+                       if imageToPost == nil {
+                           imageToPost = UIImage(systemName: "person.crop.circle.fill") // 例: システム画像
+                       }
+                       
+                       if let image = imageToPost,
+                          let imageData = image.jpegData(compressionQuality: 0.8) {
+                           do {
+                               try await postService.uploadPost(imageData: imageData, comment: "出発前写真", completion: { _ in
+                                   print("hitozichiImage を投稿しました")
+                               })
+                           } catch {
+                               print("❌ 自動投稿に失敗: \(error)")
+                           }
+                       } else {
+                           print("❌ 投稿する画像がありません")
+                       }
+                   }
+            }
         }
     }
     
