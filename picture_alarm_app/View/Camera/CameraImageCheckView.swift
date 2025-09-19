@@ -44,7 +44,7 @@ struct CameraImageCheckView: View {
                         .padding(.top, 40)
                     
                     if let image = CapturedImage {
-                        Image("wakeup")
+                        Image(uiImage: image)
                             .resizable()
                             .scaledToFill()
                             .frame(width: 320, height: 320)
