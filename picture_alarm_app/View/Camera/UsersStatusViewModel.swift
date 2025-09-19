@@ -37,7 +37,7 @@ class UserStatusViewModel: ObservableObject {
         userstatus.removeAll()
         noActionsUsers.removeAll()
         isWakeupUsers.removeAll()
-        isWakeupUsers.removeAll()
+        isLeaveUsers.removeAll()
         
         guard let currentUserId = Auth.auth().currentUser?.uid else {
             return
@@ -76,6 +76,10 @@ class UserStatusViewModel: ObservableObject {
                 print(snapshot.documents)
                 
                 var latestStatus : [String: RappUserStatusInfo] = [:] // ユーザーIDをキーにして、重複を防ぐための辞書
+                
+                for friendId in friendIds {
+                    latestStatus[friendId] = nil
+                }
                 
                 for doc in snapshot.documents {
                     
@@ -149,6 +153,7 @@ class UserStatusViewModel: ObservableObject {
                     case .isLeave:
                         self.isLeaveUsers.append(info)
                     case .none:
+                        self.noActionsUsers.append(info)
                         break // 何もしない
                     }
                 }
