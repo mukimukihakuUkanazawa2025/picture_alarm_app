@@ -104,7 +104,7 @@ class UserStatusViewModel: ObservableObject {
                             guard let userId = data["userId"] as? String else { continue }
                           
                             
-                            let status: UserStatus = switch data["stutus"] as? String ?? "" {
+                            let status: UserStatus = switch data["status"] as? String ?? "" {
                             case "noaction":
                                     .noActions
                             case "iswakeup":
