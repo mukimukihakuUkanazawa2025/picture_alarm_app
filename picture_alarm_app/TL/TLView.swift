@@ -14,6 +14,8 @@ import FirebaseAuth
 struct TLView: View {
     @StateObject private var viewModel = PostListViewModel()
     
+//    @StateObject private var  = PostListViewModel()
+    
     //    // ログイン中のユーザー名を保持
     //    private var currentUserName: String? {
     //        Auth.auth().currentUser?.displayName
@@ -28,6 +30,22 @@ struct TLView: View {
             Color.black.ignoresSafeArea()
             
             ScrollView {
+                
+                Text("友達一覧")
+                    .font(.title)
+                    .bold()
+                
+                ShowUserStatusView()
+                
+                Rectangle()
+                    .frame(width: .infinity,height: 3)
+                    .foregroundStyle(.gray)
+                    .padding(.vertical)
+                
+                Text("タイムライン")
+                    .font(.title)
+                    .bold()
+                
                 if viewModel.posts.isEmpty {
                     Text("まだ投稿はありません")
                         .foregroundStyle(.gray)

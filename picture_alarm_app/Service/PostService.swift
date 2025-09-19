@@ -17,6 +17,8 @@ struct PostInfo: Identifiable {
     var goodCount: Int = 0 // いいね数
     var comments: [String] = [] // コメント
     var user: User?
+    var status:String? //ユーザーの起床状況
+    var thumbnailUrl: String? // サムネイルURL
 }
 
 class PostService {
@@ -24,7 +26,7 @@ class PostService {
     private let storage = Storage.storage()
     private let userService = UserService.shared
     
-    func uploadPost(imageData: Data, comment: String?, completion: @escaping (Error?) -> Void) async throws {
+    func uploadPost(imageData: Data, comment: String?, status:UserStatus, completion: @escaping (Error?) -> Void) async throws {
         
         guard let currentUser = Auth.auth().currentUser else {
             completion(NSError(domain: "PostService", code: -1, userInfo: [NSLocalizedDescriptionKey: "ユーザー未サインイン"]))
@@ -33,20 +35,42 @@ class PostService {
         
         let postRef = db.collection("posts").document()
         let storageRef = storage.reference().child("posts/\(postRef.documentID).jpg")
-        
-        _ = try await storageRef.putDataAsync(imageData, metadata: nil)
+
+        // Compress image before upload
+        guard let image = UIImage(data: imageData),
+              let compressedData = image.jpegData(compressionQuality: 0.3) else {
+            completion(NSError(domain: "PostService", code: -2, userInfo: [NSLocalizedDescriptionKey: "画像圧縮失敗"]))
+            return
+        }
+
+        let metadata = StorageMetadata()
+        metadata.contentType = "image/jpeg"
+        metadata.cacheControl = "public,max-age=3600"
+
+        _ = try await storageRef.putDataAsync(compressedData, metadata: metadata)
         let url = try await storageRef.downloadURL()
-        
+
+        // Resize Images対応：サムネイルURLを取得、存在しなければフル画像を使用
+        let thumbRef = storage.reference().child("thumbnails/\(postRef.documentID)_400x400.jpg")
+        let thumbURL = try? await thumbRef.downloadURL()
+
         let post: [String: Any] = [
             "id": postRef.documentID,
             "userId": currentUser.uid,
             "postTime": FieldValue.serverTimestamp(),
             "imageUrl": url.absoluteString,
+            "thumbnailUrl": thumbURL?.absoluteString ?? url.absoluteString,
             "goodCount": 0,
-            "comments": [comment ?? ""]
+            "comments": [comment ?? ""],
+            "status": status.rawValue
         ]
-        
-        try await postRef.setData(post)
+
+        do {
+            try await postRef.setData(post)
+            completion(nil)
+        } catch {
+            completion(error)
+        }
     }
     
     

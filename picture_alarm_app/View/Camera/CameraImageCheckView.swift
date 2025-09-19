@@ -52,9 +52,13 @@ struct CameraImageCheckView: View {
                             .overlay(Circle().stroke(Color.white, lineWidth: 3))
                             .shadow(radius: 10)
                     } else {
-                        Circle()
-                            .fill(Color.gray.opacity(0.3))
+                        Image("wakeup")
+                            .resizable()
+                            .scaledToFill()
                             .frame(width: 320, height: 320)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.white, lineWidth: 3))
+                            .shadow(radius: 10)
                     }
                     
                     //コメントホイールを表示する
@@ -140,7 +144,7 @@ struct CameraImageCheckView: View {
     /// 投稿処理を共通化するメソッド
     private func handlePost(isLeave: Bool) {
         
-        if isLeave {
+        if alarmService.currentAlarm!.isWakeup {
             
             if var image = CapturedImage{
                 let targetSize = CGSize(width: 2024, height: 2024) // 目標サイズ（例: 1080px四方）
@@ -160,7 +164,7 @@ struct CameraImageCheckView: View {
                     Task.detached(priority: .background) {
                         do {
                             // 4. 裏でアップロード処理を実行
-                            try await postService.uploadPost(imageData: imageData, comment: selectedComment, completion: { _ in
+                            try await postService.uploadPost(imageData: imageData, comment: selectedComment, status: .isLeave, completion: { _ in
                                 print("a")
                             })
                             
@@ -200,7 +204,7 @@ struct CameraImageCheckView: View {
                         // 投稿用は必ずwakeup.jpg
                         if let fixedImage = UIImage(named: "wakeup"),
                            let fixedImageData = fixedImage.jpegData(compressionQuality: 0.8) {
-                            try await postService.uploadPost(imageData: fixedImageData, comment: selectedComment, completion: { _ in
+                            try await postService.uploadPost(imageData: fixedImageData, comment: selectedComment, status: .isWakeup, completion: { _ in
                                 print("wakeup.jpgを投稿しました")
 
                             })

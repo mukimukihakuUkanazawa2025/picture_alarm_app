@@ -35,6 +35,25 @@ class BackgroundTasks {
         
 //        AlarmService.shared.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: false, isLeave: false)
         
+        let userDefaults = UserDefaults.standard
+               let lastScheduledDateKey = "lastScheduledDate"
+               
+               // UserDefaultsから最後にタスクをスケジュールした日付を取得
+               let lastScheduledDate = userDefaults.object(forKey: lastScheduledDateKey) as? Date
+
+               // 最後の実行日が今日ではないか、または一度も実行されていない場合のみ実行
+               if lastScheduledDate == nil || !Calendar.current.isDateInToday(lastScheduledDate!) {
+                   print("バックグラウンドタスクを本日分としてスケジュールします。")
+//                   backgroundtask.scheduleDailyAlarmSetup()
+
+                   // 今日の日付を保存して、同日中の再実行を防ぐ
+                   userDefaults.set(Date(), forKey: lastScheduledDateKey)
+                   print("実行日を保存しました: \(Date())")
+               } else {
+                   return
+                   print("本日のバックグラウンドタスクは既にスケジュール済みです。")
+               }
+        
            let request = BGAppRefreshTaskRequest(identifier: backgroundTaskID)
            
            if let todayalarm =  AlarmService.shared.getTodayAlarm() {
@@ -44,6 +63,8 @@ class BackgroundTasks {
                    return
                }
            }
+        
+     
            // --- ここから修正 ---
            let calendar = Calendar.current
            let now = Date()
@@ -239,7 +260,7 @@ class BackgroundTasks {
                     Task.detached(priority: .background) {
                         do {
                             // 4. 裏でアップロード処理を実行
-                            try await postService.uploadPost(imageData: Wakeupimagedata, comment: "準備が終わりませんでした、、、", completion: { _ in
+                            try await postService.uploadPost(imageData: Wakeupimagedata, comment: "準備が終わりませんでした、、、", status: .isWakeup, completion: { _ in
                                 print("can uploard")
                             })
                             
@@ -261,7 +282,7 @@ class BackgroundTasks {
                     Task.detached(priority: .background) {
                         do {
                             // 4. 裏でアップロード処理を実行
-                            try await postService.uploadPost(imageData: (UIImage(named: "wakeup")?.jpegData(compressionQuality: 0.5))!, comment: "準備が終わりませんでした、、、", completion: { _ in
+                            try await postService.uploadPost(imageData: (UIImage(named: "wakeup")?.jpegData(compressionQuality: 0.5))!, comment: "準備が終わりませんでした、、、", status: .isWakeup, completion: { _ in
                                 print("can uploard")
                             })
                             
@@ -289,7 +310,7 @@ class BackgroundTasks {
                     Task.detached(priority: .background) {
                         do {
                             // 4. 裏でアップロード処理を実行
-                            try await postService.uploadPost(imageData: hitozichiimagedata, comment: "寝過ごしてしまいました、、", completion: { _ in
+                            try await postService.uploadPost(imageData: hitozichiimagedata, comment: "寝過ごしてしまいました、、", status: .noActions, completion: { _ in
                                 print("can uploard")
                             })
                             
@@ -311,7 +332,7 @@ class BackgroundTasks {
                     Task.detached(priority: .background) {
                         do {
                             // 4. 裏でアップロード処理を実行
-                            try await postService.uploadPost(imageData: (UIImage(named: "wakeup")?.jpegData(compressionQuality: 0.5))!, comment: "寝過ごしてしまいました、、", completion: { _ in
+                            try await postService.uploadPost(imageData: (UIImage(named: "wakeup")?.jpegData(compressionQuality: 0.5))!, comment: "寝過ごしてしまいました、、", status: .noActions, completion: { _ in
                                 print("can uploard")
                             })
                             

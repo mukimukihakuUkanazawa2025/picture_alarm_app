@@ -96,7 +96,7 @@ struct YourApp: App {
         }
         .modelContainer(sharedModelContainer)
         .onChange(of: scenePhase) { oldPhase, newPhase in
-            if newPhase == .background || newPhase == .active {
+            if newPhase == .background || newPhase == .active{
                 print("App is in background or active. Scheduling daily alarm setup task.")
                 backgroundtask.scheduleDailyAlarmSetup()
             }
