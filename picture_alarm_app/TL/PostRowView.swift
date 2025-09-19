@@ -18,6 +18,7 @@ struct PostRowView: View {
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     // post.user からプロフィール画像を
+                    // ユーザー確認を行なっていないため、無条件でelseになる
                     if let profileUrlString = post.user?.profileImageUrl, let url = URL(string: profileUrlString) {
                         AsyncImage(url: url) { phase in
                             switch phase {

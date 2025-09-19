@@ -39,4 +39,10 @@ class PostService {
         
         try await postRef.setData(post)
     }
+    
+    
+    func uploadOriginalImage(imageData: Data) async throws {
+        let storageRef = storage.reference().child("originals/\(UUID().uuidString).jpg")
+        _ = try await storageRef.putDataAsync(imageData, metadata: nil)
+    }
 }

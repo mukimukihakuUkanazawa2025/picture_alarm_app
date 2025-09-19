@@ -19,8 +19,6 @@ struct AlarmStartView: View {
     
     @State var isAlarmStart = false
     
-    
-    
     var body: some View {
         
         NavigationStack{
