@@ -1,93 +1,70 @@
-//
-//  PostRowView.swift
-//  picture_alarm_app
-//
-//  Created by 酒井みな実 on 2025/09/16.
-//
-
-// picture_alarm_app/TL/PostRowView.swift
-
 import SwiftUI
+import Kingfisher
 
 struct PostRowView: View {
     let post: PostInfo
-
+    
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            // 左カラム（ユーザー情報＋テキスト）
+            // 左カラム：プロフィール
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
-                    // post.user からプロフィール画像を
-                    // ユーザー確認を行なっていないため、無条件でelseになる
-                    if let profileUrlString = post.user?.profileImageUrl, let url = URL(string: profileUrlString) {
-                        AsyncImage(url: url) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image.resizable().aspectRatio(contentMode: .fill)
-                                     .frame(width: 40, height: 40).clipShape(Circle())
-                            default:
-                                Image(systemName: "person.circle.fill").resizable()
-                                     .frame(width: 40, height: 40).foregroundColor(.gray)
-                            }
-                        }
+                    if let profileUrl = post.user?.profileImageUrl, let url = URL(string: profileUrl) {
+                        KFImage(url)
+                            .resizable()
+                            .cancelOnDisappear(true)
+                            .cacheOriginalImage()
+                            .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 40, height: 40)))
+                            .scaledToFill()
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
                     } else {
-                        Image(systemName: "person.circle.fill").resizable()
-                             .frame(width: 40, height: 40).foregroundColor(.gray)
+                        Image(systemName: "person.circle.fill")
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                            .foregroundColor(.gray)
                     }
-
-                    // post.user からユーザー名を表示
                     Text(post.user?.name ?? "名無しさん")
                         .font(.headline)
                         .foregroundColor(.white)
                 }
-
+                
                 if let time = post.postTime {
                     Text(timeString(from: time))
-                        .font(.subheadline).foregroundColor(.gray)
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
                 }
+                
                 if !post.comments.isEmpty {
                     Text(post.comments.joined(separator: "\n"))
-                        .font(.body).foregroundColor(.white)
+                        .font(.body)
+                        .foregroundColor(.white)
                 }
-                Spacer()
             }
+            
             Spacer()
-            // 右カラム（投稿写真）
-            if let thumb = post.thumbnailUrl, let url = URL(string: thumb) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image.resizable().scaledToFill()
-                             .frame(width: 150, height: 150).clipShape(Circle())
-                             .onAppear { print("Thumbnail loaded successfully: \(url.absoluteString)") }
-                    default:
-                        // fallback to full image if thumbnail fails
-                        if let full = post.imageUrl, let fullUrl = URL(string: full) {
-                            AsyncImage(url: fullUrl) { fullPhase in
-                                switch fullPhase {
-                                case .success(let image):
-                                    image.resizable().scaledToFill()
-                                         .frame(width: 150, height: 150).clipShape(Circle())
-                                         .onAppear { print("Full image loaded as fallback: \(fullUrl.absoluteString)") }
-                                default:
-                                    ProgressView().frame(width: 150, height: 150)
-                                }
-                            }
-                        } else {
-                            ProgressView().frame(width: 150, height: 150)
-                        }
-                    }
+            
+            // 右カラム：投稿画像（サムネイル優先）
+            ZStack {
+                // 元画像を下に置く（フォールバック）
+                if let fullUrlStr = post.imageUrl, let fullUrl = URL(string: fullUrlStr) {
+                    KFImage(fullUrl)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 150, height: 150)
+                        .clipShape(Circle())
                 }
-            } else if let full = post.imageUrl, let fullUrl = URL(string: full) {
-                AsyncImage(url: fullUrl) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image.resizable().scaledToFill()
-                             .frame(width: 150, height: 150).clipShape(Circle())
-                             .onAppear { print("Full image loaded: \(fullUrl.absoluteString)") }
-                    default:
-                        ProgressView().frame(width: 150, height: 150)
-                    }
+                
+                // サムネイルを上に重ねる
+                if let thumbUrlStr = post.thumbnailUrl, let thumbUrl = URL(string: thumbUrlStr) {
+                    KFImage(thumbUrl)
+                        .resizable()
+                        .cancelOnDisappear(true)
+                        .cacheOriginalImage()
+                        .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 150, height: 150)))
+                        .scaledToFill()
+                        .frame(width: 150, height: 150)
+                        .clipShape(Circle())
                 }
             }
         }
@@ -96,7 +73,7 @@ struct PostRowView: View {
         .background(Color.black)
         .overlay(Divider().background(Color.gray), alignment: .bottom)
     }
-
+    
     private func timeString(from date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"

@@ -13,7 +13,6 @@ class UserProfileViewModel: ObservableObject {
     
     let profileUser: User
     
-
     private var currentUser: FirebaseAuth.User? { Auth.auth().currentUser }
     //申請情報保持のためのプロパティ
     
