@@ -67,17 +67,23 @@ struct AlermView: View {
                 // --- 月/日セレクタ ---
                 MonthSelector(selectedDate: $selectedDate)
                     .padding(.top, 8)
-                    .padding(.bottom, 16)
+                    .padding(.bottom, 8)
                 DaySelector(selectedDate: $selectedDate)
                 
                 // --- 状態表示文章 ---
                 switch alarmstatus {
                 case .setted:
-                    Text("アラームは設定されています")
+                    Text(" アラームは設定されています")
+                        .padding(.top, 12)
+                        .padding(.leading, 16)
                 case .unsetted:
-                    Text("アラームは設定されていません")
+                    Text(" アラームは設定されていません")
+                        .padding(.top, 12)
+                        .padding(.leading, 16)
                 case .error:
-                    Text("起床時刻よりも出発時刻が遅くなるようにしてください")
+                    Text(" 起床時刻よりも出発時刻が遅くなるようにしてください")
+                        .padding(.top, 12)
+                        .padding(.leading, 16)
                 }
                 
                 // --- 時刻カード ---
@@ -204,4 +210,3 @@ struct AlermView: View {
 #Preview {
     AlermView()
 }
-

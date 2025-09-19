@@ -239,41 +239,39 @@ struct CameraImageCheckView: View {
     }
 }
 
-#Preview {
-    let cameraViewModel = CameraViewModel()
-    let sampleImage = UIImage(systemName: "person.fill")
-    
-    return VStack(spacing: 20) {
-        
-        VStack {
-            Text("起床時 (isWakeupnow = false)")
-                .font(.caption)
-                .foregroundColor(.white)
-            
-            // isWakeupnow: false を直接渡して起床時ビューを生成
-            CameraImageCheckView(
-                cameraviewmodel: cameraViewModel,
-                CapturedImage: .constant(sampleImage),
-                isWakeupnow: false
-            )
-        }
-        
-        Divider()
-        
-        VStack {
-            Text("出発時 (isWakeupnow = true)")
-                .font(.caption)
-                .foregroundColor(.white)
-            
-            // isWakeupnow: true を直接渡して出発時ビューを生成
-            CameraImageCheckView(
-                cameraviewmodel: cameraViewModel,
-                CapturedImage: .constant(sampleImage),
-                isWakeupnow: true
-            )
-        }
-    }
-    .background(Color.black)
-}
-
-
+//#Preview {
+//    let cameraViewModel = CameraViewModel()
+//    let sampleImage = UIImage(systemName: "person.fill")
+//    
+//    VStack(spacing: 20) {
+//        
+//        VStack {
+//            Text("起床時 (isWakeupnow = false)")
+//                .font(.caption)
+//                .foregroundColor(.white)
+//            
+//            // isWakeupnow: false を直接渡して起床時ビューを生成
+//            CameraImageCheckView(
+//                cameraviewmodel: cameraViewModel,
+//                CapturedImage: .constant(sampleImage),
+//                isWakeupnow: false
+//            )
+//        }
+//        
+//        Divider()
+//        
+//        VStack {
+//            Text("出発時 (isWakeupnow = true)")
+//                .font(.caption)
+//                .foregroundColor(.white)
+//            
+//            // isWakeupnow: true を直接渡して出発時ビューを生成
+//            CameraImageCheckView(
+//                cameraviewmodel: cameraViewModel,
+//                CapturedImage: .constant(sampleImage),
+//                isWakeupnow: true
+//            )
+//        }
+//    }
+//    .background(Color.black)
+//}

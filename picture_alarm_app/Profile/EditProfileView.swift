@@ -68,12 +68,25 @@ struct EditProfileView: View {
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
                                     } else {
-                                        Image(systemName: "person")
-                                            .resizable().foregroundColor(.gray.opacity(0.5))
+                                        ZStack {
+                                            
+                                            Rectangle()
+                                                .foregroundStyle(Color.gray.opacity(0.2))
+                                                .frame(width: .infinity, height: 100)
+                                            
+                                            VStack {
+                                                HStack {
+                                                    Image(systemName: "plus.circle.dashed")
+                                                    Text("顔質写真を追加")
+                                                }
+                                                .foregroundStyle(.white)
+                                            }
+                                        }
                                     }
                                 }
-                                .background(.gray)
+                                .background(Color.gray.opacity(0.2))
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                               
                                 
                             }
                         }
