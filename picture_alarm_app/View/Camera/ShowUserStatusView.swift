@@ -21,8 +21,16 @@ struct ShowUserStatusView: View {
     
     var body: some View {
 //        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+//        if viewModel.
         VStack{
-            Text("出発済み")
+            HStack{
+                Text("出発済みのユーザー")
+                    .font(.subheadline)
+                    .bold()
+                    .padding(.top,4)
+                Spacer()
+                
+            }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 4) {
                     ForEach(viewModel.isLeaveUsers) { info in
@@ -32,18 +40,23 @@ struct ShowUserStatusView: View {
                                     switch phase {
                                     case .success(let image):
                                         image.resizable().aspectRatio(contentMode: .fill)
-                                             .frame(width: 40, height: 40)
-                                             .clipShape(Circle())
+                                             .frame(width: 70, height: 70)
+                                             .clipShape(RoundedRectangle(cornerRadius: 10))
+//                                             .padding()
                                     default:
-                                        Image(systemName: "person.circle.fill").resizable()
-                                             .frame(width: 40, height: 40)
-                                             .foregroundColor(.gray)
+                                        Image(systemName: "person").resizable()
+                                            .foregroundStyle(.black)
+                                            .background(.gray)
+                                            .frame(width: 70, height: 70)
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
                                     }
                                 }
                             } else {
-                                Image(systemName: "person.circle.fill").resizable()
-                                     .frame(width: 40, height: 40)
-                                     .foregroundColor(.gray)
+                                Image(systemName: "person").resizable()
+                                    .foregroundStyle(.black)
+                                    .background(.gray)
+                                    .frame(width: 70, height: 70)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                             
                             if let username = info.user?.name{
@@ -51,13 +64,24 @@ struct ShowUserStatusView: View {
                                     .font(.caption)
                             }else{
                                 Text("no name")
+                                    .font(.caption)
                             }
-                        }
+                        }.padding(.trailing,8)
                     }
                 }
                 .padding(.horizontal, 16)
             }
-            Text("起床済み")
+            Divider().background(Color.gray)
+                
+            HStack{
+                Text("起床済みのユーザー")
+                    .font(.subheadline)
+                    .bold()
+                    .padding(.top,4)
+                Spacer()
+                
+            }
+            
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 4) {
                     ForEach(viewModel.isWakeupUsers) { info in
@@ -67,18 +91,25 @@ struct ShowUserStatusView: View {
                                     switch phase {
                                     case .success(let image):
                                         image.resizable().aspectRatio(contentMode: .fill)
-                                             .frame(width: 40, height: 40)
-                                             .clipShape(Circle())
+                                             .frame(width: 70, height: 70)
+                                             .clipShape(RoundedRectangle(cornerRadius: 10))
+//                                             .padding()
                                     default:
-                                        Image(systemName: "person.circle.fill").resizable()
-                                             .frame(width: 40, height: 40)
-                                             .foregroundColor(.gray)
+                                        Image(systemName: "person").resizable()
+                                            .foregroundStyle(.black)
+                                            .background(.gray)
+                                            .frame(width: 70, height: 70)
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+//                                            .padding()
+                                            
                                     }
                                 }
                             } else {
-                                Image(systemName: "person.circle.fill").resizable()
-                                     .frame(width: 40, height: 40)
-                                     .foregroundColor(.gray)
+                                Image(systemName: "person").resizable()
+                                    .foregroundStyle(.black)
+                                    .background(.gray)
+                                    .frame(width: 70, height: 70)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                             
                             if let username = info.user?.name{
@@ -86,13 +117,22 @@ struct ShowUserStatusView: View {
                                     .font(.caption)
                             }else{
                                 Text("no name")
+                                    .font(.caption)
                             }
-                        }
+                        }.padding(.trailing,8)
                     }
                 }
                 .padding(.horizontal, 16)
             }
-            Text("予定無しor寝坊")
+            Divider().background(Color.gray)
+            HStack{
+                Text("予定無しor寝坊のユーザー")
+                    .font(.subheadline)
+                    .bold()
+                    .padding(.top,4)
+                Spacer()
+                
+            }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 4) {
                     ForEach(viewModel.noActionsUsers) { info in
@@ -102,18 +142,23 @@ struct ShowUserStatusView: View {
                                     switch phase {
                                     case .success(let image):
                                         image.resizable().aspectRatio(contentMode: .fill)
-                                             .frame(width: 40, height: 40)
-                                             .clipShape(Circle())
+                                             .frame(width: 70, height: 70)
+                                             .clipShape(RoundedRectangle(cornerRadius: 10))
+//                                             .padding()
                                     default:
-                                        Image(systemName: "person.circle.fill").resizable()
-                                             .frame(width: 40, height: 40)
-                                             .foregroundColor(.gray)
+                                        Image(systemName: "person").resizable()
+                                            .foregroundStyle(.black)
+                                            .background(.gray)
+                                            .frame(width: 70, height: 70)
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
                                     }
                                 }
                             } else {
-                                Image(systemName: "person.circle.fill").resizable()
-                                     .frame(width: 40, height: 40)
-                                     .foregroundColor(.gray)
+                                Image(systemName: "person").resizable()
+                                    .foregroundStyle(.black)
+                                    .background(.gray)
+                                    .frame(width: 70, height: 70)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
                             }
                             
                             if let username = info.user?.name{
@@ -121,14 +166,17 @@ struct ShowUserStatusView: View {
                                     .font(.caption)
                             }else{
                                 Text("no name")
+                                    .font(.caption)
                             }
-                        }
+                        }.padding(.trailing,8)
                     }
                 }
                 .padding(.horizontal, 16)
             }
             
-        }.onAppear{
+        }
+        .padding(.horizontal,10)
+        .onAppear{
             viewModel.fetchUsersStatus()
         }
         

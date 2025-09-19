@@ -101,6 +101,7 @@ class AlarmService: ObservableObject {
                 alarmToUpdate.date = date
                 alarmToUpdate.wakeUpTime = wakeUpTime
                 alarmToUpdate.leaveTime = leaveTime
+                alarmToUpdate.isOn = isOn //ついか
                 
                 // 変更を保存し、配列を更新する
                 saveAndFetchAlarms()
@@ -392,6 +393,12 @@ class AlarmService: ObservableObject {
     
     /// ローカル通知をスケジュール (30秒間音付き)
     func scheduleNotification(for alarm: AlarmData) {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [alarm.id])//以下
+
+            guard alarm.isOn else {
+                print("アラームがオフのため、通知はスケジュールされません。")
+                return
+            }//以上
         if alarm.wakeUpTime == alarm.leaveTime {
             return
         }
