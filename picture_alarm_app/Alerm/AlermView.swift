@@ -80,18 +80,23 @@ struct AlermView: View {
 //                                        .labelsHidden()
                     .foregroundColor(.white)
                     .fontWeight(.bold)
-                                        .padding()//ここから
-                                        .onChange(of: isAlarmOn) { newValue in
-                                                if let alarm = editedAlarm {
-                                                    alarmService.updateAlarm(
-                                                        id: alarm.id,
-                                                        date: selectedDate,
-                                                        wakeUpTime: wakeUpTime,
-                                                        leaveTime: leaveTime,
-                                                        isOn: newValue
-                                                    )
-                                                }
-                                            }//以上ついか
+                    .padding()
+                    .onChange(of: isAlarmOn) { newValue in
+                        
+                        let calendar = Calendar.current
+                        selectedDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: selectedDate) ?? selectedDate
+                        //                       // 時刻が変更されたら、既存のupdateAlarm関数を呼び出す
+                        if let alarms = alarmService.getAlarm(for: selectedDate){
+                            alarmService.updateAlarm(
+                                id: alarms.id,
+                                date: selectedDate,
+                                wakeUpTime: wakeUpTime,
+                                leaveTime: leaveTime,
+                                isOn: newValue // 現在のトグルの値を渡す
+                            )
+                            
+                        }
+                    }
                 Divider()
                     .background(.white)
                 // --- 状態表示文章 ---
@@ -159,14 +164,6 @@ struct AlermView: View {
             }
             .background(Color.black.ignoresSafeArea())
             .navigationTitle("")
-//            .toolbar {
-//                ToolbarItem(placement: .navigationBarTrailing) {
-//                    Button(action: { showingAlarmDetail = true }) {
-//                        Image(systemName: "pencil")
-//                            .foregroundColor(.white)
-//                    }
-//                }
-//            }
 //             --- 詳細編集シート ---
             .sheet(isPresented: $showingAlarmDetail) {
                 AlermDetailView(wakeUpTime: $wakeUpTime, leaveTime: $leaveTime)
@@ -256,17 +253,17 @@ struct AlermView: View {
                 
                
             }
-            .onChange(of: wakeUpTime) { _ in
-                            guard let alarm = editedAlarm else { return }
-                            // 時刻が変更されたら、既存のupdateAlarm関数を呼び出す
-                            alarmService.updateAlarm(
-                                id: alarm.id,
-                                date: selectedDate,
-                                wakeUpTime: wakeUpTime,
-                                leaveTime: leaveTime,
-                                isOn: isAlarmOn // 現在のトグルの値を渡す
-                            )
-                        }
+//            .onChange(of: wakeUpTime) { _ in
+//                            guard let alarm = editedAlarm else { return }
+//                            // 時刻が変更されたら、既存のupdateAlarm関数を呼び出す
+//                            alarmService.updateAlarm(
+//                                id: alarm.id,
+//                                date: selectedDate,
+//                                wakeUpTime: wakeUpTime,
+//                                leaveTime: leaveTime,
+//                                isOn: isAlarmOn // 現在のトグルの値を渡す
+//                            )
+//                        }
 
         }
     }
