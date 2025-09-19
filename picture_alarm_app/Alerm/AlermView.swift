@@ -27,6 +27,7 @@ struct AlermView: View {
     @State private var showingAlarmDetail = false
     @State private var selectedDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: Date()) ?? Date()
     @State private var editedAlarm: AlarmData?
+    @State private var isAlarmOn: Bool = true //toggle用
     
     // 起床時間/出発時間のモーダル表示フラグ
     @State private var isShowWakuUpDetailView = false
@@ -44,7 +45,7 @@ struct AlermView: View {
                     Text(yearString)
                         .font(.system(size: 34, weight: .semibold))
                         .foregroundColor(.white)
-                    
+                   
                     Spacer()
                     
                     Button(action: { selectedDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: Date()) ?? Date()}) {
@@ -61,62 +62,76 @@ struct AlermView: View {
                             .clipShape(Capsule())
                     }
                 }
+                
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
-                
                 // --- 月/日セレクタ ---
                 MonthSelector(selectedDate: $selectedDate)
                     .padding(.top, 8)
-                    .padding(.bottom, 8)
+                    .padding(.bottom, 10)
                 DaySelector(selectedDate: $selectedDate)
-                
-                // --- 状態表示文章 ---
-                switch alarmstatus {
-                case .setted:
-                    HStack(alignment: .center){
-                        Spacer()
-                        Image(systemName:"clock.badge.checkmark.fill")
-                        Text(" アラームは設定されています")
-                        Spacer()
-                    }
-                        .padding(20)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.orange.opacity(0.2))
-                        .foregroundColor(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        .padding(.horizontal, 16)
-                        .padding(.top, 28)
-                case .unsetted:
-                    HStack(alignment: .center){
-                        Spacer()
-                        Image(systemName:"clock.badge.xmark.fill")
-                        Text(" アラームは設定されていません")
-                        Spacer()
-                    }
-                        .padding(20)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.orange.opacity(0.2))
-                        .foregroundColor(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        .padding(.horizontal, 16)
-                        .padding(.top, 28)
-                case .error:
-                    HStack(alignment: .center){
-                        Spacer()
-                        Image(systemName:"exclamationmark.triangle.fill")
-                            .symbolRenderingMode(.multicolor)
-                        Text("出発時刻よりも起床時刻が早くなっています")
-                        Spacer()
-                    }
-                        .padding(20)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.orange.opacity(0.2))
-                        .foregroundColor(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        .padding(.horizontal, 16)
-                        .padding(.top, 28)
-                }
+                    Divider()
                     
+                    .background(.white)
+                    .padding(.top,10)
+                
+                // --- toggle ---
+                Toggle("アラーム", isOn: $isAlarmOn)
+//                                        .labelsHidden()
+                    .foregroundColor(.white)
+                    .fontWeight(.bold)
+                                        .padding()
+                Divider()
+                    .background(.white)
+                // --- 状態表示文章 ---
+                    
+                    switch alarmstatus {
+                    case .setted:
+                        HStack(alignment: .center){
+                            Spacer()
+                            Image(systemName:"clock.badge.checkmark.fill")
+                            Text(" アラームは設定されています")
+                            Spacer()
+                        }
+                        .padding(20)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.orange.opacity(0.2))
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .padding(.horizontal, 16)
+                        .padding(.top)
+                    case .unsetted:
+                        HStack(alignment: .center){
+                            Spacer()
+                            Image(systemName:"clock.badge.xmark.fill")
+                            Text(" アラームは設定されていません")
+                            Spacer()
+                        }
+                        .padding(20)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.orange.opacity(0.2))
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .padding(.horizontal, 16)
+                        .padding(.top)
+                    case .error:
+                        HStack(alignment: .center){
+                            Spacer()
+                            Image(systemName:"exclamationmark.triangle.fill")
+                                .symbolRenderingMode(.multicolor)
+                            Text("出発時刻よりも起床時刻が早くなっています！アラームは作動しません！")
+                            Spacer()
+                        }
+                        .padding(20)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.orange.opacity(0.2))
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .padding(.horizontal, 16)
+                        .padding(.top)
+                    }
+                    
+            
                 
                 // --- 時刻カード ---
                 VStack(spacing: 28) {
@@ -227,6 +242,17 @@ struct AlermView: View {
                 
                
             }
+            .onChange(of: wakeUpTime) { _ in
+                            guard let alarm = editedAlarm else { return }
+                            // 時刻が変更されたら、既存のupdateAlarm関数を呼び出す
+                            alarmService.updateAlarm(
+                                id: alarm.id,
+                                date: selectedDate,
+                                wakeUpTime: wakeUpTime,
+                                leaveTime: leaveTime,
+                                isOn: isAlarmOn // 現在のトグルの値を渡す
+                            )
+                        }
 
         }
     }
