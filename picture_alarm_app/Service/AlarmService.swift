@@ -16,6 +16,7 @@ import SwiftUI
 @MainActor
 class AlarmService: ObservableObject {
 
+
     private let context = sharedModelContainer.mainContext
     
     static let shared = AlarmService()
@@ -29,6 +30,7 @@ class AlarmService: ObservableObject {
     @Published var isWakeup: Bool = false
     @Published var isLeave: Bool = false
     
+
     
     private init() {
         setupAudioSession()
@@ -284,6 +286,7 @@ class AlarmService: ObservableObject {
 //            startAlarmSound()
 //        }
 //        
+
 //        // -----------------------------------------
 //        // 追加: 出発時刻から5分過ぎたか判定
 //        // -----------------------------------------
@@ -358,6 +361,7 @@ class AlarmService: ObservableObject {
 //                }
 //            }
 //        }
+
     }
     
     // アラーム音を繰り返し再生開始

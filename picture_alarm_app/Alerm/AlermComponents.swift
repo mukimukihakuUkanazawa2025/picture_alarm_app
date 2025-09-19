@@ -196,3 +196,4 @@ struct TimeCardView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
+
