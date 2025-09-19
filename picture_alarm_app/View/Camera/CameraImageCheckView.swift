@@ -201,6 +201,13 @@ struct CameraImageCheckView: View {
                         print("❌ 投稿処理失敗: \(error)")
                     }
                 }
+                
+                // アラーム関連の状態をリセットして画面を閉じる
+                defaults.set(imageData, forKey: "wakeupImage")
+                defaults.synchronize()
+                alarmService.isWakeupnow = true
+                alarmService.stopAlarm()
+                dismiss()
             }
         }
     }
