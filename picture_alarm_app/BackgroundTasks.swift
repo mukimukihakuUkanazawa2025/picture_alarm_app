@@ -13,13 +13,13 @@ import SwiftUI
 
 class BackgroundTasks {
     
-    private let backgroundTaskID = "app.hakuu.mukimuki.picture-alarm-app.background"
+    private let backgroundTaskID = "app.hakuu.mukimuki.picture-alarm-app.background.v2"
     
-    @StateObject var alarmService = AlarmService.shared
+    private let alarmService = AlarmService.shared
     
     
     
-    @State var isAlarmOn = UserDefaults.standard.value(forKey: "isAlarmOn") as? Bool ?? false
+    var isAlarmOn = UserDefaults.standard.value(forKey: "isAlarmOn") as? Bool ?? false
     
     
     /// バックグラウンドタスクのハンドラを登録する
@@ -31,15 +31,19 @@ class BackgroundTasks {
     }
        
        /// バックグラウンドタスクをOSにスケジュール（予約）する
-       func scheduleDailyAlarmSetup() {
+    @MainActor func scheduleDailyAlarmSetup() {
+        
+//        AlarmService.shared.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: false, isLeave: false)
+        
            let request = BGAppRefreshTaskRequest(identifier: backgroundTaskID)
            
            if let todayalarm =  AlarmService.shared.getTodayAlarm() {
                if todayalarm.isOn == true {
                    scheduleDepaturePostSetup()
+                   
+                   return
                }
            }
-
            // --- ここから修正 ---
            let calendar = Calendar.current
            let now = Date()
@@ -52,7 +56,7 @@ class BackgroundTasks {
 
 
            if now > targetDate {
-               targetDate = calendar.date(byAdding: .minute, value: 1, to: now)!
+               targetDate = calendar.date(byAdding: .day, value: 1, to: targetDate)!
            }
 
 
@@ -64,7 +68,9 @@ class BackgroundTasks {
               // --- ここまで修正 ---
 
               do {
-                  try BGTaskScheduler.shared.submit(request)
+                  
+                  BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: backgroundTaskID)
+                try BGTaskScheduler.shared.submit(request)
                   print("Successfully scheduled background task.")
               } catch {
                   print("Could not schedule background task: \(error)")
@@ -74,7 +80,10 @@ class BackgroundTasks {
        }
     
     //出発時刻にタスクが実行されるようにする
-     func scheduleDepaturePostSetup() {
+    @MainActor func scheduleDepaturePostSetup() {
+        let now = Date()
+        print(now)
+        
         guard let todayalarm =  AlarmService.shared.getTodayAlarm() else {
             scheduleDailyAlarmSetup()
             return
@@ -84,17 +93,23 @@ class BackgroundTasks {
 
         // --- ここから修正 ---
         let calendar = Calendar.current
-           let now = Date()
+//               let now = Date()
 
-           // 1. `todayalarm`の起床時刻から「時」と「分」を抽出する
-           let targetHour = calendar.component(.hour, from: todayalarm.wakeUpTime)
-           let targetMinute = calendar.component(.minute, from: todayalarm.wakeUpTime)
+               // アラームの起床時刻から「時」と「分」を抽出
+        let targetHour = calendar.component(.hour, from: todayalarm.leaveTime)
+            let targetMinute = calendar.component(.minute, from: todayalarm.leaveTime)
 
-           // 2. 抽出した「時」と「分」を使って、今日の目標時刻を生成する
-           guard var targetDate = calendar.date(bySettingHour: targetHour, minute: targetMinute, second: 0, of: now) else {
-               print("目標時刻の生成に失敗しました。")
-               return
-           }
+               // 今日の日付で目標時刻を生成
+               guard var targetDate = calendar.date(bySettingHour: targetHour, minute: targetMinute, second: 0, of: now) else {
+                   print("目標時刻の生成に失敗しました。")
+                   return
+               }
+//        targetDate = calendar.date(byAdding: .hour, value: 9, to: targetDate)!
+
+               // ⭐️ もし現在の時刻が「今日の目標時刻」を過ぎていたら、目標日を1日進める
+               if now > targetDate {
+                   targetDate = calendar.date(byAdding: .day, value: 1, to: targetDate)!
+               }
 
            // OSに「この時刻以降のできるだけ早いタイミングで実行してください」と伝える
            request.earliestBeginDate = targetDate
@@ -104,7 +119,8 @@ class BackgroundTasks {
            // --- ここまで修正 ---
 
            do {
-               try BGTaskScheduler.shared.submit(request)
+               BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: backgroundTaskID)
+                try BGTaskScheduler.shared.submit(request)
                print("Successfully scheduled background task.")
            } catch {
                print("Could not schedule background task: \(error)")
@@ -113,30 +129,33 @@ class BackgroundTasks {
         
     }
     
-    func handleAppRefresh(task:  BGAppRefreshTask) {
-        // タイムリミットが来たら必ずタスクを終了させるための処理
+    @MainActor func handleAppRefresh(task:  BGAppRefreshTask) {
+//        // タイムリミットが来たら必ずタスクを終了させるための処理
         task.expirationHandler = {
             task.setTaskCompleted(success: false)
         }
         
-        print("㊗️ Background task started")
-        
-        //出発処理を実行
-        if isAlarmOn{
+//        defer {
+            print("㊗️ Background task started")
             
-            handledDepaturePost(task: task)
+         
         
-        //アラーム設定処理を追加
-        }else{
-            handleSetAarlm(task: task)
+       
+
+        if let todayAlarm = AlarmService.shared.getTodayAlarm(), todayAlarm.isOn {
+                // アラームがONなら出発処理へ
+                handledDepaturePost(task: task)
+            } else {
+                // アラームがOFFか存在しなければ設定処理へ
+                handleSetAarlm(task: task)
+            }
         
-        }
-        
+        task.setTaskCompleted(success: true)
        
     }
        
        /// バックグラウンドで実行される実際の処理
-    private func handleSetAarlm(task:BGAppRefreshTask) {
+    @MainActor func handleSetAarlm(task:BGAppRefreshTask) {
            // タイムリミットが来たら必ずタスクを終了させるための処理
           
 
@@ -144,17 +163,20 @@ class BackgroundTasks {
            
            // ここであなたのAlarmServiceのメソッドを呼び出す！
            // MainActorで実行することで、UI関連のプロパティを安全に扱える
-           Task { @MainActor in
+           Task {
                
-               //今日のアラームが設定されているときだけ処理を実行
-               if let todayalarm = AlarmService.shared.getTodayAlarm(){
-                   AlarmService.shared.startMonitoring() // 監視も再スタート
-//                   scheduleDepaturePostSetup()
-               }else{
-                print("💸 No Alarm")
-//                   scheduleDailyAlarmSetup()
-               }
+      
+                   //今日のアラームが設定されているときだけ処理を実行
+                   if let todayalarm = AlarmService.shared.getTodayAlarm(){
+                       AlarmService.shared.startMonitoring() // 監視も再スタート
+    //                   scheduleDepaturePostSetup()
+                   }else{
+                    print("💸 No Alarm")
+    //                   scheduleDailyAlarmSetup()
+                   }
+                   
                
+              
               
                
                // OSにタスクが完了したことを伝える（成功）
@@ -162,23 +184,35 @@ class BackgroundTasks {
                print("✅ Background task completed successfully.")
                
                // 次の日のタスクを再スケジュールするのを忘れない！
-               scheduleDepaturePostSetup()
+               await scheduleDepaturePostSetup()
                
            }
        }
     
-    private func handledDepaturePost(task:BGAppRefreshTask){
+    @MainActor func handledDepaturePost(task:BGAppRefreshTask){
         // タイムリミットが来たら必ずタスクを終了させるための処理
-        task.expirationHandler = {
-            task.setTaskCompleted(success: false)
-        }
+//        task.expirationHandler = {
+//            task.setTaskCompleted(success: false)
+//        }
         
         print("💟 Background task started. posting today post.")
         
         // ここであなたのAlarmServiceのメソッドを呼び出す！
         // MainActorで実行することで、UI関連のプロパティを安全に扱える
         Task {
-
+            print("go task")
+            
+     
+                print("alarm check")
+                guard self.alarmService.getTodayAlarm() != nil else {
+                    print("❌ Error: 実行すべきアラームが見つからず、処理を中断します。")
+                    task.setTaskCompleted(success: false) // タスクを失敗として完了
+                    return
+                    
+               
+            }
+            
+           
             postFailurePost(alarmdata: alarmService.currentAlarm!)
             
             // OSにタスクが完了したことを伝える（成功）
@@ -186,24 +220,49 @@ class BackgroundTasks {
             print("✅ Background task completed successfully.")
             
             // 次の日のタスクを再スケジュールするのを忘れない！
-            scheduleDailyAlarmSetup()
+            await scheduleDailyAlarmSetup()
         }
     }
     
     
     //謝罪画像の投稿
-    private func postFailurePost(alarmdata:AlarmData){
+    @MainActor private func postFailurePost(alarmdata:AlarmData){
         
         var postService = PostService()
         
+        print("start task")
+        
         if alarmdata.isOn{
+            print("have alarm")
             if alarmdata.isWakeup && !alarmdata.isLeave{
                 if let Wakeupimagedata = UserDefaults.standard.object(forKey: "wakeupImageData") as? Data {
                     Task.detached(priority: .background) {
                         do {
                             // 4. 裏でアップロード処理を実行
                             try await postService.uploadPost(imageData: Wakeupimagedata, comment: "準備が終わりませんでした、、、", completion: { _ in
-                                print("a")
+                                print("can uploard")
+                            })
+                            
+                            // 5. (任意) アップロード成功後、裏で何か処理が必要な場合はここで行う
+                            
+                            
+                            
+                            // 例: アプリ全体の投稿リストを更新する通知を送るなど
+                            await MainActor.run {
+                                // alarmService.postsNeedRefresh = true
+                            }
+                            
+                        } catch {
+                            // エラーが発生してもUIは既にないので、コンソールにログを出すなどの対応
+                            print("❌ バックグラウンドでの投稿に失敗しました: \(error.localizedDescription)")
+                        }
+                    }
+                }else{
+                    Task.detached(priority: .background) {
+                        do {
+                            // 4. 裏でアップロード処理を実行
+                            try await postService.uploadPost(imageData: (UIImage(named: "wakeup")?.jpegData(compressionQuality: 0.5))!, comment: "準備が終わりませんでした、、、", completion: { _ in
+                                print("can uploard")
                             })
                             
                             // 5. (任意) アップロード成功後、裏で何か処理が必要な場合はここで行う
@@ -231,7 +290,29 @@ class BackgroundTasks {
                         do {
                             // 4. 裏でアップロード処理を実行
                             try await postService.uploadPost(imageData: hitozichiimagedata, comment: "寝過ごしてしまいました、、", completion: { _ in
-                                print("a")
+                                print("can uploard")
+                            })
+                            
+                            // 5. (任意) アップロード成功後、裏で何か処理が必要な場合はここで行う
+                            
+                            
+                            
+                            // 例: アプリ全体の投稿リストを更新する通知を送るなど
+                            await MainActor.run {
+                                // alarmService.postsNeedRefresh = true
+                            }
+                            
+                        } catch {
+                            // エラーが発生してもUIは既にないので、コンソールにログを出すなどの対応
+                            print("❌ バックグラウンドでの投稿に失敗しました: \(error.localizedDescription)")
+                        }
+                    }
+                }else {
+                    Task.detached(priority: .background) {
+                        do {
+                            // 4. 裏でアップロード処理を実行
+                            try await postService.uploadPost(imageData: (UIImage(named: "wakeup")?.jpegData(compressionQuality: 0.5))!, comment: "寝過ごしてしまいました、、", completion: { _ in
+                                print("can uploard")
                             })
                             
                             // 5. (任意) アップロード成功後、裏で何か処理が必要な場合はここで行う
