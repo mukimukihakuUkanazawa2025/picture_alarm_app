@@ -57,6 +57,7 @@ struct ShowUserStatusView: View {
                 }
                 .padding(.horizontal, 16)
             }
+            Divider()
             Text("起床済み")
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 4) {
@@ -92,6 +93,7 @@ struct ShowUserStatusView: View {
                 }
                 .padding(.horizontal, 16)
             }
+            Divider()
             Text("予定無しor寝坊")
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 4) {
