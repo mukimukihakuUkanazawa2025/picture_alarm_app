@@ -7,6 +7,7 @@
 
 // 自分の投稿情報やアカウント設定を行う画面
 import SwiftUI
+import Kingfisher
 
 struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
@@ -17,7 +18,7 @@ struct ProfileView: View {
     @State private var showFriendRequestView = false
     @State private var showSettingsView = false
     
-
+    
     private let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 2)
     
     // 日付を文字列にフォーマットする
@@ -39,19 +40,30 @@ struct ProfileView: View {
                         // --- プロフィールヘッダー ---
                         VStack(spacing: 12) {
                             Button(action: { showSettingsView = true }) {
-                                AsyncImage(url: URL(string: user.profileImageUrl ?? "")) { image in
-                                    image.resizable().aspectRatio(contentMode: .fill)
-                                } placeholder: {
+                                
+                                if let profileUrlStr = user.profileImageUrl, let profileUrl = URL(string: profileUrlStr) {
+                                    
+                                    KFImage(profileUrl)
+                                        .resizable()
+                                        .cancelOnDisappear(true)
+                                        .cacheOriginalImage()
+                                        .aspectRatio(contentMode: .fill)
+                                        .clipShape(Circle())
+                                        .overlay(alignment: .bottomTrailing) {
+                                            Image(systemName: "square.and.pencil")
+                                                .font(.title)
+                                                .foregroundColor(.white)
+                                        }
+                                        .frame(width: 100, height: 100)
+                                } else {
+                                    
                                     Image(systemName: "person.circle.fill")
-                                        .resizable().foregroundColor(.gray.opacity(0.5))
+                                        .resizable()
+                                        .frame(width: 100, height: 100)
+                                        .foregroundColor(.gray.opacity(0.5))
                                 }
-                                .frame(width: 100, height: 100)
-                                .clipShape(Circle())
-                                .overlay(alignment: .bottomTrailing) {
-                                    Image(systemName: "square.and.pencil")
-                                        .font(.title)
-                                        .foregroundColor(.white)
-                                }
+                                
+            
                             }
                             
                             Text(user.name)
@@ -95,17 +107,17 @@ struct ProfileView: View {
                                     case .failure:
                                         
                                         Color.gray.opacity(0.3)
-                                           
+                                        
                                             .frame(width:160,height:160)
                                             .clipShape(Circle())
                                         
-
+                                        
                                     default:
                                         // 読み込み中はプログレスビュー
                                         ProgressView()
-                                       
+                                        
                                             .frame(width:160,height:160)
-                                  
+                                        
                                     }
                                 }
                                 .aspectRatio(1, contentMode: .fit) // 正方形に
