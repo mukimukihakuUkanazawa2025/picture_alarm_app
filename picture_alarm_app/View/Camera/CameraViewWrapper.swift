@@ -96,7 +96,7 @@ struct CameraViewWrapper: View {
                 CameraImageCheckView(
                     cameraviewmodel: cameraviewmodel,
                     CapturedImage: $capturedImage,
-                    isWakeupnow: alarmService.isWakeupnow
+                    isWakeupnow: alarmService.currentAlarm!.isWakeup
                     )
             }
         }

@@ -80,17 +80,17 @@ struct ContentView: View {
             AlarmStartView()
         }
         .onAppear{
-            if alarmService.isWakeupnow && alarmService.currentAlarm != nil{
-                
-                
-                
-            } else if !alarmService.isWakeupnow && alarmService.currentAlarm != nil{
-                
-                
-            }else{
-                
-                isShowPopover = false
-            }
+//            if alarmService.isWakeupnow && alarmService.currentAlarm != nil{
+//                
+//                
+//                
+//            } else if !alarmService.isWakeupnow && alarmService.currentAlarm != nil{
+//                
+//                
+//            }else{
+//                
+//                isShowPopover = false
+//            }
         }
         
         
@@ -101,20 +101,20 @@ struct ContentView: View {
         
         
         VStack{
-            if alarmService.isWakeupnow && alarmService.currentAlarm != nil{
-                Text("出発時刻")
-                Text(wakeuptime)
-                
-                
-            } else if !alarmService.isWakeupnow && alarmService.currentAlarm != nil{
-                
-                Text("起床時間")
-                Text(leaveTime)
-                
-            }else{
-                Text("アラームが設定されていないよ！")
-                //                isShowAlermStartView = false
-            }
+//            if alarmService.isWakeupnow && alarmService.currentAlarm != nil{
+//                Text("出発時刻")
+//                Text(wakeuptime)
+//                
+//                
+//            } else if !alarmService.isWakeupnow && alarmService.currentAlarm != nil{
+//                
+//                Text("起床時間")
+//                Text(leaveTime)
+//                
+//            }else{
+//                Text("アラームが設定されていないよ！")
+//                //                isShowAlermStartView = false
+//            }r
         }.onAppear{
             settime()
         }

@@ -25,14 +25,16 @@ struct AlarmStartView: View {
         
         NavigationStack{
             VStack{
-                if alarmService.isAlarmOn && !alarmService.isPrepareDone {
-                    AlarmPrepareView()
-                    
+                if alarmService.isAlarmOn{
+                    if !alarmService.currentAlarm!.isWakeup || !alarmService.currentAlarm!.isLeave{
+                        AlarmPrepareView()
+                        
+                    }else{
+                        AlarmDoneView()
+                    }
                 }else{
-                    AlarmDoneView()
+                    Text("アラームが設定されていないよ！")
                 }
-                
-                
                 
             }.onAppear{
                 
@@ -41,7 +43,15 @@ struct AlarmStartView: View {
                 //当日のアラームが設定されていなかったらアラーム待機画面にしない
                 if alarmService.getTodayAlarm() == nil{
                     alarmService.isAlarmOn = false
+                    
+                }else{
+                    alarmService.isAlarmOn = true
+                    
+                    alarmService.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: false, isLeave: false)
+                    
                 }
+                
+                UserDefaults.standard.set(alarmService.isAlarmOn, forKey: "isAlarmOn")
                 
 //                alarmService.isAlarmOn = true
                 
