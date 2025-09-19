@@ -441,7 +441,9 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+
 				DEVELOPMENT_TEAM = 8CG4864C4M;
+
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "picture-alarm-app-Info.plist";
@@ -473,7 +475,9 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+
 				DEVELOPMENT_TEAM = 8CG4864C4M;
+
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "picture-alarm-app-Info.plist";

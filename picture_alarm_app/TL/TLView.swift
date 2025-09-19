@@ -27,86 +27,97 @@ struct TLView: View {
     
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color.black
+                .ignoresSafeArea()
+            
             
             ScrollView {
-                
-                Text("友達一覧")
-                    .font(.title)
-                    .bold()
-                
-                ShowUserStatusView()
-                
-                Rectangle()
-                    .frame(width: .infinity,height: 3)
-                    .foregroundStyle(.gray)
-                    .padding(.vertical)
-                
-                Text("タイムライン")
-                    .font(.title)
-                    .bold()
-                
-                if viewModel.posts.isEmpty {
-                    Text("まだ投稿はありません")
-                        .foregroundStyle(.gray)
+                VStack(alignment:.leading){
+                    Text("みんなの様子")
+                        .font(.title)
+                        .foregroundColor(.white)
+                        .bold()
                         .padding()
-                } else {
                     
-                    VStack(spacing: 16) {
-                        // --- 自分の投稿だけ特別表示 ---
-//                        if let myPost = myLatestPost{
-//                            VStack {
-//                                if let url = myPost.imageUrl.flatMap({ URL(string: $0) }) {
-//                                    AsyncImage(url: url) { phase in
-//                                        switch phase {
-//                                        case .empty:
-//                                            ProgressView()
-//                                                .frame(width: 200, height: 200)
-//                                        case .success(let image):
-//                                            image
-//                                                .resizable()
-//                                                .scaledToFill()
-//                                                .frame(width: 200, height: 200)
-//                                        case .failure:
-//                                            Image(systemName: "photo")
-//                                                .resizable()
-//                                                .scaledToFit()
-//                                                .frame(width: 200, height: 200)
-//                                                .foregroundColor(.gray)
-//                                                .clipShape(Circle())
-//                                        @unknown default:
-//                                            EmptyView()
-//                                        }
-//                                    }
-//                                }
-
-//                                Button(action: {
-//                                    print("共有ボタン tapped")
-//                                }) {
-//                                    Image(systemName: "square.and.arrow.up")
-//                                        .foregroundColor(.white)
-//                                        .padding()
-//                                        .background(Color.gray.opacity(0.5))
-//                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-//                                }
-//                            }
-//                            .padding(.bottom, 20)
-//                        }
-                        
-                        // --- 他人の投稿をリスト表示 ---
-                        
-                        LazyVStack(spacing: 16) {
-                            ForEach(viewModel.posts) { post in
-                                PostRowView(post: post)
-                                    .padding(.horizontal)
-                            }
-                        }
-                        
-                        .padding(.vertical, 8)
-                    }
+                    ShowUserStatusView()
+                        .padding()
+                        .foregroundColor(.white)
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(20)
                 }
-//                    .navigationTitle("タイムライン")
-//                    .navigationBarTitleDisplayMode(.inline)
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundColor(.gray.opacity(0.5))
+                    .padding(.vertical)
+                VStack(alignment:.leading){
+                    Text("タイムライン")
+                        .font(.title)
+                        .foregroundColor(.white)
+                        .bold()
+                        .padding(.horizontal)
+                    
+                    if viewModel.posts.isEmpty {
+                        Text("まだ投稿はありません")
+                            .foregroundStyle(.gray)
+                            .padding()
+                    } else {
+                        
+                        VStack(spacing: 16) {
+                            // --- 自分の投稿だけ特別表示 ---
+                            //                        if let myPost = myLatestPost{
+                            //                            VStack {
+                            //                                if let url = myPost.imageUrl.flatMap({ URL(string: $0) }) {
+                            //                                    AsyncImage(url: url) { phase in
+                            //                                        switch phase {
+                            //                                        case .empty:
+                            //                                            ProgressView()
+                            //                                                .frame(width: 200, height: 200)
+                            //                                        case .success(let image):
+                            //                                            image
+                            //                                                .resizable()
+                            //                                                .scaledToFill()
+                            //                                                .frame(width: 200, height: 200)
+                            //                                        case .failure:
+                            //                                            Image(systemName: "photo")
+                            //                                                .resizable()
+                            //                                                .scaledToFit()
+                            //                                                .frame(width: 200, height: 200)
+                            //                                                .foregroundColor(.gray)
+                            //                                                .clipShape(Circle())
+                            //                                        @unknown default:
+                            //                                            EmptyView()
+                            //                                        }
+                            //                                    }
+                            //                                }
+                            
+                            //                                Button(action: {
+                            //                                    print("共有ボタン tapped")
+                            //                                }) {
+                            //                                    Image(systemName: "square.and.arrow.up")
+                            //                                        .foregroundColor(.white)
+                            //                                        .padding()
+                            //                                        .background(Color.gray.opacity(0.5))
+                            //                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                            //                                }
+                            //                            }
+                            //                            .padding(.bottom, 20)
+                            //                        }
+                            
+                            // --- 他人の投稿をリスト表示 ---
+                            
+                            LazyVStack(spacing: 16) {
+                                ForEach(viewModel.posts) { post in
+                                    PostRowView(post: post)
+                                        .padding(.horizontal)
+                                }
+                            }
+                            
+                            .padding(.vertical, 8)
+                        }
+                    }
+                    //                    .navigationTitle("タイムライン")
+                    //                    .navigationBarTitleDisplayMode(.inline)
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .principal) {

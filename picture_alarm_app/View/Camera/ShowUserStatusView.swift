@@ -37,6 +37,7 @@ struct ShowUserStatusView: View {
                     ForEach(viewModel.isLeaveUsers) { info in
                         VStack{
                             if let profileUrlString = info.user?.profileImageUrl, let url = URL(string: profileUrlString) {
+
                                 
                                 KFImage(url)
                                     .resizable()
@@ -47,6 +48,7 @@ struct ShowUserStatusView: View {
                                     .frame(width: 70, height: 70)
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
                                 
+
                             } else {
                                 Image(systemName: "person").resizable()
                                     .foregroundStyle(.black)
@@ -122,7 +124,7 @@ struct ShowUserStatusView: View {
             }
             Divider().background(Color.gray)
             HStack{
-                Text("予定無しor寝坊のユーザー")
+                Text("未投稿のユーザー")
                     .font(.subheadline)
                     .bold()
                     .padding(.top,4)
