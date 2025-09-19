@@ -80,7 +80,18 @@ struct AlermView: View {
 //                                        .labelsHidden()
                     .foregroundColor(.white)
                     .fontWeight(.bold)
-                                        .padding()
+                                        .padding()//ここから
+                                        .onChange(of: isAlarmOn) { newValue in
+                                                if let alarm = editedAlarm {
+                                                    alarmService.updateAlarm(
+                                                        id: alarm.id,
+                                                        date: selectedDate,
+                                                        wakeUpTime: wakeUpTime,
+                                                        leaveTime: leaveTime,
+                                                        isOn: newValue
+                                                    )
+                                                }
+                                            }//以上ついか
                 Divider()
                     .background(.white)
                 // --- 状態表示文章 ---
@@ -193,6 +204,8 @@ struct AlermView: View {
                     wakeUpTime = editedAlarm?.wakeUpTime ?? wakeUpTime
                     leaveTime = editedAlarm?.leaveTime ?? leaveTime
                     
+                    isAlarmOn = alarms.isOn//追加
+                    
                     print(alarms.wakeUpTime)
                     print(alarms.leaveTime)
                     
@@ -221,6 +234,7 @@ struct AlermView: View {
 //                    editedAlarm = alarms
                     wakeUpTime = alarm.wakeUpTime ?? wakeUpTime
                     leaveTime = alarm.leaveTime ?? leaveTime
+                    isAlarmOn = alarm.isOn//ついか
                     
                     print(alarm.wakeUpTime)
                     print(alarm.leaveTime)
