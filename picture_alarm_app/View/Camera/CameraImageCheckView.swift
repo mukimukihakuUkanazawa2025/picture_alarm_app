@@ -38,7 +38,7 @@ struct CameraImageCheckView: View {
                 Color.black.ignoresSafeArea()
                 
                 VStack(spacing: 20) {
-                    Text(alarmService.isWakeupnow ? "準備間に合ったね！" : "確認してね！")
+                    Text(alarmService.currentAlarm!.isWakeup ? "準備間に合ったね！" : "確認してね！")
                         .font(.title)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -81,7 +81,7 @@ struct CameraImageCheckView: View {
                     Spacer()
                     
                     // 下部ボタン
-                    if alarmService.isWakeupnow {
+                    if alarmService.currentAlarm!.isWakeup {
                         // 出発時のボタン
                         Button(action: {
                             handlePost(isDeparture: true)
@@ -144,10 +144,13 @@ struct CameraImageCheckView: View {
                 image = image.preparingThumbnail(of: targetSize) ?? image
                 
                 if let imageData = image.jpegData(compressionQuality: 0.8) {
-                    defaults.set(nil, forKey: "wakuupImage")
+                   
                     defaults.synchronize()
                     alarmService.isAlarmOn = false
-                    alarmService.isPrepareDone = true
+                    alarmService.currentAlarm?.isLeave = true
+                    defaults.set(nil, forKey: "wakeupImageData")
+                    defaults.set(alarmService.isAlarmOn, forKey: "isAlarmOn")
+                    alarmService.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: true, isLeave: true)
                     alarmService.stopAlarm()
                     dismiss()
                     
@@ -174,7 +177,10 @@ struct CameraImageCheckView: View {
                 
                 // 出発時：アラーム関連の状態をリセットして画面を閉じる
                 alarmService.isAlarmOn = false
-                alarmService.isPrepareDone = true
+                alarmService.currentAlarm?.isLeave = true
+                defaults.set(nil, forKey: "wakeupImageData")
+                defaults.set(alarmService.isAlarmOn, forKey: "isAlarmOn")
+                alarmService.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: true, isLeave: true)
                 alarmService.stopAlarm()
                 dismiss()
                 
@@ -186,9 +192,10 @@ struct CameraImageCheckView: View {
                 
                 if let imageData = image.jpegData(compressionQuality: 0.8) {
                     // 出発時：アラーム関連の状態をリセットして画面を閉じる
-                    defaults.set(imageData, forKey: "wakuupImage")
+                    defaults.set(imageData, forKey: "wakeupImageData")
                     defaults.synchronize()
-                    alarmService.isWakeupnow = true
+                    alarmService.currentAlarm!.isWakeup = true
+                    alarmService.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: true, isLeave: false)
                     alarmService.stopAlarm()
                     dismiss()
                     
@@ -212,9 +219,10 @@ struct CameraImageCheckView: View {
                     }
                 }
             }else{
-                defaults.set(UIImage(named: "person"), forKey: "wakuupImage")
+                defaults.set(UIImage(named: "person"), forKey: "wakeupImageData")
                 defaults.synchronize()
-                alarmService.isWakeupnow = true
+                alarmService.currentAlarm?.isWakeup = true
+                alarmService.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: true, isLeave: false)
                 alarmService.stopAlarm()
                 dismiss()
                 

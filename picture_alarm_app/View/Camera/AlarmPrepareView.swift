@@ -19,13 +19,13 @@ struct AlarmPrepareView: View {
     var body: some View {
         VStack{
             
-            if alarmService.isWakeupnow && alarmService.currentAlarm != nil{
+            if alarmService.currentAlarm!.isWakeup && !alarmService.currentAlarm!.isLeave {
                     
                     DepartureCountdownView(departureTime:  alarmService.currentAlarm!.leaveTime, wakeUpImage: UIImage(systemName: "house"))
                     
                    
 
-            } else if !alarmService.isWakeupnow && alarmService.currentAlarm != nil{
+            } else if !alarmService.currentAlarm!.isWakeup{
                 
                 CameraViewWrapper()
                 
@@ -36,18 +36,24 @@ struct AlarmPrepareView: View {
             
         }.onAppear{
             
-            alarmService.setTodayAlarm()
+            alarmService.fetchAlarms()
             
             //当日のアラームが設定されていなかったらアラーム待機画面にしない
             if alarmService.getTodayAlarm() == nil{
                 alarmService.isAlarmOn = false
+            }else{
+                alarmService.isAlarmOn = true
+                
+                alarmService.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: false, isLeave: false)
+                
             }
+            UserDefaults.standard.set(alarmService.isAlarmOn, forKey: "isAlarmOn")
             
-            alarmService.isAlarmOn = true
             
             let formatter = DateFormatter()
             formatter.dateStyle = .none
             formatter.timeStyle = .medium
+            
             
             if let currentAlarm = alarmService.currentAlarm {
                 
@@ -55,6 +61,7 @@ struct AlarmPrepareView: View {
                 leaveTimeText = formatter.string(for: currentAlarm.leaveTime)!
                 
             }
+            
             
             
             
