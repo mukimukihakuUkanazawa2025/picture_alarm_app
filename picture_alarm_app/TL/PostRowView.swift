@@ -120,6 +120,7 @@ struct PostRowView: View {
                 
                 
                 
+                
             }else{
                 VStack(alignment: .center){
                     Spacer()
