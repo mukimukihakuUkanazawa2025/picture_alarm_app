@@ -1,4 +1,3 @@
-//
 //  ProfileView.swift
 //  picture_alarm_app
 //
@@ -17,6 +16,8 @@ struct ProfileView: View {
     @State private var showAddFriendView = false
     @State private var showFriendRequestView = false
     @State private var showSettingsView = false
+    @State private var selectedPostToDelete: PostInfo?
+    
     
     
     private let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 2)
@@ -107,7 +108,13 @@ struct ProfileView: View {
                                         }
                                         .aspectRatio(1, contentMode: .fit) // 正方形に
                                         .clipped()
+
+                                        .onLongPressGesture {
+                                            selectedPostToDelete = post
+                                        }
                                 }
+
+                                
                                 
 //                                AsyncImage(url: post.imageUrl.flatMap { URL(string: $0) }) { phase in
 //                                    switch phase {
@@ -144,12 +151,28 @@ struct ProfileView: View {
 //                                }
 //                                .aspectRatio(1, contentMode: .fit) // 正方形に
 //                                .clipped()
+
                             }
                         }
                     }
                 }
                 .padding(.horizontal)
             }
+            .alert("投稿を削除", isPresented: .constant(selectedPostToDelete != nil), actions: {
+                Button("キャンセル", role: .cancel) {
+                    selectedPostToDelete = nil
+                }
+                Button("削除", role: .destructive) {
+                    if let postToDelete = selectedPostToDelete {
+                        Task {
+                            await viewModel.deletePost(postToDelete)
+                        }
+                    }
+                    selectedPostToDelete = nil
+                }
+            }, message: {
+                Text("この投稿を完全に削除しますか？")
+            })
             
             .background(.black)
             .foregroundColor(.white)
