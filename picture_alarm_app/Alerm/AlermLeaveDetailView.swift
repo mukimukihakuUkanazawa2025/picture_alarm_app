@@ -15,6 +15,7 @@ struct AlermLeaveDetailView: View {
     @Binding var alarmStatus:alarmStatus
     @Binding var selectedDate:Date
     @Environment(\.dismiss) private var dismiss
+    @Binding var alarmOntoggle:Bool
     
 //    @State private var selectedDate = Date()
     private let calendar = Calendar.current
@@ -39,7 +40,9 @@ struct AlermLeaveDetailView: View {
             
             HStack(spacing: 16) {
                 Button("保存") {
-                    saveAlarm()
+//                    if alarmOntoggle{
+                        saveAlarm()
+                    
                     isShowLeaveDetailView = false
                 }
                 .frame(maxWidth: .infinity)
@@ -86,54 +89,66 @@ struct AlermLeaveDetailView: View {
         print("DEBUG: if文の直前のselectedDateの値 -> \(selectedDate)")
         
         if combinedDate <= combinedLeaveTime {
-            if  Calendar.current.isDate(selectedDate, inSameDayAs: Date()) {
-                if let alarms =  AlarmService.shared.getAlarm(for: selectedDate){
-                    AlarmService.shared.updateAlarm(
-                        id: alarms.id,
-                        date: selectedDate,
-                        wakeUpTime: combinedDate,
-                        leaveTime: combinedLeaveTime,
-                        isOn: true
-                    )
-                } else {
-
-//                    wakeUpTime = combinedDate
-//                    leaveTime = combinedLeaveTime
+            if Date() <= combinedLeaveTime {
+                if alarmOntoggle{
                     
-                    AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime, isOn: true)
+                    
+                    if  Calendar.current.isDate(selectedDate, inSameDayAs: Date()) {
+                        if let alarms =  AlarmService.shared.getAlarm(for: selectedDate){
+                            AlarmService.shared.updateAlarm(
+                                id: alarms.id,
+                                date: selectedDate,
+                                wakeUpTime: combinedDate,
+                                leaveTime: combinedLeaveTime,
+                                isOn: true
+                            )
+                            AlarmService.shared.updateAlarmStatus(id: alarms.id, isOn: true, isWakeup: false, isLeave: false)
+                            
+                            
+                        } else {
+                            
+                            //                    wakeUpTime = combinedDate
+                            //                    leaveTime = combinedLeaveTime
+                            
+                            AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime, isOn: true)
+                        }
+                        
+//                        let background = BackgroundTasks()
+//                        
+//                        background.scheduleDepaturePostSetup()
+                        
+                        print("a")
+                    } else {
+                        if let alarms =  AlarmService.shared.getAlarm(for: selectedDate){
+                            AlarmService.shared.updateAlarm(
+                                id: alarms.id,
+                                date: selectedDate,
+                                wakeUpTime: combinedDate,
+                                leaveTime: combinedLeaveTime,
+                                isOn:false
+                            )
+                        } else {
+                            var newAlarm :AlarmData?
+                            newAlarm?.date = selectedDate
+                            newAlarm?.wakeUpTime = combinedDate
+                            newAlarm?.leaveTime = combinedLeaveTime
+                            AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime,isOn: false)
+                        }
+                        
+                        print("b")
+                    }
+                    
+                    alarmStatus = .setted
+                    
+                    print(AlarmService.shared.getAlarm(for: selectedDate)?.date)
+                    print(AlarmService.shared.getAlarm(for: selectedDate)?.wakeUpTime)
+                    print(AlarmService.shared.getAlarm(for: selectedDate)?.leaveTime)
+                }else{
+                    alarmStatus = .unsetted
                 }
-                
-                let background = BackgroundTasks()
-                
-                background.scheduleDepaturePostSetup()
-                
-                print("a")
             } else {
-                if let alarms =  AlarmService.shared.getAlarm(for: selectedDate){
-                    AlarmService.shared.updateAlarm(
-                        id: alarms.id,
-                        date: selectedDate,
-                        wakeUpTime: combinedDate,
-                        leaveTime: combinedLeaveTime,
-                        isOn:false
-                    )
-                } else {
-                    var newAlarm :AlarmData?
-                    newAlarm?.date = selectedDate
-                    newAlarm?.wakeUpTime = combinedDate
-                    newAlarm?.leaveTime = combinedLeaveTime
-                    AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime,isOn: false)
-                }
-                
-                print("b")
+                alarmStatus = .overtime
             }
-            
-            alarmStatus = .setted
-            
-            print(AlarmService.shared.getAlarm(for: selectedDate)?.date)
-            print(AlarmService.shared.getAlarm(for: selectedDate)?.wakeUpTime)
-            print(AlarmService.shared.getAlarm(for: selectedDate)?.leaveTime)
-
         } else{
             alarmStatus = .error
         }

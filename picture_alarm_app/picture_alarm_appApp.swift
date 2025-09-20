@@ -35,7 +35,7 @@ struct YourApp: App {
     @Environment(\.scenePhase) private var scenePhase
     
     // バックグラウンドタスク管理
-    var backgroundtask = BackgroundTasks()
+//    var backgroundtask = BackgroundTasks()
     
     // Firebase / SwiftData 環境
     @StateObject private var authViewModel = AuthViewModel()
@@ -45,8 +45,8 @@ struct YourApp: App {
         FirebaseApp.configure()
         
         // ===== バックグラウンドタスク登録・スケジュール =====
-        backgroundtask.registerBackgroundTask()
-        backgroundtask.scheduleDailyAlarmSetup()
+//        backgroundtask.registerBackgroundTask()
+//        backgroundtask.scheduleDailyAlarmSetup()
         
         // ===== ナビゲーションバー設定 =====
         let navAppearance = UINavigationBarAppearance()
@@ -95,11 +95,11 @@ struct YourApp: App {
                 .environmentObject(authViewModel)
         }
         .modelContainer(sharedModelContainer)
-        .onChange(of: scenePhase) { oldPhase, newPhase in
-            if newPhase == .background || newPhase == .active{
-                print("App is in background or active. Scheduling daily alarm setup task.")
-                backgroundtask.scheduleDailyAlarmSetup()
-            }
-        }
+//        .onChange(of: scenePhase) { oldPhase, newPhase in
+//            if newPhase == .background {
+//                print("App is in background or active. Scheduling daily alarm setup task.")
+//                backgroundtask.scheduleDailyAlarmSetup()
+//            }
+//        }
     }
 }

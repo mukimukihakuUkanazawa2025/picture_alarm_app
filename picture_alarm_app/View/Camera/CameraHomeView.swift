@@ -19,6 +19,8 @@ struct CameraHomeView: View {
     
     @State var capturedImage: UIImage?
     
+    let onDismissAll: () -> Void
+    
     var body: some View {
         
         let cameraView:CameraView = CameraView(cameraviewmodel: cameraviewmodel)
@@ -55,7 +57,7 @@ struct CameraHomeView: View {
             }.disabled(!cameraviewmodel.isCameraOn)
         }
         .fullScreenCover(isPresented: $isShowImageCheck){
-            CameraImageCheckView(cameraviewmodel: cameraviewmodel, CapturedImage: $capturedImage, isWakeupnow: false)
+            CameraImageCheckView(cameraviewmodel: cameraviewmodel, CapturedImage: $capturedImage, isWakeupnow: false, onDismissAll: onDismissAll)
         }
     }
     
@@ -64,9 +66,9 @@ struct CameraHomeView: View {
 }
 
 
-#Preview {
-    CameraHomeView()
-}
+//#Preview {
+//    CameraHomeView()
+//}
 
 
 

@@ -17,6 +17,10 @@ struct DepartureCountdownView: View {
     
     @State private var remainingTime: TimeInterval = 0
     
+    let onDismissAll: () -> Void
+    
+    @Binding var isShowingSecondModal: Bool
+    
     // Combine のタイマー（毎秒更新）
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
@@ -94,7 +98,7 @@ struct DepartureCountdownView: View {
         // --- 撮影後の確認画面へ遷移 ---
         .fullScreenCover(isPresented: $isShowingCheckView) {
             if let capturedImage = capturedImage {
-                CameraImageCheckView(cameraviewmodel: cameraviewmodel , CapturedImage: $capturedImage, isWakeupnow: true)
+                CameraImageCheckView(cameraviewmodel: cameraviewmodel , CapturedImage: $capturedImage, isWakeupnow: true, onDismissAll: onDismissAll)
             }
         }
         .onAppear {
@@ -129,12 +133,12 @@ struct DepartureCountdownView: View {
     }
 }
 
-#Preview {
-    DepartureCountdownView(
-        departureTime: Date().addingTimeInterval(3600 + 290), // 1時間後
-        wakeUpImage: UIImage(systemName: "person.fill")        // 仮の画像
-    )
-}
+//#Preview {
+//    DepartureCountdownView(
+//        departureTime: Date().addingTimeInterval(3600 + 290), // 1時間後
+//        wakeUpImage: UIImage(systemName: "person.fill")        // 仮の画像
+//    )
+//}
 //import SwiftUI
 //
 //struct DepartureCountdownView: View {

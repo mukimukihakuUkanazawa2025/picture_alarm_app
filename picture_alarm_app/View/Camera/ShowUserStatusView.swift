@@ -124,7 +124,7 @@ struct ShowUserStatusView: View {
             }
             Divider().background(Color.gray)
             HStack{
-                Text("未投稿のユーザー")
+                Text("その他のユーザー")
                     .font(.subheadline)
                     .bold()
                     .padding(.top,4)

@@ -83,20 +83,94 @@ struct AlermView: View {
                     .padding()
                     .onChange(of: isAlarmOn) { newValue in
                         
-                        let calendar = Calendar.current
-                        selectedDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: selectedDate) ?? selectedDate
-                        //                       // 時刻が変更されたら、既存のupdateAlarm関数を呼び出す
-                        if let alarms = alarmService.getAlarm(for: selectedDate){
-                            alarmService.updateAlarm(
-                                id: alarms.id,
-                                date: selectedDate,
-                                wakeUpTime: wakeUpTime,
-                                leaveTime: leaveTime,
-                                isOn: newValue // 現在のトグルの値を渡す
-                            )
+                        
+                        if newValue {
+                            if  Calendar.current.isDate(selectedDate, inSameDayAs: Date()) {
+                                
+                                if let alarms =  AlarmService.shared.getAlarm(for: selectedDate){
+                                    if Date() <= leaveTime{
+                                        AlarmService.shared.updateAlarm(id:  alarms.id, date: selectedDate, wakeUpTime:wakeUpTime, leaveTime: leaveTime, isOn: newValue)
+                                        AlarmService.shared.updateAlarmStatus(id: alarms.id, isOn: newValue, isWakeup: false, isLeave: false)
+                                        alarmstatus = .setted
+                                    } else {
+                                        alarmstatus = .overtime
+                                        isAlarmOn = false
+                                    }
+                                    
+                                } else {
+                                    if Date() <= leaveTime{
+                                        
+                                        AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime, isOn: newValue)
+                                        
+                                        
+//                                        let background = BackgroundTasks()
+//                                        
+//                                        background.scheduleDepaturePostSetup()
+//                                        
+                                        print("a")
+                                        
+                                        alarmstatus = .setted
+                                        
+                                    } else {
+                                        alarmstatus = .overtime
+                                        isAlarmOn = false
+                                    }
+                                    
+                                    if newValue {
+                                        AlarmService.shared.isAlarmOn = true
+                                    } else {
+                                        AlarmService.shared.isAlarmOn = false
+                                        
+                                    }
+                                }
+                                
+                            } else {
+                                if let alarms =  AlarmService.shared.getAlarm(for: selectedDate){
+                                    if Date() <= leaveTime{
+                                        AlarmService.shared.updateAlarmStatus(id: alarms.id, isOn: newValue, isWakeup: false, isLeave: false)
+                                        AlarmService.shared.updateAlarm(id:  alarms.id, date: selectedDate, wakeUpTime:wakeUpTime, leaveTime: leaveTime, isOn: newValue)
+                                        alarmstatus = .setted
+                                    } else {
+                                        alarmstatus = .overtime
+                                        isAlarmOn = false
+                                    }
+                                    
+                                } else {
+                                    if Date() <= leaveTime{
+                                        var newAlarm :AlarmData?
+                                        newAlarm?.date = selectedDate
+                                        newAlarm?.wakeUpTime = wakeUpTime
+                                        newAlarm?.leaveTime = leaveTime
+                                        AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime,isOn: newValue)
+                                        
+                                        alarmstatus = .setted
+                                    } else {
+                                        alarmstatus = .overtime
+                                        isAlarmOn = false
+                                    }
+                                }
+                                
+                                print("b")
+//                                if newValue {
+//                                    alarmstatus = .setted
+//                                } else {
+//                                    alarmstatus = .unsetted
+//                                }
+                            }
                             
+                        }  else{
+                            alarmstatus = .unsetted
                         }
+                        
+                        
+
+
                     }
+
+                        
+
+                       
+                    
                 Divider()
                     .background(.white)
                 // --- 状態表示文章 ---
@@ -145,6 +219,21 @@ struct AlermView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .padding(.horizontal, 16)
                         .padding(.top)
+                    case .overtime :
+                        HStack(alignment: .center){
+                            Spacer()
+                            Image(systemName:"exclamationmark.triangle.fill")
+                                .symbolRenderingMode(.multicolor)
+                            Text("出発時刻が現在時刻を過ぎています！アラームは作動しません！")
+                            Spacer()
+                        }
+                        .padding(20)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.orange.opacity(0.2))
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .padding(.horizontal, 16)
+                        .padding(.top)
                     }
                     
             
@@ -175,7 +264,8 @@ struct AlermView: View {
                     leaveTime: $leaveTime,
                     isShowWakuUpDetailView: $isShowWakuUpDetailView,
                     alarmStatus: $alarmstatus,
-                    selectedDate: $selectedDate
+                    selectedDate: $selectedDate,
+                    alarmOntoggle: $isAlarmOn
                 )
                 .presentationDetents([.fraction(0.75)]) // 下から 3/4 覆う
                 .presentationDragIndicator(.visible)
@@ -187,7 +277,8 @@ struct AlermView: View {
                     leaveTime: $leaveTime,
                     isShowLeaveDetailView: $isShowLeaveDetailView,
                     alarmStatus: $alarmstatus,
-                    selectedDate: $selectedDate
+                    selectedDate: $selectedDate,
+                    alarmOntoggle: $isAlarmOn
                     
                 )
                 .presentationDetents([.fraction(0.75)])
@@ -197,22 +288,37 @@ struct AlermView: View {
             .onAppear {
                 selectedDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: Date()) ?? Date()
                 if let alarms = alarmService.getAlarm(for: selectedDate){
+                    
                     editedAlarm = alarmService.getAlarm(for: selectedDate)
                     wakeUpTime = editedAlarm?.wakeUpTime ?? wakeUpTime
                     leaveTime = editedAlarm?.leaveTime ?? leaveTime
                     
-                    isAlarmOn = alarms.isOn//追加
                     
-                    print(alarms.wakeUpTime)
-                    print(alarms.leaveTime)
+                    if Date() <= leaveTime {
+                        
+                        
+                        isAlarmOn = alarms.isOn//追加
+                        
+                        print(alarms.wakeUpTime)
+                        print(alarms.leaveTime)
+                        
+                        
+                        
+                        alarmstatus = .setted
+                        isAlarmOn = true
+                    }else {
+                        alarmstatus = .unsetted
+ 
+                        isAlarmOn = false
+                    }
                     
-                    alarmstatus = .setted
                 } else {
                     editedAlarm?.date = selectedDate
                     editedAlarm?.wakeUpTime = wakeUpTime
                     editedAlarm?.leaveTime = leaveTime
                     
                     alarmstatus = .unsetted
+                    isAlarmOn = false
                 }
                 
             }
@@ -227,30 +333,35 @@ struct AlermView: View {
                 let calendar = Calendar.current
                 selectedDate = Calendar.current.date(bySettingHour: 12, minute: 0, second: 0, of: selectedDate) ?? selectedDate
                 
-                if let alarm = alarmService.getAlarm(for: selectedDate){
-//                    editedAlarm = alarms
-                    wakeUpTime = alarm.wakeUpTime ?? wakeUpTime
-                    leaveTime = alarm.leaveTime ?? leaveTime
-                    isAlarmOn = alarm.isOn//ついか
+               
                     
-                    print(alarm.wakeUpTime)
-                    print(alarm.leaveTime)
-                    
-                    alarmstatus = .setted
-                } else {
-//                    editedAlarm = AlarmData()
-                    wakeUpTime = calendar.date(bySettingHour: 7, minute: 0, second: 0, of: Date()) ?? Date()
-                    leaveTime = calendar.date(bySettingHour: 8, minute: 0, second: 0, of: Date()) ?? Date()
-                    
-//                    editedAlarm?.date = selectedDate
-//                    editedAlarm?.wakeUpTime = wakeUpTime
-//                    editedAlarm?.leaveTime = leaveTime
-                    
-                    
-                    
-                    alarmstatus = .unsetted
-                }
-                
+                    if let alarm = alarmService.getAlarm(for: selectedDate){
+                        //                    editedAlarm = alarms
+                        wakeUpTime = alarm.wakeUpTime ?? wakeUpTime
+                        leaveTime = alarm.leaveTime ?? leaveTime
+                        isAlarmOn = alarm.isOn//ついか
+                        
+                        print(alarm.wakeUpTime)
+                        print(alarm.leaveTime)
+                        
+                        alarmstatus = .setted
+                    } else {
+                        //                    editedAlarm = AlarmData()
+                        wakeUpTime = calendar.date(bySettingHour: 7, minute: 0, second: 0, of: Date()) ?? Date()
+                        leaveTime = calendar.date(bySettingHour: 8, minute: 0, second: 0, of: Date()) ?? Date()
+                        
+                        //                    editedAlarm?.date = selectedDate
+                        //                    editedAlarm?.wakeUpTime = wakeUpTime
+                        //                    editedAlarm?.leaveTime = leaveTime
+                        
+                        
+                        
+                        alarmstatus = .unsetted
+                    }
+//                }else{
+//                    alarmstatus = .overtime
+//                }
+//                
                
             }
 //            .onChange(of: wakeUpTime) { _ in
@@ -271,6 +382,7 @@ struct AlermView: View {
     // MARK: - 日付表示ユーティリティ
     private var yearString: String {
         let f = DateFormatter()
+        f.locale = Locale(identifier: "ja_JP")
         f.dateFormat = "yyyy年"
         return f.string(from: selectedDate)
     }

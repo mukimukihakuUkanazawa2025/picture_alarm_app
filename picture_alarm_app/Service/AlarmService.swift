@@ -90,6 +90,11 @@ class AlarmService: ObservableObject {
             startMonitoring()
             scheduleNotification(for: alarm)
         }
+        
+        if  Calendar.current.isDate(date, inSameDayAs: Date()) {
+            isAlarmOn = isOn
+            UserDefaults.standard.set(isAlarmOn, forKey: "isAlarmOn")
+        }
     }
     
     /// アラームを更新
@@ -107,8 +112,18 @@ class AlarmService: ObservableObject {
                 saveAndFetchAlarms()
                 startMonitoring()
                 
+                if  Calendar.current.isDate(date, inSameDayAs: Date()) {
+                    isAlarmOn = isOn
+                    UserDefaults.standard.set(isAlarmOn, forKey: "isAlarmOn")
+                }
+                
                 // 通知を再スケジュールする
-                scheduleNotification(for: alarmToUpdate)
+                if alarmToUpdate.isOn {
+                    // 通知を再スケジュールする
+                    scheduleNotification(for: alarmToUpdate)
+                }
+                
+                
             }
     }
     
@@ -127,8 +142,16 @@ class AlarmService: ObservableObject {
                 saveAndFetchAlarms()
                 startMonitoring()
                 
-                // 通知を再スケジュールする
-                scheduleNotification(for: alarmToUpdate)
+                if  Calendar.current.isDate(alarmToUpdate.date, inSameDayAs: Date()) {
+                    isAlarmOn = isOn
+                    UserDefaults.standard.set(isAlarmOn, forKey: "isAlarmOn")
+                }
+                
+                if alarmToUpdate.isOn {
+                    // 通知を再スケジュールする
+                    scheduleNotification(for: alarmToUpdate)
+                }
+                
             }
     }
     
@@ -185,13 +208,6 @@ class AlarmService: ObservableObject {
             return nil
         }
         
-        // 変更点 4: `alarmdata`を`alarms`に変更
-//        if let existingAlarm = alarms.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date)  }) {
-//            return existingAlarm
-//        } else {
-//
-//            return nil
-//        }
     }
     
     /// 今日のアラームを取得
@@ -199,9 +215,13 @@ class AlarmService: ObservableObject {
 
         if let todayalarm = getAlarm(for: Date()) {
             currentAlarm = todayalarm
+            if todayalarm.isOn {
+                isAlarmOn = true
+            }
             return todayalarm
         }else{
             currentAlarm = nil
+            isAlarmOn = false
             return nil
         }
 
@@ -210,9 +230,15 @@ class AlarmService: ObservableObject {
     func setTodayAlarm(){
         if let todayalarm = getAlarm(for: Date()) {
             currentAlarm = todayalarm
+            print("revreverre")
+            if todayalarm.isOn {
+                isAlarmOn = true
+            }
            
         }else{
+            print("adfsd")
             currentAlarm = nil
+            isAlarmOn = false
          
         }
     }
@@ -224,7 +250,7 @@ class AlarmService: ObservableObject {
     
     // 変更点 6: メソッド名を変更し、責務を明確化
     /// 変更を保存し、データを再取得して`alarms`配列を更新する
-    private func saveAndFetchAlarms() {
+    func saveAndFetchAlarms() {
         do {
             try context.save()
 //            fetchAlarms()
@@ -262,106 +288,111 @@ class AlarmService: ObservableObject {
     
     //アラーム時間になったかをチェック
     private func checkAlarmTime() {
-//        guard let alarm = currentAlarm else { return }
-//        
-//        var postService = PostService()
-//        
-//        let now = Date()
-//        var calendar = Calendar.current
-//        
-//        //        if let jstTimeZone = TimeZone(identifier: "Asia/Tokyo") {
-//        //            calendar.timeZone = jstTimeZone
-//        //        }
-//        //
-//        // 日付と時刻を比較
-//        let nowComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: now)
-//        let alarmDateComponents = calendar.dateComponents([.year, .month, .day], from: alarm.date)
-//        let alarmTimeComponents = calendar.dateComponents([.hour, .minute], from: alarm.wakeUpTime)
-//        
-//        // 日付が一致し、時刻も一致したらアラームを鳴らす
-//        if nowComponents.year == alarmDateComponents.year &&
-//            nowComponents.month == alarmDateComponents.month &&
-//            nowComponents.day == alarmDateComponents.day &&
-//            nowComponents.hour == alarmTimeComponents.hour &&
-//            nowComponents.minute == alarmTimeComponents.minute {
-//            startAlarmSound()
-//        }
-//        
+        guard let alarm = currentAlarm else { return }
+        
+        var postService = PostService()
+        
+        let now = Date()
+        var calendar = Calendar.current
+        
+        //        if let jstTimeZone = TimeZone(identifier: "Asia/Tokyo") {
+        //            calendar.timeZone = jstTimeZone
+        //        }
+        //
+        // 日付と時刻を比較
+        let nowComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: now)
+        let alarmDateComponents = calendar.dateComponents([.year, .month, .day], from: alarm.date)
+        let alarmTimeComponents = calendar.dateComponents([.hour, .minute], from: alarm.wakeUpTime)
+        
+        // 日付が一致し、時刻も一致したらアラームを鳴らす
+        if nowComponents.year == alarmDateComponents.year &&
+            nowComponents.month == alarmDateComponents.month &&
+            nowComponents.day == alarmDateComponents.day &&
+            nowComponents.hour == alarmTimeComponents.hour &&
+            nowComponents.minute == alarmTimeComponents.minute {
+            startAlarmSound()
+        }
+        
 
-//        // -----------------------------------------
-//        // 追加: 出発時刻から5分過ぎたか判定
-//        // -----------------------------------------
-//        let fiveMinutesAgo = now.addingTimeInterval(-5 * 60) // 現在時刻から5分前
-//        let leaveComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: alarm.leaveTime)
-//        let fiveMinutesAgoComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: fiveMinutesAgo)
-//        
-//        if leaveComponents.year == fiveMinutesAgoComponents.year &&
-//            leaveComponents.month == fiveMinutesAgoComponents.month &&
-//            leaveComponents.day == fiveMinutesAgoComponents.day &&
-//            leaveComponents.hour == fiveMinutesAgoComponents.hour &&
-//            leaveComponents.minute == fiveMinutesAgoComponents.minute &&
-//            !alarm.isLeave {
-//            
-//            if alarm.isWakeup { // 起床はできている→寝顔写真を自動投稿
-//                print("⏰ 出発時刻から5分過ぎました。寝顔写真を自動投稿します")
-//                
-//                Task {
-//                    if let imageData = UserDefaults.standard.data(forKey: "wakeupImage") {
-//                        do {
-//                            try await postService.uploadPost(imageData: imageData, comment: "寝顔写真", completion: { _ in
-//                                print("wakeup.jpgを投稿しました")
-//                            })
-//                        } catch {
-//                            print("❌ 自動投稿に失敗: \(error)")
-//                        }
-//                    } else {
-//                        print("❌ wakeupImage が見つかりません")
-//                    }
-//                }
-//                
-//            } else { // 起床もできていない→見られたくない写真を自動投稿
-//                print("⏰ 出発時刻から5分過ぎました。顔質写真を自動投稿します")
-//                
-//                Task {
-//                    // 画像を取得（UserDefaults または ViewModel）
-//                    //                       var imageToPost: Data?
-//                    
-//                    // まず EditProfileViewModel の hitozichiImage を利用
-//                    if  let imageToPost = UserDefaults.standard.data(forKey: "hitozichiImage"){
-//                    
-//                    
-//                        let image = UIImage(data:imageToPost)
-//                        
-//                        if let imageData = image!.jpegData(compressionQuality: 0.8) {
-//                            do {
-//                                try await postService.uploadPost(imageData: imageData, comment: "出発前写真", completion: { _ in
-//                                    print("hitozichiImage を投稿しました")
-//                                })
-//                            } catch {
-//                                print("❌ 自動投稿に失敗: \(error)")
-//                            }
-//                        } else {
-//                            print("❌ 投稿する画像がありません")
-//                        }
-//                    }else{
-//                        if let imageData = UIImage(imageLiteralResourceName: "person").jpegData(compressionQuality: 0.8) {
-//                            do {
-//                                try await postService.uploadPost(imageData: imageData, comment: "出発前写真", completion: { _ in
-//                                    print("hitozichiImage を投稿しました")
-//                                })
-//                            } catch {
-//                                print("❌ 自動投稿に失敗: \(error)")
-//                            }
-//                        } else {
-//                            print("❌ 投稿する画像がありません")
-//                        }
-//                    }
-//                    
-//                    
-//                    
-//                }
-//            }
-//        }
+        // -----------------------------------------
+        // 追加: 出発時刻から5分過ぎたか判定
+        // -----------------------------------------
+        let fiveMinutesAgo = now.addingTimeInterval(-0 * 60) // 現在時刻から5分前
+        let leaveComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: alarm.leaveTime)
+        let fiveMinutesAgoComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: fiveMinutesAgo)
+        
+        if leaveComponents.year == fiveMinutesAgoComponents.year &&
+            leaveComponents.month == fiveMinutesAgoComponents.month &&
+            leaveComponents.day == fiveMinutesAgoComponents.day &&
+            leaveComponents.hour == fiveMinutesAgoComponents.hour &&
+            leaveComponents.minute == fiveMinutesAgoComponents.minute &&
+            !alarm.isLeave {
+            
+            if alarm.isWakeup { // 起床はできている→寝顔写真を自動投稿
+                print("⏰ 出発時刻から5分過ぎました。寝顔写真を自動投稿します")
+                
+                Task {
+                    if let imageData = UserDefaults.standard.data(forKey: "wakeupImage") {
+                        do {
+                            try await postService.uploadPost(imageData: imageData, comment: "準備が終わりませんでした、、、", status: .noActions, completion: { _ in
+                                
+                                self.updateAlarm(id: alarm.id, date: alarm.date, wakeUpTime: alarm.wakeUpTime, leaveTime:  alarm.wakeUpTime, isOn: false)
+                                
+                                print("wakeup.jpgを投稿しました")
+                            })
+                        } catch {
+                            print("❌ 自動投稿に失敗: \(error)")
+                        }
+                    } else {
+                        print("❌ wakeupImage が見つかりません")
+                    }
+                }
+                
+            } else { // 起床もできていない→見られたくない写真を自動投稿
+                print("⏰ 出発時刻から5分過ぎました。顔質写真を自動投稿します")
+                
+                Task {
+                    // 画像を取得（UserDefaults または ViewModel）
+                    //                       var imageToPost: Data?
+                    
+                    // まず EditProfileViewModel の hitozichiImage を利用
+                    if  let imageToPost = UserDefaults.standard.data(forKey: "hitozichiImage"){
+                    
+                    
+                        let image = UIImage(data:imageToPost)
+                        
+                        if let imageData = image!.jpegData(compressionQuality: 0.8) {
+                            do {
+                                try await postService.uploadPost(imageData: imageData, comment: "寝坊しましたごめんなさい！", status: .noActions, completion: { _ in
+                                    self.updateAlarm(id: alarm.id, date: alarm.date, wakeUpTime: alarm.wakeUpTime, leaveTime:  alarm.wakeUpTime, isOn: false)
+                                    print("hitozichiImage を投稿しました")
+                                })
+                            } catch {
+                                print("❌ 自動投稿に失敗: \(error)")
+                            }
+                        } else {
+                            print("❌ 投稿する画像がありません")
+                        }
+                    }else{
+                        if let imageData = UIImage(systemName: "person")!.jpegData(compressionQuality: 0.8) {
+                            do {
+                                try await postService.uploadPost(imageData: imageData, comment: "寝坊しましたごめんなさい！", status: .noActions, completion: { _ in
+                                    self.updateAlarm(id: alarm.id, date: alarm.date, wakeUpTime: alarm.wakeUpTime, leaveTime:  alarm.wakeUpTime, isOn: false)
+                                    print("hitozichiImage を投稿しました")
+                                })
+                            } catch {
+                                print("❌ 自動投稿に失敗: \(error)")
+                            }
+                        } else {
+                            print("❌ 投稿する画像がありません")
+                        }
+                    }
+                    
+                    
+                    
+                }
+            }
+        }
 
     }
     
@@ -393,15 +424,18 @@ class AlarmService: ObservableObject {
     
     /// ローカル通知をスケジュール (30秒間音付き)
     func scheduleNotification(for alarm: AlarmData) {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [alarm.id])//以下
+        //以下
+        
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [alarm.id])
 
             guard alarm.isOn else {
                 print("アラームがオフのため、通知はスケジュールされません。")
+               
+//                NotificationManager.shared.removeDeliveredNotifications(withIdentifiers: alarm.id)
                 return
             }//以上
-        if alarm.wakeUpTime == alarm.leaveTime {
-            return
-        }
+        
+       
         
         let content = UNMutableNotificationContent()
         content.title = "アラーム"
@@ -413,7 +447,9 @@ class AlarmService: ObservableObject {
         let timeComponents = calendar.dateComponents([.hour, .minute, .second], from: alarm.wakeUpTime)
         dateComponents.hour = timeComponents.hour
         dateComponents.minute = timeComponents.minute
-        dateComponents.second = timeComponents.second ?? 0
+        dateComponents.second = 0
+        
+        print(dateComponents)
         
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
         

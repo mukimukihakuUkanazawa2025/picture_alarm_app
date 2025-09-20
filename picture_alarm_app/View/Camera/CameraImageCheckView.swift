@@ -14,6 +14,9 @@ struct CameraImageCheckView: View {
     
     @Environment(\.dismiss) private var dismiss
     @Binding var CapturedImage: UIImage?
+    
+    
+    
     var postService = PostService()
     
     let isWakeupnow: Bool
@@ -30,6 +33,8 @@ struct CameraImageCheckView: View {
     }
     
     let defaults = UserDefaults.standard
+    
+    let onDismissAll: () -> Void
     
     var body: some View {
         NavigationView {
@@ -60,7 +65,10 @@ struct CameraImageCheckView: View {
                             .overlay(Circle().stroke(Color.white, lineWidth: 3))
                             .shadow(radius: 10)
                     }
-                    
+                    Text(!alarmService.currentAlarm!.isWakeup ? "出発時間に間に合わなかった場合、この写真が自動投稿されます。" : "")
+                        .font(.caption)
+                        .foregroundColor(.white)
+//                        .padding(.top, 40)
                     //コメントホイールを表示する
                     VStack {
                         Text("コメントを選択")
@@ -129,7 +137,7 @@ struct CameraImageCheckView: View {
                         Button(action: {
                             cameraviewmodel.isCameraOn = true
                             CapturedImage = nil
-                            dismiss()
+                            onDismissAll()
                         }) {
                             Image(systemName: "chevron.left")
                                 .foregroundColor(.white)
@@ -144,6 +152,7 @@ struct CameraImageCheckView: View {
     /// 投稿処理を共通化するメソッド
     private func handlePost(isLeave: Bool) {
         
+        //完璧な人
         if alarmService.currentAlarm!.isWakeup {
             
             if var image = CapturedImage{
@@ -157,9 +166,11 @@ struct CameraImageCheckView: View {
                     alarmService.currentAlarm?.isLeave = true
                     defaults.set(nil, forKey: "wakeupImageData")
                     defaults.set(alarmService.isAlarmOn, forKey: "isAlarmOn")
-                    alarmService.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: true, isLeave: true)
+                    alarmService.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: false, isWakeup: true, isLeave: true)
+                    alarmService.saveAndFetchAlarms()
                     alarmService.stopAlarm()
-                    dismiss()
+                    alarmService.setTodayAlarm()
+                    onDismissAll()
                     
                     Task.detached(priority: .background) {
                         do {
@@ -187,11 +198,16 @@ struct CameraImageCheckView: View {
                 alarmService.currentAlarm?.isLeave = true
                 defaults.set(nil, forKey: "wakeupImageData")
                 defaults.set(alarmService.isAlarmOn, forKey: "isAlarmOn")
-                alarmService.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: true, isLeave: true)
+                alarmService.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: false, isWakeup: true, isLeave: true)
+                alarmService.saveAndFetchAlarms()
                 alarmService.stopAlarm()
-                dismiss()
+                alarmService.setTodayAlarm()
+                onDismissAll()
                 
             }
+            
+            
+            //とりあえず起きた人
         } else {
 
             // 撮影画像はオリジナルとして保存
@@ -222,8 +238,20 @@ struct CameraImageCheckView: View {
                 defaults.synchronize()
                 alarmService.currentAlarm?.isWakeup = true
                 alarmService.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: true, isLeave: false)
+                alarmService.saveAndFetchAlarms()
                 alarmService.stopAlarm()
-                dismiss()
+                alarmService.setTodayAlarm()
+                onDismissAll()
+            }else{
+                defaults.set(nil, forKey: "wakeupImage")
+
+                defaults.synchronize()
+                alarmService.currentAlarm?.isWakeup = true
+                alarmService.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: true, isLeave: false)
+                alarmService.saveAndFetchAlarms()
+                alarmService.stopAlarm()
+                alarmService.setTodayAlarm()
+                onDismissAll()
             }
         }
     }

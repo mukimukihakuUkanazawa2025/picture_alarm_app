@@ -83,8 +83,8 @@ class UserStatusViewModel: ObservableObject {
                 
                 for doc in snapshot.documents {
                     
-                    print(doc.data())
-                    print("----------------------------------------------------")
+//                    print(doc.data())
+//                    print("----------------------------------------------------")
                     
                     // 3. アプリ側でフィルタリングし、各ユーザーの「今日の最新投稿」を1件だけ取り出す
                    
@@ -104,7 +104,7 @@ class UserStatusViewModel: ObservableObject {
                             guard let userId = data["userId"] as? String else { continue }
                           
                             
-                            let status: UserStatus = switch data["stutus"] as? String ?? "" {
+                            let status: UserStatus = switch data["status"] as? String ?? "" {
                             case "noaction":
                                     .noActions
                             case "iswakeup":
