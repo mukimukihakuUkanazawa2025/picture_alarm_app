@@ -89,6 +89,7 @@ struct AlermView: View {
                                 
                                 if let alarms =  AlarmService.shared.getAlarm(for: selectedDate){
                                     if Date() <= leaveTime{
+                                        AlarmService.shared.updateAlarm(id:  alarms.id, date: selectedDate, wakeUpTime:wakeUpTime, leaveTime: leaveTime, isOn: newValue)
                                         AlarmService.shared.updateAlarmStatus(id: alarms.id, isOn: newValue, isWakeup: false, isLeave: false)
                                         alarmstatus = .setted
                                     } else {
@@ -127,7 +128,7 @@ struct AlermView: View {
                                 if let alarms =  AlarmService.shared.getAlarm(for: selectedDate){
                                     if Date() <= leaveTime{
                                         AlarmService.shared.updateAlarmStatus(id: alarms.id, isOn: newValue, isWakeup: false, isLeave: false)
-                                        
+                                        AlarmService.shared.updateAlarm(id:  alarms.id, date: selectedDate, wakeUpTime:wakeUpTime, leaveTime: leaveTime, isOn: newValue)
                                         alarmstatus = .setted
                                     } else {
                                         alarmstatus = .overtime
