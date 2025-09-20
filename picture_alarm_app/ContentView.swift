@@ -51,31 +51,37 @@ struct ContentView: View {
             }
             .tint(Color(hex: "FF8300"))
             .navigationBarBackButtonHidden(true)
-            VStack{
-                Spacer()
-                Button{
-                    isShowAlermStartView = true
-                }label:{
-                    Image(systemName: "camera")
-                        .resizable()
-                        .foregroundStyle(.white)
-                        .scaledToFit()
-                        .scaleEffect(0.5)
-                        .frame(width: 50, height: 50)
-                        .background(.orange)
-                        .clipShape(Circle())
+            
+            // カメラ起動ボタン
+            if !alarmService.isWakeup || !alarmService.isLeave {
+                VStack{
+                    Spacer()
+                    Button{
+                        isShowAlermStartView = true
+                    }label:{
+                        Image(systemName: "camera")
+                            .resizable()
+                            .foregroundStyle(.white)
+                            .scaledToFit()
+                            .scaleEffect(0.5)
+                            .frame(width: 50, height: 50)
+                            .background(.orange)
+                            .clipShape(Circle())
+                        
+                        
+                        
+                    }
+                    .opacity(alarmService.isAlarmOn ? 1 : 0)
+                    .padding(.bottom, 75) // 下から30ポイント上に配置
                     
                     
                     
+//                    .popover(isPresented: .constant(true)) {
+//                        popoverView
+//                            .presentationCompactAdaptation(PresentationAdaptation.popover)
+//                            .offset(y: -75)
+//                    }
                 }
-                .opacity(alarmService.isAlarmOn ? 1 : 0)
-                .padding(.bottom, 75) // 下から30ポイント上に配置
-                
-//                .popover(isPresented: .constant(true)) {
-//                    popoverView
-//                        .presentationCompactAdaptation(PresentationAdaptation.popover)
-//                        .offset(y: -75)
-//                }
             }
             
         }
