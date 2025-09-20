@@ -68,7 +68,7 @@ struct ContentView: View {
                     
                     
                 }
-                .opacity(alarmService.isAlarmOn ? 1 : 0)
+                .opacity(alarmService.isAlarmOn ?? false ? 1 : 0)
                 .padding(.bottom, 75) // 下から30ポイント上に配置
                 
 //                .popover(isPresented: .constant(true)) {
@@ -85,10 +85,28 @@ struct ContentView: View {
                 // このクロージャが呼ばれたら、全ての状態をfalseにする
                 isShowAlermStartView = false
                 isShowSecondView = false
+                
             }
             )
         }
         .onAppear{
+            alarmService.setTodayAlarm()
+            if let alarms = alarmService.getTodayAlarm(){
+                if Date() <= alarms.leaveTime{
+                    if alarms.isOn{
+    //                    isShowPopover = true
+                        alarmService.isAlarmOn  = true
+                    } else {
+                        alarmService.isAlarmOn  = false
+                    }
+                }else{
+                    alarmService.isAlarmOn  = false
+                }
+               
+            }else {
+                alarmService.isAlarmOn  = false
+                
+            }
 //            if alarmService.isWakeupnow && alarmService.currentAlarm != nil{
 //                
 //                
