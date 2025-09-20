@@ -1,4 +1,3 @@
-//
 //  ProfileViewModel.swift
 //  picture_alarm_app
 //
@@ -18,6 +17,7 @@ class ProfileViewModel: ObservableObject {
     @Published var userPosts: [PostInfo] = []
     
     private let userService = UserService.shared
+    private let postService = PostService()
     private let db = Firestore.firestore()
     
     func fetchUserProfile() async {
@@ -54,5 +54,15 @@ class ProfileViewModel: ObservableObject {
                     )
                 }
             }
+    }
+
+    func deletePost(_ post: PostInfo) async {
+        do {
+            try await postService.deletePost(postId: post.id)
+            // UIから投稿を削除
+            userPosts.removeAll { $0.id == post.id }
+        } catch {
+            print("Error deleting post: \(error.localizedDescription)")
+        }
     }
 }

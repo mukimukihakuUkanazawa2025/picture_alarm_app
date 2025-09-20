@@ -1,4 +1,3 @@
-//
 //  ProfileView.swift
 //  picture_alarm_app
 //
@@ -17,6 +16,7 @@ struct ProfileView: View {
     @State private var showAddFriendView = false
     @State private var showFriendRequestView = false
     @State private var showSettingsView = false
+    @State private var selectedPostToDelete: PostInfo?
     
     
     private let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 2)
@@ -87,47 +87,51 @@ struct ProfileView: View {
                         LazyVGrid(columns: columns, spacing: 4) {
                             ForEach(viewModel.userPosts) { post in
                                 
-                                AsyncImage(url: post.imageUrl.flatMap { URL(string: $0) }) { phase in
-                                    switch phase {
-                                    case .success(let image):
-                                        image
-                                            .resizable()
-                                            .frame(width:160,height:160)
-                                            .clipShape(Circle())
-                                            .overlay(alignment: .topLeading) {
-                                                // 日付を画像の上に表示
-                                                Text(formatDate(post.postTime))
-                                                    .font(.subheadline).bold()
-                                                    .padding(4)
-                                                    .background(.white)
-                                                    .foregroundColor(.black)
-                                                    .cornerRadius(4)
-                                                    .padding(4)
-                                            }
-                                    case .failure:
-                                        
-                                        Color.gray.opacity(0.3)
-                                        
-                                            .frame(width:160,height:160)
-                                            .clipShape(Circle())
-                                        
-                                        
-                                    default:
-                                        // 読み込み中はプログレスビュー
-                                        ProgressView()
-                                        
-                                            .frame(width:160,height:160)
-                                        
-                                    }
+                                if let userPostImageUrlStr = post.imageUrl, let userPostImageUrl = URL(string: userPostImageUrlStr) {
+                                    
+                                    KFImage(userPostImageUrl)
+                                        .resizable()
+                                        .cancelOnDisappear(true)
+                                        .cacheOriginalImage()
+                                        .frame(width:160,height:160)
+                                        .clipShape(Circle())
+                                        .overlay(alignment: .topLeading) {
+                                            // 日付を画像の上に表示
+                                            Text(formatDate(post.postTime))
+                                                .font(.subheadline).bold()
+                                                .padding(4)
+                                                .background(.white)
+                                                .foregroundColor(.black)
+                                                .cornerRadius(4)
+                                                .padding(4)
+                                        }
+                                        .aspectRatio(1, contentMode: .fit) // 正方形に
+                                        .clipped()
+                                        .onLongPressGesture {
+                                            selectedPostToDelete = post
+                                        }
                                 }
-                                .aspectRatio(1, contentMode: .fit) // 正方形に
-                                .clipped()
                             }
                         }
                     }
                 }
                 .padding(.horizontal)
             }
+            .alert("投稿を削除", isPresented: .constant(selectedPostToDelete != nil), actions: {
+                Button("キャンセル", role: .cancel) {
+                    selectedPostToDelete = nil
+                }
+                Button("削除", role: .destructive) {
+                    if let postToDelete = selectedPostToDelete {
+                        Task {
+                            await viewModel.deletePost(postToDelete)
+                        }
+                    }
+                    selectedPostToDelete = nil
+                }
+            }, message: {
+                Text("この投稿を完全に削除しますか？")
+            })
             
             .background(.black)
             .foregroundColor(.white)

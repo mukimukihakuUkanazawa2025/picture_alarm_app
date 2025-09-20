@@ -78,4 +78,20 @@ class PostService {
         let storageRef = storage.reference().child("originals/\(UUID().uuidString).jpg")
         _ = try await storageRef.putDataAsync(imageData, metadata: nil)
     }
+
+    func deletePost(postId: String) async throws {
+        // Firestoreの投稿を削除
+        try await db.collection("posts").document(postId).delete()
+
+        // Storageの画像を削除
+        let imageRef = storage.reference().child("posts/\(postId).jpg")
+        try? await imageRef.delete()
+
+        // Storageのサムネイルを削除
+        let thumbnailRef = storage.reference().child("thumbnails/\(postId)_400x400.jpg")
+        try? await thumbnailRef.delete()
+        
+        let originalRef = storage.reference().child("originals/\(postId).jpg")
+        try? await originalRef.delete()
+    }
 }
