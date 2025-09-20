@@ -19,6 +19,7 @@ struct ProfileView: View {
     @State private var selectedPostToDelete: PostInfo?
     
     
+    
     private let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 2)
     
     // 日付を文字列にフォーマットする
