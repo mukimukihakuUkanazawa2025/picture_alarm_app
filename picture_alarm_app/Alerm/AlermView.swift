@@ -92,9 +92,9 @@ struct AlermView: View {
                                 AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: wakeUpTime, leaveTime: leaveTime, isOn: newValue)
                                 
                                 
-                                let background = BackgroundTasks()
-                                
-                                background.scheduleDepaturePostSetup()
+//                                let background = BackgroundTasks()
+//                                
+//                                background.scheduleDepaturePostSetup()
                                 
                                 print("a")
                                 
@@ -214,7 +214,8 @@ struct AlermView: View {
                     leaveTime: $leaveTime,
                     isShowWakuUpDetailView: $isShowWakuUpDetailView,
                     alarmStatus: $alarmstatus,
-                    selectedDate: $selectedDate
+                    selectedDate: $selectedDate,
+                    alarmOntoggle: $isAlarmOn
                 )
                 .presentationDetents([.fraction(0.75)]) // 下から 3/4 覆う
                 .presentationDragIndicator(.visible)
@@ -226,7 +227,8 @@ struct AlermView: View {
                     leaveTime: $leaveTime,
                     isShowLeaveDetailView: $isShowLeaveDetailView,
                     alarmStatus: $alarmstatus,
-                    selectedDate: $selectedDate
+                    selectedDate: $selectedDate,
+                    alarmOntoggle: $isAlarmOn
                     
                 )
                 .presentationDetents([.fraction(0.75)])

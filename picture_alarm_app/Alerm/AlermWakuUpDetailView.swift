@@ -14,6 +14,7 @@ struct AlermWakuUpDetailView: View {
     @Binding var isShowWakuUpDetailView: Bool
     @Binding var alarmStatus:alarmStatus
     @Binding var selectedDate:Date
+    @Binding var alarmOntoggle:Bool
     @Environment(\.dismiss) private var dismiss
     
 //    @State private var selectedDate = Date()
@@ -39,7 +40,10 @@ struct AlermWakuUpDetailView: View {
             
             HStack(spacing: 16) {
                 Button("保存") {
-                    saveAlarm()
+                    if alarmOntoggle{
+                        saveAlarm()
+                    }
+                    
                     isShowWakuUpDetailView = false
                 }
                 .frame(maxWidth: .infinity)
@@ -96,16 +100,19 @@ struct AlermWakuUpDetailView: View {
                             
                         )
                         
+                        AlarmService.shared.updateAlarmStatus(id: alarms.id, isOn: true, isWakeup: false, isLeave: false)
+                        
                     } else {
 
     //                    wakeUpTime = combinedDate
     //                    leaveTime = combinedLeaveTime
                         
                         AlarmService.shared.addAlarm(date: selectedDate, wakeUpTime: combinedDate, leaveTime: combinedLeaveTime, isOn: true)
+//                        AlarmService.shared.updateAlarmStatus(id: alarms.id, isOn: true, isWakeup: false, isLeave: false)
                     }
                     
-                    let background = BackgroundTasks()
-                    background.scheduleDepaturePostSetup()
+//                    let background = BackgroundTasks()
+//                    background.scheduleDepaturePostSetup()
                     
                     print("a")
                 } else {
