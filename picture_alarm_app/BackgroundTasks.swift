@@ -33,7 +33,10 @@ class BackgroundTasks {
        /// バックグラウンドタスクをOSにスケジュール（予約）する
     @MainActor func scheduleDailyAlarmSetup() {
         
-//        AlarmService.shared.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: false, isLeave: false)
+        registerBackgroundTask()
+        
+        AlarmService.shared.updateAlarmStatus(id: alarmService.currentAlarm!.id, isOn: true, isWakeup: false, isLeave: false)
+        
         
         let userDefaults = UserDefaults.standard
                let lastScheduledDateKey = "lastScheduledDate"
@@ -102,6 +105,8 @@ class BackgroundTasks {
     
     //出発時刻にタスクが実行されるようにする
     @MainActor func scheduleDepaturePostSetup() {
+        registerBackgroundTask()
+        
         let now = Date()
         print(now)
         

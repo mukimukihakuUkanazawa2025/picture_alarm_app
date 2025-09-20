@@ -65,7 +65,10 @@ struct CameraImageCheckView: View {
                             .overlay(Circle().stroke(Color.white, lineWidth: 3))
                             .shadow(radius: 10)
                     }
-                    
+                    Text(!alarmService.currentAlarm!.isWakeup ? "出発時間に間に合わなかった場合、この写真が自動投稿されます。" : "")
+                        .font(.caption)
+                        .foregroundColor(.white)
+//                        .padding(.top, 40)
                     //コメントホイールを表示する
                     VStack {
                         Text("コメントを選択")

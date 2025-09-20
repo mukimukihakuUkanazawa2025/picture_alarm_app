@@ -28,4 +28,5 @@ enum alarmStatus {
     case setted
     case unsetted
     case error
+    case overtime
 }
