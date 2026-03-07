@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyBsb-dvV5bfMMlgYIl9EgjRh552RUpJFKk</string>
+	<string>AIzaSyCtX43VwUkEro8MeZ_kvOK7L55gfrbm8UY</string>
 	<key>GCM_SENDER_ID</key>
-	<string>458142882981</string>
+	<string>97584677117</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>app.hakuu.mukimuki.picture-alarm-app-aosuke</string>
+	<string>app.hakuu.mukimuki.picture-alarm-app-test</string>
 	<key>PROJECT_ID</key>
-	<string>hack-u-hitojichi</string>
+	<string>hacku2025-9335f</string>
 	<key>STORAGE_BUCKET</key>
-	<string>hack-u-hitojichi.firebasestorage.app</string>
+	<string>hacku2025-9335f.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:458142882981:ios:254c89df048c3c821a814c</string>
+	<string>1:97584677117:ios:7e7241b20b69cf45347e94</string>
 </dict>
 </plist>
